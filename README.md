@@ -1,6 +1,30 @@
 # InAppKit
 
+[![Swift Package Manager](https://img.shields.io/badge/SPM-Compatible-brightgreen.svg)](https://swift.org/package-manager/)
+[![Platform](https://img.shields.io/badge/Platform-iOS%2017%2B%20%7C%20macOS%2015%2B%20%7C%20watchOS%2010%2B%20%7C%20tvOS%2017%2B-blue.svg)](https://developer.apple.com/)
+[![Swift](https://img.shields.io/badge/Swift-6.1%2B-orange.svg)](https://swift.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 A modern, SwiftUI-native framework that simplifies StoreKit integration with a fluent, chainable API and feature-first approach. Built for iOS 17+, macOS 15+, watchOS 10+, and tvOS 17+.
+
+> 🚀 **InAppKit** - Because in-app purchases shouldn't be complicated.
+
+## 📖 Table of Contents
+
+- [✨ Features](#-features)
+- [🚧 Requirements](#-requirements)
+- [📦 Installation](#-installation)
+- [🚀 Quick Start](#-quick-start)
+- [💡 Examples](#-examples)
+- [📖 Core Concepts](#-core-concepts)
+- [🔐 Type-Safe Premium Gating](#-type-safe-premium-gating)
+- [🎨 Paywall & UI Customization](#-paywall--ui-customization)
+- [🏗️ Architecture](#️-architecture)
+- [🎯 Advanced Usage](#-advanced-usage)
+- [🛠️ Troubleshooting](#️-troubleshooting)
+- [🔒 Privacy & Security](#-privacy--security)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
 
 ## ✨ Features
 
@@ -15,30 +39,43 @@ A modern, SwiftUI-native framework that simplifies StoreKit integration with a f
 - **📱 Cross-Platform** - iOS, macOS, watchOS, tvOS support
 - **🎨 Built-in UI Components** - Premium badges, paywall views, and more
 
-## 🎨 API Design Philosophy
+## 🚧 Requirements
 
-InAppKit offers **two complementary approaches** to configuration:
+- iOS 17.0+ / macOS 15.0+ / watchOS 10.0+ / tvOS 17.0+
+- Xcode 15.0+
+- Swift 6.1+
 
-### Fluent Chainable API 🔗
-**Perfect for:** Simple, linear configurations directly in your view hierarchy
+## 📦 Installation
+
+### Swift Package Manager
+
+Add InAppKit to your project using Xcode:
+
+1. Go to **File → Add Package Dependencies**
+2. Enter the repository URL: `https://github.com/tddworks/InAppKit.git`
+3. Select **Up to Next Major Version** starting from `1.0.0`
+
+Or add it to your `Package.swift`:
+
 ```swift
-ContentView()
-    .withPurchases(products: [Product("com.app.pro", AppFeature.allCases)])
-    .withPaywall { context in CustomPaywall(context) }
-    .withTerms { TermsView() }
+dependencies: [
+    .package(url: "https://github.com/tddworks/InAppKit.git", from: "1.0.0")
+]
 ```
-
-**The fluent chainable API** provides everything you need with clean, readable syntax.
-
----
 
 ## 🚀 Quick Start
 
-### 1. Add to Your Project
+### 1. Define Your Features
 
-See the [Installation](#-installation) section below for detailed setup instructions.
+```swift
+enum AppFeature: String, InAppKit.AppFeature {
+    case multipleAccounts = "multiple_accounts"
+    case advancedSync = "advanced_sync"
+    case prioritySupport = "priority_support"
+}
+```
 
-### 2. Fluent API Setup (Recommended)
+### 2. Configure Your App
 
 ```swift
 import SwiftUI
@@ -65,17 +102,7 @@ struct MyApp: App {
 }
 ```
 
-### 3. Define Your Features
-
-```swift
-enum AppFeature: String, InAppKit.AppFeature {
-    case multipleAccounts = "multiple_accounts"
-    case advancedSync = "advanced_sync"
-    case prioritySupport = "priority_support"
-}
-```
-
-### 4. Gate Premium Features
+### 3. Gate Premium Features
 
 ```swift
 struct ContentView: View {
@@ -112,21 +139,50 @@ struct ContentView: View {
 }
 ```
 
+## 💡 Examples
+
+### Basic Premium Feature
+
+```swift
+Button("Export PDF") {
+    exportToPDF()
+}
+.requiresPurchase(AppFeature.export)
+```
+
+### Conditional Gating
+
+```swift
+Button("Sync Files") {
+    syncFiles()
+}
+.requiresPurchase(AppFeature.cloudSync, when: fileCount > 10)
+```
+
+### Custom Paywall
+
+```swift
+ContentView()
+    .withPurchases(products: [Product("com.app.pro", AppFeature.allCases)])
+    .withPaywall { context in
+        VStack {
+            Text("Unlock \(context.triggeredBy ?? "premium features")")
+            ForEach(context.availableProducts, id: \.self) { product in
+                Button("Buy \(product.displayName)") {
+                    Task { try await InAppKit.shared.purchase(product) }
+                }
+            }
+        }
+    }
+```
+
 ## 📖 Core Concepts
 
 ### Features
 
-Features represent functionality in your app that can be locked behind purchases. Use the `AppFeature` protocol for type-safe feature definitions.
+Features represent functionality in your app that can be locked behind purchases. Use the `AppFeature` protocol for type-safe feature definitions:
 
 ```swift
-// Define features as enums with AppFeature protocol (recommended)
-enum AppFeature: String, InAppKit.AppFeature {
-    case unlimited = "unlimited_storage"
-    case themes = "premium_themes"
-    case export = "pdf_export"
-}
-
-// Use .allCases for convenience
 Product("com.app.pro", AppFeature.allCases)
 ```
 
@@ -155,28 +211,18 @@ Product("com.myapp.yearly", AppFeature.allCases)
 - **Feature Bundles**: Group related features into logical product tiers
 - **Subscription Tiers**: Different subscription levels with different feature sets
 
-### Configuration
+### API Design Philosophy
 
-#### Fluent API Setup
+InAppKit uses a **fluent chainable API** for clean, readable configuration:
 
 ```swift
-// Chain methods directly on your view
 ContentView()
-    .withPurchases(products: [
-        Product("com.app.basic", [AppFeature.themes]),
-        Product("com.app.pro", AppFeature.allCases)
-    ])
-    .withPaywall { context in
-        MyPaywallView(
-            triggeredBy: context.triggeredBy,
-            products: context.availableProducts
-        )
-    }
+    .withPurchases(products: [Product("com.app.pro", AppFeature.allCases)])
+    .withPaywall { context in CustomPaywall(context) }
     .withTerms { TermsView() }
-    .withPrivacy { PrivacyView() }
 ```
 
-## 🎨 Paywall Customization
+## 🎨 Paywall & UI Customization
 
 ### Default Paywall
 
@@ -225,6 +271,29 @@ public struct PaywallContext {
     public let availableProducts: [StoreKit.Product] // Products that can be purchased  
     public let recommendedProduct: StoreKit.Product?  // Best product recommendation
 }
+```
+
+### Built-in UI Components
+
+InAppKit provides several built-in UI components:
+
+- **`PaywallView`** - Modern, animated paywall with product selection
+- **`PurchaseRequiredBadge`** - Premium crown badge overlay  
+- **`TermsPrivacyFooter`** - Configurable footer for terms and privacy
+- **`FeatureRow`** - Styled feature list rows
+- **`ModernProductCard`** - Product selection cards
+
+#### Using UI Components
+
+```swift
+// Add premium badge to any view
+MyCustomView()
+    .withTermsAndPrivacy()
+
+// Use paywall directly
+PaywallView()
+
+// Built-in premium badge appears automatically with .requiresPurchase()
 ```
 
 ## 🔐 Type-Safe Premium Gating
@@ -400,7 +469,9 @@ extension View {
 }
 ```
 
-## 🛡️ Error Handling
+## 🛠️ Troubleshooting
+
+### Error Handling
 
 InAppKit handles errors gracefully and provides debugging information:
 
@@ -416,7 +487,7 @@ if InAppKit.shared.isPurchasing {
 }
 ```
 
-## 🔧 Debugging
+### Debugging
 
 Enable detailed logging to debug StoreKit issues:
 
@@ -450,9 +521,7 @@ InAppKit follows Apple's privacy guidelines:
 - Local feature validation only
 - No analytics or tracking
 
-## 💡 Examples
-
-### Complete Business Example: Photo Editing App
+### Complete Implementation Guide: Photo Editing App
 
 ```swift
 import SwiftUI
@@ -544,108 +613,20 @@ struct ContentView: View {
 }
 ```
 
-## 🚧 Requirements
-
-- iOS 17.0+ / macOS 15.0+ / watchOS 10.0+ / tvOS 17.0+
-- Xcode 15.0+
-- Swift 6.1+
-
-## 📦 Installation
-
-### Swift Package Manager
-
-Add InAppKit to your project using Xcode:
-
-1. Go to **File → Add Package Dependencies**
-2. Enter the repository URL: `https://github.com/tddworks/InAppKit.git`
-3. Select **Up to Next Major Version** starting from `1.0.0`
-
-Or add it to your `Package.swift`:
-
-```swift
-dependencies: [
-    .package(url: "https://github.com/tddworks/InAppKit.git", from: "1.0.0")
-]
-```
-
-## 🎯 Getting Started
-
-### 1. Define Your Features
-
-```swift
-enum AppFeature: String, InAppKit.AppFeature {
-    case premiumFilters = "premium_filters"
-    case cloudStorage = "cloud_storage"
-    case prioritySupport = "priority_support"
-}
-```
-
-### 2. Configure Your App
-
-```swift
-import SwiftUI
-import InAppKit
-
-@main
-struct MyApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .withPurchases(products: [
-                    Product("com.myapp.pro", AppFeature.allCases)
-                ])
-        }
-    }
-}
-```
-
-### 3. Gate Premium Features
-
-```swift
-Button("Premium Action") {
-    performPremiumAction()
-}
-.requiresPurchase(AppFeature.premiumFilters)
-```
-
-## 🎨 UI Components
-
-InAppKit provides several built-in UI components:
-
-- **`PaywallView`** - Modern, animated paywall with product selection
-- **`PurchaseRequiredBadge`** - Premium crown badge overlay  
-- **`TermsPrivacyFooter`** - Configurable footer for terms and privacy
-- **`FeatureRow`** - Styled feature list rows
-- **`ModernProductCard`** - Product selection cards
-
-### Using UI Components
-
-```swift
-// Add premium badge to any view
-MyCustomView()
-    .withTermsAndPrivacy()
-
-// Use paywall directly
-PaywallView()
-
-// Built-in premium badge appears automatically with .requiresPurchase()
-```
-
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+We welcome contributions! Here's how to get started:
 
 ### Development Setup
 
 1. Fork the repository
 2. Clone your fork: `git clone https://github.com/yourusername/InAppKit.git`
 3. Create a feature branch: `git checkout -b feature/amazing-feature`
-4. Make your changes
-5. Add tests for new functionality
-6. Run tests: `swift test`
-7. Commit your changes: `git commit -m 'Add amazing feature'`
-8. Push to your branch: `git push origin feature/amazing-feature`
-9. Open a Pull Request
+4. Make your changes and add tests
+5. Run tests: `swift test`
+6. Commit your changes: `git commit -m 'Add amazing feature'`
+7. Push to your branch: `git push origin feature/amazing-feature`
+8. Open a Pull Request
 
 ### Code Style
 
@@ -654,13 +635,21 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 - Add documentation comments for public APIs
 - Maintain backward compatibility when possible
 
-## 🐛 Bug Reports & Feature Requests
+### 🐛 Bug Reports & Feature Requests
 
-Please use GitHub Issues to report bugs or request features:
+Please use [GitHub Issues](https://github.com/tddworks/InAppKit/issues) to report bugs or request features:
 
 - **Bug Reports**: Include steps to reproduce, expected vs actual behavior
 - **Feature Requests**: Describe the use case and proposed solution
 - **Questions**: Check existing issues first, then create a new discussion
+
+### 🌟 Show Your Support
+
+If InAppKit helps your project, please consider:
+- ⭐ Star this repository
+- 🐛 Report bugs and suggest features
+- 📖 Improve documentation
+- 💬 Share your experience with the community
 
 ## 📄 License
 
@@ -674,4 +663,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+<div align="center">
+
 **InAppKit** - Because in-app purchases shouldn't be complicated. 🚀
+
+Made with ❤️ by the [TDDWorks](https://github.com/tddworks) team
+
+</div>

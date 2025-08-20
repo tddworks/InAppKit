@@ -5,7 +5,7 @@
 [![Swift](https://img.shields.io/badge/Swift-6.1%2B-orange.svg)](https://swift.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A modern, SwiftUI-native framework that simplifies StoreKit integration with a fluent, chainable API and feature-first approach. Built for iOS 17+, macOS 15+, watchOS 10+, and tvOS 17+.
+Add in-app purchases to your SwiftUI app in minutes, not hours. No StoreKit complexity, just simple code that works.
 
 > 🚀 **InAppKit** - Because in-app purchases shouldn't be complicated.
 
@@ -27,18 +27,15 @@ A modern, SwiftUI-native framework that simplifies StoreKit integration with a f
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
 
-## ✨ Features
+## ✨ What You Get
 
-- **🔗 Fluent Chainable API** - Chain configuration methods directly on views
-- **🎯 Feature-First Design** - Define features, not just products
-- **🎨 Customizable Paywalls** - Built-in modern paywall with full customization
-- **🔐 Type-Safe Gating** - `.requiresPurchase()` with intelligent conditions
-- **🎭 Context-Aware** - Smart paywall context based on user actions
-- **⚡ Zero Boilerplate** - Minimal setup, maximum functionality
-- **🔄 Automatic Management** - Transaction listening and state updates
-- **🛡️ Type-Safe** - Full Swift type safety with generics
-- **📱 Cross-Platform** - iOS, macOS, watchOS, tvOS support
-- **🎨 Built-in UI Components** - Premium badges, paywall views, and more
+- **🔗 Simple Setup** - Add `.withPurchases()` to any view and you're done
+- **🎯 Smart Gating** - Use `.requiresPurchase()` on any button or view
+- **🎨 Beautiful Paywalls** - Professional upgrade screens included
+- **⚡ Zero Config** - Works with App Store Connect automatically
+- **🔄 Handles Everything** - Purchases, restoration, validation - all automatic
+- **📱 Works Everywhere** - iOS, macOS, watchOS, tvOS
+- **🎨 Ready-to-Use UI** - Premium badges and upgrade flows included
 
 ## 🚧 Requirements
 
@@ -66,133 +63,104 @@ dependencies: [
 
 ## 🚀 Quick Start
 
-### 1. Define Your Features
-
-```swift
-enum AppFeature: String, InAppKit.AppFeature {
-    case multipleAccounts = "multiple_accounts"
-    case advancedSync = "advanced_sync"
-    case prioritySupport = "priority_support"
-}
-```
-
-### 2. Configure Your App
-
-```swift
-import SwiftUI
-import InAppKit
-
-@main
-struct MyApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .withPurchases(products: [
-                    Product("com.yourapp.pro", AppFeature.allCases)
-                ])
-                .withPaywall { context in
-                    CustomPaywallView(
-                        triggeredBy: context.triggeredBy,
-                        products: context.availableProducts
-                    )
-                }
-                .withTerms { TermsView() }
-                .withPrivacy { PrivacyView() }
-        }
-    }
-}
-```
-
-### 3. Gate Premium Features
-
-```swift
-struct ContentView: View {
-    @State private var syncCount = 0
-    @State private var fileSize = 5
-    
-    var body: some View {
-        VStack {
-            // Simple premium gating
-            Button("Advanced Feature") {
-                performAdvancedAction()
-            }
-            .requiresPurchase(AppFeature.multipleAccounts)
-            
-            // Conditional gating
-            Button("Sync Now") {
-                sync()
-            }
-            .requiresPurchase(AppFeature.advancedSync, when: syncCount > 5)
-            
-            // Usage-based gating
-            Button("Export Large File") {
-                exportFile()
-            }
-            .requiresPurchase(AppFeature.export, when: fileSize > 10.mb)
-            
-            // Smart conditional gating
-            Button("Bulk Operations") {
-                bulkProcess()
-            }
-            .requiresPurchase { syncCount > 100 || fileSize > 50.mb }
-        }
-    }
-}
-```
-
-## 💡 Real-World Examples
-
-### 📸 Photo App: "I want to remove this watermark"
-*User Journey: Free user → sees value → natural upgrade*
-
-```swift
-Button("Remove Watermark") {
-    removeWatermark()
-}
-.requiresPurchase(AppFeature.noWatermark)
-```
-
-**Why This Works**: User created something they love, watermark feels like a barrier to sharing their creation.
-
-### ☁️ Note App: "I have too many notes for free storage"
-*User Journey: Heavy user → hits limit → understands paid value*
-
-```swift
-Button("Save Note") {
-    saveNote()
-}
-.requiresPurchase(AppFeature.unlimitedNotes, when: noteCount > 50)
-```
-
-**Why This Works**: User is already invested, upgrade feels like natural progression.
-
-### 🎨 Design App: "I need this for my business"
-*User Journey: Professional need → sees business features → willing to pay more*
+### 1. Add InAppKit (2 lines)
 
 ```swift
 ContentView()
-    .withPurchases(products: [
-        Product("com.design.freelancer", [AppFeature.clientSharing, AppFeature.brandKit]),
-        Product("com.design.agency", [AppFeature.teamWorkspace, AppFeature.clientPortal, AppFeature.whiteLabel])
-    ])
-    .withPaywall { context in
-        BusinessPaywallView(
-            message: "Unlock professional tools for \(context.triggeredBy ?? "your workflow")",
-            products: context.availableProducts
-        )
-    }
+    .withPurchases(products: [Product("com.yourapp.pro")])
 ```
 
-**Why This Works**: Clear value tiers that match user's professional identity and needs.
-
-## 📖 Core Concepts
-
-### Features
-
-Features represent functionality in your app that can be locked behind purchases. Use the `AppFeature` protocol for type-safe feature definitions:
+### 2. Gate any feature (1 line)
 
 ```swift
-Product("com.app.pro", AppFeature.allCases)
+Button("Premium Feature") { doPremiumThing() }
+    .requiresPurchase()
+```
+
+**That's it!** 🎉 InAppKit handles the rest automatically.
+
+---
+
+### Want More Control?
+
+<details>
+<summary>📋 Define specific features</summary>
+
+```swift
+enum AppFeature: String, InAppKit.AppFeature {
+    case removeAds = "remove_ads"
+    case cloudSync = "cloud_sync"
+    case exportPDF = "export_pdf"
+}
+
+ContentView()
+    .withPurchases(products: [
+        Product("com.yourapp.pro", AppFeature.allCases)
+    ])
+```
+</details>
+
+<details>
+<summary>🎨 Customize the paywall</summary>
+
+```swift
+ContentView()
+    .withPurchases(products: [Product("com.yourapp.pro")])
+    .withPaywall { context in
+        Text("Unlock \(context.triggeredBy ?? "premium features")")
+        // Your custom paywall UI here
+    }
+    .withTerms { TermsView() }
+    .withPrivacy { PrivacyView() }
+```
+</details>
+
+<details>
+<summary>🎯 Smart conditional upgrades</summary>
+
+```swift
+Button("Save Document") { save() }
+    .requiresPurchase(AppFeature.cloudSync, when: documentCount > 5)
+```
+</details>
+
+## 💡 Real-World Examples
+
+### 📸 Photo App: Remove Watermark
+
+```swift
+Button("Export Photo") { exportPhoto() }
+    .requiresPurchase()
+```
+*Result: User sees upgrade screen when they try to export*
+
+### ☁️ Note App: Storage Limit
+
+```swift
+Button("Save Note") { saveNote() }
+    .requiresPurchase(when: noteCount > 50)
+```
+*Result: After 50 notes, upgrade prompt appears*
+
+### 🎨 Design App: Professional Features
+
+```swift
+Button("Export for Client") { exportForClient() }
+    .requiresPurchase(AppFeature.clientTools)
+```
+*Result: Business users see relevant upgrade options*
+
+## 📖 How It Works
+
+### Two Main Concepts
+
+**1. Products** - What users can buy
+**2. Features** - What gets unlocked
+
+```swift
+// Product: "Pro Version" 
+// Features: No ads, cloud sync, export
+Product("com.app.pro", [.noAds, .cloudSync, .export])
 ```
 
 ### Choose Your Monetization Strategy
@@ -272,6 +240,7 @@ ContentView()
     .withPurchases(products: [Product("com.app.pro", AppFeature.allCases)])
     .withPaywall { context in CustomPaywall(context) }
     .withTerms { TermsView() }
+    .withPrivacy { PrivacyView() }
 ```
 
 ## 🎨 Paywall & UI Customization
@@ -350,121 +319,41 @@ PaywallView()
 
 ## 🔐 Type-Safe Premium Gating
 
-### Simple Gating
+### All the Ways to Gate Features
 
 ```swift
-// Feature gating (type-safe with protocols)
-.requiresPurchase()                          // Any premium
-.requiresPurchase("com.app.pro")             // Specific product  
-.requiresPurchase(AppFeature.cloudSync)      // Specific feature
+// Basic - any premium purchase required
+.requiresPurchase()
 
-// Examples in context
-Text("Premium Content")
-    .requiresPurchase()
+// Specific feature required  
+.requiresPurchase(AppFeature.export)
 
-Button("Advanced Action") { }
-    .requiresPurchase(AppFeature.advanced)
+// Only when condition is true
+.requiresPurchase(when: fileCount > 10)
 
-Image("Premium Icon")
-    .requiresPurchase("com.app.pro")
+// Combine feature + condition
+.requiresPurchase(AppFeature.export, when: fileSize > 5.mb)
 ```
 
-### Conditional & Usage-Based Gating
+**What happens:** Premium features show a badge, then display your paywall when tapped.
 
+## 🏗️ Under the Hood
+
+### Main Components
+
+**InAppKit.shared** - Handles all the StoreKit complexity
 ```swift
-// Conditional gating (all variants)
-.requiresPurchase(when: condition)                    // Any premium, conditional
-.requiresPurchase("com.app.pro", when: condition)    // Specific product, conditional
-.requiresPurchase(AppFeature.export, when: condition) // Specific feature, conditional
-
-// Usage-based gating with closures
-.requiresPurchase(when: { count > 100 })             // Closure condition
-.requiresPurchase(AppFeature.export, when: { size > 10.mb }) // Feature + closure
-
-// Convenience methods for common patterns
-.requiresPurchase(whenItemCount: count, exceeds: 100)
-.requiresPurchase(AppFeature.export, whenFileSize: size, exceeds: 50.mb)
-
-// Examples in context
-Button("Export") { }
-    .requiresPurchase(AppFeature.export, when: documentCount > 10)
-
-Button("Advanced Export") { }
-    .requiresPurchase { documentCount > 100 || fileSize > 10.mb }
-
-Button("Large File Export") { }
-    .requiresPurchase(AppFeature.export, whenFileSize: fileSize, exceeds: 50.mb)
-
-Button("Pro Features") { }
-    .requiresPurchase("com.app.pro", when: userLevel > 5)
-```
-
-### Custom Gating Behavior
-
-The premium modifier shows a badge and disables interaction for non-premium users. When tapped, it presents the configured paywall.
-
-### Convenience Features
-
-```swift
-// File size helpers
-let size = 10.mb  // or 10.MB
-let bigSize = 2.gb // Future: support for GB, TB
-
-// Usage-based convenience methods
-.requiresPurchase(whenItemCount: count, exceeds: 100)
-.requiresPurchase(AppFeature.export, whenFileSize: size, exceeds: 50.mb)
-
-// Smart conditional logic
-.requiresPurchase { complexCondition() && anotherCheck() }
-```
-
-## 🏗️ Architecture
-
-### InAppKit
-
-The core singleton that manages all StoreKit operations:
-
-```swift
-// Check purchase status
+// Check what user owns
 InAppKit.shared.hasAnyPurchase
 InAppKit.shared.isPurchased("com.app.pro")
-InAppKit.shared.hasAccess(to: AppFeature.advanced)
 
-// Manual operations
+// Manual purchase (usually not needed)
 await InAppKit.shared.purchase(product)
-await InAppKit.shared.restorePurchases()
 ```
 
-### View Modifiers
-
-- `.withPurchases()` - Start fluent configuration chain
-- `.withPaywall()` - Add paywall to configuration chain
-- `.withTerms()` - Add terms view to configuration chain
-- `.withPrivacy()` - Add privacy view to configuration chain
-- `.requiresPurchase()` - Type-safe premium gating with multiple variants
-
-### Premium Gating API Overview
-
-```swift
-// All available .requiresPurchase() variants
-.requiresPurchase()                                    // Any purchase
-.requiresPurchase("productId")                         // Specific product
-.requiresPurchase(AppFeature.feature)                  // Specific feature
-.requiresPurchase(when: Bool)                         // Conditional any
-.requiresPurchase("productId", when: Bool)            // Conditional product
-.requiresPurchase(AppFeature.feature, when: Bool)     // Conditional feature
-.requiresPurchase(when: () -> Bool)                   // Closure condition
-.requiresPurchase(AppFeature.feature, when: () -> Bool) // Feature + closure
-.requiresPurchase(whenItemCount: Int, exceeds: Int)   // Item count helper
-.requiresPurchase(AppFeature.feature, whenFileSize: Int, exceeds: Int) // File size helper
-```
-
-### Core Types
-
-- `InAppKit` - Main singleton for StoreKit operations
-- `AppFeature` - Protocol for type-safe feature definitions
-- `PaywallContext` - Context information for paywall presentation
-- `ProductConfig` - Product configuration with features
+**Two View Modifiers:**
+- `.withPurchases()` - Set up your products  
+- `.requiresPurchase()` - Gate any feature
 
 ## 🎯 Advanced Features
 

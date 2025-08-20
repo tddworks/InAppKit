@@ -67,6 +67,12 @@ dependencies: [
 
 ```swift
 ContentView()
+    .withPurchases("com.yourapp.pro")
+```
+
+*Or with Product array if you need features:*
+```swift
+ContentView()
     .withPurchases(products: [Product("com.yourapp.pro")])
 ```
 
@@ -105,13 +111,11 @@ ContentView()
 
 ```swift
 ContentView()
-    .withPurchases(products: [Product("com.yourapp.pro")])
+    .withPurchases("com.yourapp.pro")
     .withPaywall { context in
         Text("Unlock \(context.triggeredBy ?? "premium features")")
         // Your custom paywall UI here
     }
-    .withTerms { TermsView() }
-    .withPrivacy { PrivacyView() }
 ```
 </details>
 
@@ -352,8 +356,17 @@ await InAppKit.shared.purchase(product)
 ```
 
 **Two View Modifiers:**
-- `.withPurchases()` - Set up your products  
+- `.withPurchases("product-id")` - Set up your products  
 - `.requiresPurchase()` - Gate any feature
+
+**Available Variants:**
+```swift
+// Simple: Just a product ID
+.withPurchases("com.app.pro")
+
+// Advanced: Products with specific features
+.withPurchases(products: [Product("com.app.pro", AppFeature.allCases)])
+```
 
 ## 🎯 Advanced Features
 

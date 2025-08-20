@@ -15,12 +15,13 @@ A modern, SwiftUI-native framework that simplifies StoreKit integration with a f
 - [🚧 Requirements](#-requirements)
 - [📦 Installation](#-installation)
 - [🚀 Quick Start](#-quick-start)
-- [💡 Examples](#-examples)
+- [💡 Real-World Examples](#-real-world-examples)
 - [📖 Core Concepts](#-core-concepts)
+- [🎯 Choose Your App's Monetization Pattern](#-choose-your-apps-monetization-pattern)
 - [🔐 Type-Safe Premium Gating](#-type-safe-premium-gating)
 - [🎨 Paywall & UI Customization](#-paywall--ui-customization)
 - [🏗️ Architecture](#️-architecture)
-- [🎯 Advanced Usage](#-advanced-usage)
+- [🎯 Advanced Features](#-advanced-features)
 - [🛠️ Troubleshooting](#️-troubleshooting)
 - [🔒 Privacy & Security](#-privacy--security)
 - [🤝 Contributing](#-contributing)
@@ -139,42 +140,50 @@ struct ContentView: View {
 }
 ```
 
-## 💡 Examples
+## 💡 Real-World Examples
 
-### Basic Premium Feature
-
-```swift
-Button("Export PDF") {
-    exportToPDF()
-}
-.requiresPurchase(AppFeature.export)
-```
-
-### Conditional Gating
+### 📸 Photo App: "I want to remove this watermark"
+*User Journey: Free user → sees value → natural upgrade*
 
 ```swift
-Button("Sync Files") {
-    syncFiles()
+Button("Remove Watermark") {
+    removeWatermark()
 }
-.requiresPurchase(AppFeature.cloudSync, when: fileCount > 10)
+.requiresPurchase(AppFeature.noWatermark)
 ```
 
-### Custom Paywall
+**Why This Works**: User created something they love, watermark feels like a barrier to sharing their creation.
+
+### ☁️ Note App: "I have too many notes for free storage"
+*User Journey: Heavy user → hits limit → understands paid value*
+
+```swift
+Button("Save Note") {
+    saveNote()
+}
+.requiresPurchase(AppFeature.unlimitedNotes, when: noteCount > 50)
+```
+
+**Why This Works**: User is already invested, upgrade feels like natural progression.
+
+### 🎨 Design App: "I need this for my business"
+*User Journey: Professional need → sees business features → willing to pay more*
 
 ```swift
 ContentView()
-    .withPurchases(products: [Product("com.app.pro", AppFeature.allCases)])
+    .withPurchases(products: [
+        Product("com.design.freelancer", [AppFeature.clientSharing, AppFeature.brandKit]),
+        Product("com.design.agency", [AppFeature.teamWorkspace, AppFeature.clientPortal, AppFeature.whiteLabel])
+    ])
     .withPaywall { context in
-        VStack {
-            Text("Unlock \(context.triggeredBy ?? "premium features")")
-            ForEach(context.availableProducts, id: \.self) { product in
-                Button("Buy \(product.displayName)") {
-                    Task { try await InAppKit.shared.purchase(product) }
-                }
-            }
-        }
+        BusinessPaywallView(
+            message: "Unlock professional tools for \(context.triggeredBy ?? "your workflow")",
+            products: context.availableProducts
+        )
     }
 ```
+
+**Why This Works**: Clear value tiers that match user's professional identity and needs.
 
 ## 📖 Core Concepts
 
@@ -186,30 +195,73 @@ Features represent functionality in your app that can be locked behind purchases
 Product("com.app.pro", AppFeature.allCases)
 ```
 
-### Multiple Product Tiers
+### Choose Your Monetization Strategy
 
-InAppKit supports sophisticated product tier strategies for your business model:
+InAppKit adapts to how your users think about value, not just technical features:
+
+#### 🎯 "Try Before You Buy" (Freemium)
+*Perfect for: Apps where users need to experience value first*
 
 ```swift
-// Basic Tier - Entry-level features
-Product("com.myapp.basic", [AppFeature.themes, AppFeature.basicExport])
-
-// Pro Tier - Power user features  
-Product("com.myapp.pro", [AppFeature.unlimited, AppFeature.advancedExport, AppFeature.cloudSync])
-
-// Enterprise Tier - All features
-Product("com.myapp.enterprise", AppFeature.allCases)
-
-// Subscription Tiers
-Product("com.myapp.monthly", [AppFeature.premium, AppFeature.support])
-Product("com.myapp.yearly", AppFeature.allCases)
+// Users get core functionality, pay for advanced features
+Product("com.photoapp.pro", [AppFeature.advancedFilters, AppFeature.cloudStorage])
 ```
 
-**Business Use Cases:**
-- **Freemium Model**: Offer basic features free, premium features behind paywall
-- **Good-Better-Best**: Multiple tiers with increasing value proposition
-- **Feature Bundles**: Group related features into logical product tiers
-- **Subscription Tiers**: Different subscription levels with different feature sets
+**User Mental Model**: *"I love this app, now I want more powerful features"*
+- ✅ Users understand the upgrade value
+- ✅ Natural conversion from free to paid
+- ✅ Low barrier to entry
+
+#### 🏆 "Good, Better, Best" (Tiered Value)
+*Perfect for: Different user types with different needs*
+
+```swift
+// Starter: Casual users
+Product("com.designapp.starter", [AppFeature.basicTemplates, AppFeature.export])
+
+// Professional: Power users  
+Product("com.designapp.pro", [AppFeature.premiumTemplates, AppFeature.advancedExport, AppFeature.teamSharing])
+
+// Enterprise: Teams & organizations
+Product("com.designapp.enterprise", AppFeature.allCases)
+```
+
+**User Mental Model**: *"I know what level of user I am, show me my tier"*
+- ✅ Clear value differentiation
+- ✅ Room for users to grow
+- ✅ Predictable pricing psychology
+
+#### 📦 "Feature Packs" (Bundled Solutions)
+*Perfect for: Specialized workflows and use cases*
+
+```swift
+// Content Creator Pack
+Product("com.videoapp.creator", [AppFeature.advancedEditing, AppFeature.exportFormats, AppFeature.musicLibrary])
+
+// Business Pack
+Product("com.videoapp.business", [AppFeature.branding, AppFeature.analytics, AppFeature.teamWorkspace])
+```
+
+**User Mental Model**: *"I need tools for my specific workflow"*
+- ✅ Solves complete user problems
+- ✅ Higher perceived value
+- ✅ Targets specific personas
+
+#### ⏰ "Ongoing Value" (Subscriptions)
+*Perfect for: Services that provide continuous value*
+
+```swift
+// Monthly: Try it out
+Product("com.cloudapp.monthly", [AppFeature.cloudSync, AppFeature.prioritySupport])
+
+// Annual: Committed users
+Product("com.cloudapp.annual", [AppFeature.cloudSync, AppFeature.prioritySupport, AppFeature.advancedFeatures])
+```
+
+**User Mental Model**: *"I'm paying for ongoing service and updates"*
+- ✅ Matches recurring value delivery
+- ✅ Lower monthly commitment
+- ✅ Incentivizes annual savings
 
 ### API Design Philosophy
 
@@ -414,7 +466,7 @@ await InAppKit.shared.restorePurchases()
 - `PaywallContext` - Context information for paywall presentation
 - `ProductConfig` - Product configuration with features
 
-## 🎯 Advanced Usage
+## 🎯 Advanced Features
 
 ### Multiple Product Tiers in Practice
 
@@ -521,7 +573,117 @@ InAppKit follows Apple's privacy guidelines:
 - Local feature validation only
 - No analytics or tracking
 
-### Complete Implementation Guide: Photo Editing App
+## 🎯 Choose Your App's Monetization Pattern
+
+### 📱 App Type: What Problem Do You Solve?
+
+#### 🎨 **Creative Apps** (Photo, Video, Design)
+**User Mindset**: *"I want to create something amazing"*
+
+```swift
+// Problem: User creates something, wants to share/export without limitations
+enum CreativeFeature: String, InAppKit.AppFeature {
+    case removeWatermark = "no_watermark"
+    case hdExport = "hd_export"
+    case premiumFilters = "premium_filters"
+    case cloudStorage = "cloud_storage"
+}
+
+// Solution: Let them create first, then offer enhancement
+ContentView()
+    .withPurchases(products: [
+        Product("com.creative.pro", CreativeFeature.allCases)
+    ])
+    .withPaywall { context in
+        CreativePaywallView(triggeredBy: context.triggeredBy)
+    }
+```
+
+#### 📊 **Productivity Apps** (Notes, Tasks, Documents)
+**User Mindset**: *"I need this to work better/faster"*
+
+```swift
+// Problem: User accumulates data, needs more power/space
+enum ProductivityFeature: String, InAppKit.AppFeature {
+    case unlimitedItems = "unlimited_items"
+    case advancedSearch = "advanced_search"
+    case teamSync = "team_sync"
+    case prioritySync = "priority_sync"
+}
+
+// Solution: Usage-based upgrades feel natural
+Button("Add Project") {
+    addProject()
+}
+.requiresPurchase(ProductivityFeature.unlimitedItems, when: projectCount > 5)
+```
+
+#### 🎮 **Entertainment Apps** (Games, Media, Social)
+**User Mindset**: *"I want more fun/content"*
+
+```swift
+// Problem: User enjoys experience, wants more
+enum EntertainmentFeature: String, InAppKit.AppFeature {
+    case premiumContent = "premium_content"
+    case noAds = "ad_free"
+    case earlyAccess = "early_access"
+    case specialFeatures = "special_features"
+}
+
+// Solution: Offer "more of what they love"
+ContentView()
+    .withPurchases(products: [
+        Product("com.game.premium", EntertainmentFeature.allCases)
+    ])
+```
+
+#### 💼 **Business Apps** (CRM, Finance, Analytics)
+**User Mindset**: *"I need this for my business success"*
+
+```swift
+// Problem: User needs professional features for work
+enum BusinessFeature: String, InAppKit.AppFeature {
+    case teamAccounts = "team_accounts"
+    case advancedReports = "advanced_reports"
+    case apiAccess = "api_access"
+    case prioritySupport = "priority_support"
+}
+
+// Solution: Clear business tiers
+ContentView()
+    .withPurchases(products: [
+        Product("com.business.professional", [BusinessFeature.advancedReports, BusinessFeature.prioritySupport]),
+        Product("com.business.enterprise", BusinessFeature.allCases)
+    ])
+```
+
+### 🧠 User Psychology Patterns
+
+#### "I'm Invested" Pattern
+```swift
+// User has data/content → natural to protect/enhance it
+.requiresPurchase(AppFeature.backup, when: userContentCount > 20)
+```
+
+#### "I'm Professional" Pattern  
+```swift
+// User identity drives purchase → business features feel necessary
+.requiresPurchase(AppFeature.clientSharing, when: isBusinessUser)
+```
+
+#### "I Hit a Wall" Pattern
+```swift
+// User reaches limitation → upgrade removes friction
+.requiresPurchase(AppFeature.moreStorage, when: storageUsed > freeLimit)
+```
+
+#### "I Want More" Pattern
+```swift
+// User enjoys free features → wants enhanced experience
+.requiresPurchase(AppFeature.premiumContent)
+```
+
+### Complete Implementation: Photo Editing App
 
 ```swift
 import SwiftUI

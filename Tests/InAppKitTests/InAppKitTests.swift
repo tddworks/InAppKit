@@ -26,10 +26,28 @@ struct InAppKitTests {
                 Product("com.test.pro", features: [TestFeature.sync, TestFeature.export]),
                 Product("com.test.premium", features: [TestFeature.premium])
             ])
-        
+
         #expect(config.productConfigs.count == 2)
         #expect(config.productConfigs[0].id == "com.test.pro")
         #expect(config.productConfigs[1].id == "com.test.premium")
+    }
+
+    @Test @MainActor func testVariadicFluentConfiguration() async throws {
+        let config = StoreKitConfiguration()
+            .withPurchases("com.test.pro1", "com.test.pro2")
+
+        #expect(config.productConfigs.count == 2)
+        #expect(config.productConfigs[0].id == "com.test.pro1")
+        #expect(config.productConfigs[1].id == "com.test.pro2")
+    }
+
+    @Test @MainActor func testSimpleProductConfiguration() async throws {
+        let config = StoreKitConfiguration()
+            .withPurchases(products: [Product("com.test.simple")])
+
+        #expect(config.productConfigs.count == 1)
+        #expect(config.productConfigs.first?.id == "com.test.simple")
+        #expect(config.productConfigs.first?.features.isEmpty == true)
     }
     
     @Test @MainActor func testPaywallConfiguration() async throws {

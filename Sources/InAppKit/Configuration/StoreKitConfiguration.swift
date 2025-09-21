@@ -28,10 +28,23 @@ public class StoreKitConfiguration {
         productConfigs.append(config)
         return self
     }
+
+    /// Configure purchases with multiple product IDs (variadic)
+    public func withPurchases(_ productIds: String...) -> StoreKitConfiguration {
+        let configs = productIds.map { InternalProductConfig(id: $0, features: []) }
+        productConfigs.append(contentsOf: configs)
+        return self
+    }
     
     /// Configure purchases with features
     public func withPurchases<T: Hashable & Sendable>(products: [ProductConfig<T>]) -> StoreKitConfiguration {
         productConfigs.append(contentsOf: products.map { InternalProductConfig(id: $0.id, features: $0.features.map(AnyHashable.init)) })
+        return self
+    }
+
+    /// Configure purchases with simple products (no features)
+    public func withPurchases(products: [ProductConfig<String>]) -> StoreKitConfiguration {
+        productConfigs.append(contentsOf: products.map { InternalProductConfig(id: $0.id, features: []) })
         return self
     }
     
@@ -162,11 +175,26 @@ public extension View {
             .withPurchases(products: products)
         return ChainableStoreKitView(content: self, config: config)
     }
+
+    /// Start fluent API chain with simple products (no features)
+    func withPurchases(products: [ProductConfig<String>]) -> ChainableStoreKitView<Self> {
+        let config = StoreKitConfiguration()
+            .withPurchases(products: products)
+        return ChainableStoreKitView(content: self, config: config)
+    }
     
     /// Start fluent API chain with single product
     func withPurchases(_ productId: String) -> ChainableStoreKitView<Self> {
         let config = StoreKitConfiguration()
             .withPurchases(productId)
+        return ChainableStoreKitView(content: self, config: config)
+    }
+
+    /// Start fluent API chain with multiple product IDs (variadic)
+    func withPurchases(_ productIds: String...) -> ChainableStoreKitView<Self> {
+        let config = StoreKitConfiguration()
+        let configs = productIds.map { InternalProductConfig(id: $0, features: []) }
+        config.productConfigs.append(contentsOf: configs)
         return ChainableStoreKitView(content: self, config: config)
     }
 }

@@ -34,6 +34,11 @@ public struct InternalProductConfig: @unchecked Sendable {
 
 // MARK: - Convenience Functions for Product Creation
 
+// Simple product without features (most common case)
+public func Product(_ id: String) -> ProductConfig<String> {
+    ProductConfig(id, features: [])
+}
+
 // New fluent API convenience functions
 public func Product<T: Hashable & Sendable>(_ id: String, features: [T]) -> ProductConfig<T> {
     ProductConfig(id, features: features)

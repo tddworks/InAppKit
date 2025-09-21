@@ -70,10 +70,22 @@ ContentView()
     .withPurchases("com.yourapp.pro")
 ```
 
-*Or with Product array if you need features:*
+*Or with multiple product IDs:*
+```swift
+ContentView()
+    .withPurchases("com.yourapp.pro1", "com.yourapp.pro2")
+```
+
+*Or with Product array (simple):*
 ```swift
 ContentView()
     .withPurchases(products: [Product("com.yourapp.pro")])
+```
+
+*Or with Product array if you need features:*
+```swift
+ContentView()
+    .withPurchases(products: [Product("com.yourapp.pro", features: [MyFeature.sync, MyFeature.export])])
 ```
 
 ### 2. Gate any feature (1 line)
@@ -363,6 +375,9 @@ await InAppKit.shared.purchase(product)
 ```swift
 // Simple: Just a product ID
 .withPurchases("com.app.pro")
+
+// Multiple products: Variadic syntax
+.withPurchases("com.app.pro1", "com.app.pro2")
 
 // Advanced: Products with specific features
 .withPurchases(products: [Product("com.app.pro", AppFeature.allCases)])

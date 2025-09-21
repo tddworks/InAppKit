@@ -85,18 +85,8 @@ public class StoreKitConfiguration {
     // MARK: - Internal Setup
     
     internal func setup() async {
-        let productIds = productConfigs.map { $0.id }
-        
-        // Register features
-        for config in productConfigs {
-            for feature in config.features {
-                InAppKit.shared.registerFeature(feature, productIds: [config.id])
-            }
-        }
-        
-        // Load products
-        await InAppKit.shared.loadProducts(productIds: productIds)
-        InAppKit.shared.isInitialized = true
+        // Use the existing InAppKit.initialize method which handles both features and marketing info
+        await InAppKit.shared.initialize(with: productConfigs)
     }
 }
 

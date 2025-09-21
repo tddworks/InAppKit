@@ -8,6 +8,40 @@
 import SwiftUI
 import StoreKit
 
+// MARK: - Styling Constants
+
+private enum CardStyle {
+    static let cornerRadius: CGFloat = 14
+    static let horizontalPadding: CGFloat = 20
+    static let verticalPadding: CGFloat = 16
+    static let contentSpacing: CGFloat = 16
+    static let contentVerticalSpacing: CGFloat = 4
+    static let featuresSpacing: CGFloat = 2
+    static let featuresTopPadding: CGFloat = 2
+
+    static let selectionIndicatorSize: CGFloat = 20
+    static let selectionIndicatorFillSize: CGFloat = 10
+    static let selectionIndicatorStroke: CGFloat = 2
+    static let selectedStrokeWidth: CGFloat = 2
+    static let unselectedStrokeWidth: CGFloat = 1
+
+    static let selectedScale: CGFloat = 1.02
+    static let animationDuration: Double = 0.15
+
+    // Font sizes
+    static let titleFontSize: CGFloat = 16
+    static let descriptionFontSize: CGFloat = 13
+    static let priceFontSize: CGFloat = 18
+    static let billingPeriodFontSize: CGFloat = 12
+    static let badgeFontSize: CGFloat = 10
+    static let savingsFontSize: CGFloat = 10
+    static let featureFontSize: CGFloat = 11
+
+    // Badge styling
+    static let badgeHorizontalPadding: CGFloat = 8
+    static let badgeVerticalPadding: CGFloat = 2
+}
+
 struct PurchaseOptionCard: View {
     let product: Product
     let isSelected: Bool
@@ -53,13 +87,13 @@ struct PurchaseOptionCard: View {
                 // Add trial info if available
                 if let intro = subscription.introductoryOffer,
                    intro.paymentMode == .freeTrial {
-                    let trialLength = periodText(intro.period)
+                    let trialLength = periodText(intro.period, style: .descriptive)
                     description += "\(trialLength) free trial • "
                 }
 
                 // Add subscription period
                 let period = subscription.subscriptionPeriod
-                description += "\(periodDescription(period)) subscription"
+                description += "\(periodText(period, style: .billing)) subscription"
 
                 return description
             }
@@ -77,7 +111,7 @@ struct PurchaseOptionCard: View {
         switch product.type {
         case .autoRenewable:
             if let subscription = product.subscription {
-                return periodText(subscription.subscriptionPeriod)
+                return periodText(subscription.subscriptionPeriod, style: .billing)
             }
             return "Subscription"
         case .nonConsumable:
@@ -89,209 +123,63 @@ struct PurchaseOptionCard: View {
         }
     }
 
-    private func periodDescription(_ period: Product.SubscriptionPeriod) -> String {
+    private func periodText(_ period: Product.SubscriptionPeriod, style: PeriodTextStyle = .billing) -> String {
         let unit = period.unit
         let value = period.value
 
-        switch unit {
-        case .day:
-            return value == 1 ? "Daily" : "\(value)-day"
-        case .week:
-            return value == 1 ? "Weekly" : "\(value)-week"
-        case .month:
-            return value == 1 ? "Monthly" : "\(value)-month"
-        case .year:
-            return value == 1 ? "Annual" : "\(value)-year"
-        @unknown default:
-            return "Periodic"
+        switch style {
+        case .billing:
+            switch unit {
+            case .day:
+                return value == 1 ? "Daily" : "\(value)-day"
+            case .week:
+                return value == 1 ? "Weekly" : "\(value)-week"
+            case .month:
+                return value == 1 ? "Monthly" : "\(value)-month"
+            case .year:
+                return value == 1 ? "Annual" : "\(value)-year"
+            @unknown default:
+                return "Periodic"
+            }
+        case .descriptive:
+            switch unit {
+            case .day:
+                return value == 1 ? "Daily" : "Every \(value) days"
+            case .week:
+                return value == 1 ? "Weekly" : "Every \(value) weeks"
+            case .month:
+                return value == 1 ? "Monthly" : "Every \(value) months"
+            case .year:
+                return value == 1 ? "Yearly" : "Every \(value) years"
+            @unknown default:
+                return "Periodic"
+            }
         }
     }
 
-    private func periodText(_ period: Product.SubscriptionPeriod) -> String {
-        let unit = period.unit
-        let value = period.value
-
-        switch unit {
-        case .day:
-            return value == 1 ? "Daily" : "Every \(value) days"
-        case .week:
-            return value == 1 ? "Weekly" : "Every \(value) weeks"
-        case .month:
-            return value == 1 ? "Monthly" : "Every \(value) months"
-        case .year:
-            return value == 1 ? "Yearly" : "Every \(value) years"
-        @unknown default:
-            return "Periodic"
-        }
+    private enum PeriodTextStyle {
+        case billing     // "Monthly", "Annual"
+        case descriptive // "Every month", "Every year"
     }
 
     var body: some View {
-        Button(action: onSelect) {
-            HStack(spacing: 16) {
-                // Enhanced selection indicator
-                ZStack {
-                    Circle()
-                        .stroke(isSelected ? Color.blue : Color.gray.opacity(0.3), lineWidth: 2)
-                        .frame(width: 20, height: 20)
-                        .background(
-                            Circle()
-                                .fill(isSelected ? Color.blue.opacity(0.1) : Color.clear)
-                        )
-                    
-                    if isSelected {
-                        Circle()
-                            .fill(Color.blue)
-                            .frame(width: 10, height: 10)
-                    }
-                }
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text(product.displayName)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.primary)
-
-                        if let badge = badge {
-                            Text(badge)
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 2)
-                                .background(
-                                    Capsule()
-                                        .fill(badge.lowercased().contains("popular") ? Color.orange : Color.blue)
-                                )
-                        }
-
-                        Spacer()
-                    }
-
-                    Text(productDescription)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.secondary)
-
-                    // Show key features if provided
-                    if let features = features, !features.isEmpty {
-                        VStack(alignment: .leading, spacing: 2) {
-                            ForEach(features.prefix(2), id: \.self) { feature in
-                                HStack(spacing: 4) {
-                                    Text("•")
-                                        .foregroundColor(.secondary)
-                                        .font(.system(size: 11))
-                                    Text(feature)
-                                        .font(.system(size: 11))
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                        .padding(.top, 2)
-                    }
-                }
-
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text(product.displayPrice)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.primary)
-
-                    if let savings = savings {
-                        Text(savings)
-                            .font(.system(size: 10, weight: .semibold))
-                            .foregroundColor(.green)
-                    }
-
-                    Text(billingPeriod)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.secondary)
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(isSelected ? Color.blue.opacity(0.06) : Color(NSColor.controlBackgroundColor))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(isSelected ? Color.blue.opacity(0.4) : Color.gray.opacity(0.15), lineWidth: isSelected ? 2 : 1)
-                    )
-            )
-        }
-        .buttonStyle(PlainButtonStyle())
-        .scaleEffect(isSelected ? 1.02 : 1.0)
-        .animation(.easeInOut(duration: 0.15), value: isSelected)
+        PurchaseOptionCardView(
+            title: product.displayName,
+            description: productDescription,
+            price: product.displayPrice,
+            billingPeriod: billingPeriod,
+            badge: badge,
+            features: features,
+            savings: savings,
+            isSelected: isSelected,
+            onSelect: onSelect
+        )
     }
 }
 
-// MARK: - Preview
+// MARK: - Shared UI Component
 
-#if DEBUG
-#Preview("Purchase Option Cards") {
-    VStack(spacing: 16) {
-        Text("Purchase Option Cards")
-            .font(.title2.bold())
-            .padding(.bottom)
-
-        Text("Real PurchaseOptionCard Components")
-            .font(.caption)
-            .foregroundColor(.secondary)
-            .padding(.bottom, 8)
-
-        VStack(spacing: 12) {
-            // Visual representation showing the real component structure
-            Group {
-                // Monthly Plan - Unselected
-                PurchaseOptionCardDemo(
-                    title: "Pro Monthly",
-                    description: "7 days free trial • Monthly subscription",
-                    price: "$9.99",
-                    billingPeriod: "Monthly",
-                    badge: nil,
-                    features: ["Cloud sync", "Premium filters"],
-                    savings: nil,
-                    isSelected: false
-                )
-
-                // Annual Plan - Selected with badge and savings
-                PurchaseOptionCardDemo(
-                    title: "Pro Annual",
-                    description: "Annual subscription • Auto-renewable",
-                    price: "$99.99",
-                    billingPeriod: "Yearly",
-                    badge: "Most Popular",
-                    features: ["Cloud sync", "Premium filters", "Priority support"],
-                    savings: "Save 30%",
-                    isSelected: true
-                )
-
-                // Lifetime Plan - Unselected with badge
-                PurchaseOptionCardDemo(
-                    title: "Pro Lifetime",
-                    description: "One-time purchase • Lifetime access",
-                    price: "$199.99",
-                    billingPeriod: "Lifetime",
-                    badge: "Best Value",
-                    features: ["All features included", "Lifetime updates"],
-                    savings: nil,
-                    isSelected: false
-                )
-            }
-        }
-
-        Text("Note: Uses same visual structure as real PurchaseOptionCard")
-            .font(.caption2)
-            .foregroundColor(.secondary)
-            .multilineTextAlignment(.center)
-            .padding(.top)
-    }
-    .padding()
-    .background(Color(NSColor.windowBackgroundColor))
-}
-
-// MARK: - Preview Demo Component
-// This replicates the exact visual structure of PurchaseOptionCard for previewing
-
-private struct PurchaseOptionCardDemo: View {
+private struct PurchaseOptionCardView: View {
     let title: String
     let description: String
     let price: String
@@ -300,15 +188,16 @@ private struct PurchaseOptionCardDemo: View {
     let features: [String]?
     let savings: String?
     let isSelected: Bool
+    let onSelect: () -> Void
 
     var body: some View {
-        Button(action: { print("Selected: \(title)") }) {
-            HStack(spacing: 16) {
-                // Selection indicator (same as real component)
+        Button(action: onSelect) {
+            HStack(spacing: CardStyle.contentSpacing) {
+                // Selection indicator
                 ZStack {
                     Circle()
-                        .stroke(isSelected ? Color.blue : Color.gray.opacity(0.3), lineWidth: 2)
-                        .frame(width: 20, height: 20)
+                        .stroke(isSelected ? Color.blue : Color.gray.opacity(0.3), lineWidth: CardStyle.selectionIndicatorStroke)
+                        .frame(width: CardStyle.selectionIndicatorSize, height: CardStyle.selectionIndicatorSize)
                         .background(
                             Circle()
                                 .fill(isSelected ? Color.blue.opacity(0.1) : Color.clear)
@@ -317,23 +206,22 @@ private struct PurchaseOptionCardDemo: View {
                     if isSelected {
                         Circle()
                             .fill(Color.blue)
-                            .frame(width: 10, height: 10)
+                            .frame(width: CardStyle.selectionIndicatorFillSize, height: CardStyle.selectionIndicatorFillSize)
                     }
                 }
 
-                // Content (same structure as real component)
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: CardStyle.contentVerticalSpacing) {
                     HStack {
                         Text(title)
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: CardStyle.titleFontSize, weight: .semibold))
                             .foregroundColor(.primary)
 
                         if let badge = badge {
                             Text(badge)
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.system(size: CardStyle.badgeFontSize, weight: .bold))
                                 .foregroundColor(.white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 2)
+                                .padding(.horizontal, CardStyle.badgeHorizontalPadding)
+                                .padding(.vertical, CardStyle.badgeVerticalPadding)
                                 .background(
                                     Capsule()
                                         .fill(badge.lowercased().contains("popular") ? Color.orange : Color.blue)
@@ -344,59 +232,137 @@ private struct PurchaseOptionCardDemo: View {
                     }
 
                     Text(description)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.system(size: CardStyle.descriptionFontSize, weight: .medium))
                         .foregroundColor(.secondary)
 
                     if let features = features, !features.isEmpty {
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: CardStyle.featuresSpacing) {
                             ForEach(features.prefix(2), id: \.self) { feature in
                                 HStack(spacing: 4) {
                                     Text("•")
                                         .foregroundColor(.secondary)
-                                        .font(.system(size: 11))
+                                        .font(.system(size: CardStyle.featureFontSize))
                                     Text(feature)
-                                        .font(.system(size: 11))
+                                        .font(.system(size: CardStyle.featureFontSize))
                                         .foregroundColor(.secondary)
                                 }
                             }
                         }
-                        .padding(.top, 2)
+                        .padding(.top, CardStyle.featuresTopPadding)
                     }
                 }
 
                 Spacer()
 
-                // Pricing (same structure as real component)
-                VStack(alignment: .trailing, spacing: 2) {
+                VStack(alignment: .trailing, spacing: CardStyle.featuresSpacing) {
                     Text(price)
-                        .font(.system(size: 18, weight: .bold))
+                        .font(.system(size: CardStyle.priceFontSize, weight: .bold))
                         .foregroundColor(.primary)
 
                     if let savings = savings {
                         Text(savings)
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.system(size: CardStyle.savingsFontSize, weight: .semibold))
                             .foregroundColor(.green)
                     }
 
                     Text(billingPeriod)
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: CardStyle.billingPeriodFontSize, weight: .medium))
                         .foregroundColor(.secondary)
                 }
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
+            .padding(.horizontal, CardStyle.horizontalPadding)
+            .padding(.vertical, CardStyle.verticalPadding)
             .background(
-                RoundedRectangle(cornerRadius: 14)
+                RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
                     .fill(isSelected ? Color.blue.opacity(0.06) : Color(NSColor.controlBackgroundColor))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(isSelected ? Color.blue.opacity(0.4) : Color.gray.opacity(0.15), lineWidth: isSelected ? 2 : 1)
+                        RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
+                            .stroke(isSelected ? Color.blue.opacity(0.4) : Color.gray.opacity(0.15),
+                                   lineWidth: isSelected ? CardStyle.selectedStrokeWidth : CardStyle.unselectedStrokeWidth)
                     )
             )
         }
         .buttonStyle(PlainButtonStyle())
-        .scaleEffect(isSelected ? 1.02 : 1.0)
-        .animation(.easeInOut(duration: 0.15), value: isSelected)
+        .scaleEffect(isSelected ? CardStyle.selectedScale : 1.0)
+        .animation(.easeInOut(duration: CardStyle.animationDuration), value: isSelected)
     }
+}
+
+// MARK: - Preview
+
+#if DEBUG
+#Preview("Purchase Option Cards") {
+    VStack(spacing: 20) {
+        VStack(spacing: 8) {
+            Text("PurchaseOptionCard Preview")
+                .font(.title2.bold())
+
+            Text("Different states and configurations")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+
+        VStack(spacing: 12) {
+            // Standard monthly subscription with trial
+            PurchaseOptionCardView(
+                title: "Pro Monthly",
+                description: "7 days free trial • Monthly subscription",
+                price: "$9.99",
+                billingPeriod: "Monthly",
+                badge: nil,
+                features: ["Cloud sync", "Premium filters"],
+                savings: nil,
+                isSelected: false,
+                onSelect: { print("Selected: Pro Monthly") }
+            )
+
+            // Popular annual plan with savings
+            PurchaseOptionCardView(
+                title: "Pro Annual",
+                description: "Annual subscription • Auto-renewable",
+                price: "$99.99",
+                billingPeriod: "Yearly",
+                badge: "Most Popular",
+                features: ["Cloud sync", "Premium filters", "Priority support"],
+                savings: "Save 30%",
+                isSelected: true,
+                onSelect: { print("Selected: Pro Annual") }
+            )
+
+            // Lifetime purchase option
+            PurchaseOptionCardView(
+                title: "Pro Lifetime",
+                description: "One-time purchase • Lifetime access",
+                price: "$199.99",
+                billingPeriod: "Lifetime",
+                badge: "Best Value",
+                features: ["All features included", "Lifetime updates"],
+                savings: nil,
+                isSelected: false,
+                onSelect: { print("Selected: Pro Lifetime") }
+            )
+        }
+
+        VStack(spacing: 4) {
+            Text("Features Demonstrated:")
+                .font(.caption.bold())
+                .foregroundColor(.secondary)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("• Selection states (selected/unselected)")
+                Text("• Marketing badges (Most Popular, Best Value)")
+                Text("• Savings indicators (Save 30%)")
+                Text("• Feature lists with bullet points")
+                Text("• Different product types (subscription, lifetime)")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            .font(.caption2)
+            .foregroundColor(.secondary)
+        }
+        .padding(.top, 8)
+    }
+    .padding()
+    .background(Color(NSColor.windowBackgroundColor))
 }
 #endif

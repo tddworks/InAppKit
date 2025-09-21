@@ -411,15 +411,92 @@ await InAppKit.shared.purchase(product)
 
 ## 🎯 Advanced Features
 
+### 🎨 Marketing-Enhanced Products for Higher Conversion
+
+InAppKit supports rich marketing information to boost conversion rates through badges, feature highlights, and savings displays.
+
+#### **Configuration Options**
+
+**Option 1: Direct Configuration**
+```swift
+Product("com.app.annual",
+    features: [MyFeature.sync, MyFeature.export],
+    badge: "Most Popular",
+    marketingFeatures: ["Cloud sync", "AI features"],
+    savings: "Save 15%"
+)
+```
+
+**Option 2: Fluent API (Recommended)**
+```swift
+Product("com.app.annual", features: [MyFeature.sync, MyFeature.export])
+    .withBadge("Most Popular")
+    .withMarketingFeatures(["Cloud sync", "AI features", "Priority support"])
+    .withSavings("Save 15%")
+```
+
+#### **🚀 Complete Marketing Example**
+
+```swift
+ContentView()
+    .withPurchases(products: [
+        // Monthly Plan
+        Product("com.yourapp.monthly", features: [MyFeature.sync])
+            .withMarketingFeatures(["Cloud sync", "Basic support"]),
+
+        // Annual Plan (Most Popular)
+        Product("com.yourapp.annual", features: [MyFeature.sync, MyFeature.export])
+            .withBadge("Most Popular")
+            .withMarketingFeatures(["Cloud sync", "Advanced features", "Priority support"])
+            .withSavings("Save 30%"),
+
+        // Lifetime Plan
+        Product("com.yourapp.lifetime", features: MyFeature.allCases)
+            .withBadge("Best Value")
+            .withMarketingFeatures(["All features included", "Lifetime updates"])
+    ])
+```
+
+#### **🎯 Marketing Features**
+
+- **🏷️ Badges**: `"Most Popular"`, `"Best Value"`, `"Limited Time"`, custom text
+- **✨ Marketing Features**: User-friendly benefit statements (up to 2 shown as bullet points)
+- **💰 Savings**: `"Save 15%"`, `"50% OFF"`, custom savings text
+- **🔄 Auto-Trial Detection**: Automatically shows free trial periods from StoreKit
+
+#### **What Users See**
+
+**Before Enhancement:**
+```
+Pro Annual                    $99.99
+Annual subscription           Yearly
+```
+
+**After Enhancement:**
+```
+Pro Annual  [Most Popular]    $99.99
+7 days free trial • Annual    Save 30%
+• Cloud sync                  Yearly
+• Advanced features
+```
+
 ### Multiple Product Tiers in Practice
 
 ```swift
-// E-commerce App Example
+// E-commerce App Example with Marketing Enhancement
 ContentView()
     .withPurchases(products: [
-        Product("com.shopapp.basic", [AppFeature.trackOrders, AppFeature.wishlist]),
-        Product("com.shopapp.plus", [AppFeature.trackOrders, AppFeature.wishlist, AppFeature.fastShipping]),
+        Product("com.shopapp.basic", [AppFeature.trackOrders, AppFeature.wishlist])
+            .withMarketingFeatures(["Track orders", "Wishlist"]),
+
+        Product("com.shopapp.plus", [AppFeature.trackOrders, AppFeature.wishlist, AppFeature.fastShipping])
+            .withBadge("Most Popular")
+            .withMarketingFeatures(["Fast shipping", "Premium support"])
+            .withSavings("Save 25%"),
+
         Product("com.shopapp.premium", AppFeature.allCases)
+            .withBadge("Best Value")
+            .withMarketingFeatures(["All features", "Priority processing"])
     ])
     .withPaywall { context in
         ShopPaywallView(context: context)
@@ -450,6 +527,26 @@ InAppKit.shared.registerFeature(
     AppFeature.advanced, 
     productIds: ["com.app.pro"]
 )
+```
+
+### Marketing API Methods
+
+InAppKit provides fluent API methods for enhanced product configuration:
+
+```swift
+// Product configuration with marketing
+Product("com.app.pro", features: [MyFeature.sync])
+    .withBadge("Most Popular")           // Promotional badge
+    .withMarketingFeatures([             // User-friendly features (bullet points)
+        "Cloud sync across devices",
+        "Priority customer support"
+    ])
+    .withSavings("Save 30%")            // Savings/discount info
+
+// Access marketing data programmatically
+let badge = InAppKit.shared.badge(for: "com.app.pro")
+let features = InAppKit.shared.marketingFeatures(for: "com.app.pro")
+let savings = InAppKit.shared.savings(for: "com.app.pro")
 ```
 
 ### Custom Premium Modifiers

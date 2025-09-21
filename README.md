@@ -289,42 +289,100 @@ ContentView()
     .withPurchases(products: products)
 ```
 
-### Custom Paywall
+### Custom Paywall with Marketing Information
 
-Create your own paywall with full context information:
+Create your own paywall with full context and marketing information:
 
 ```swift
-// Context-aware paywall with fluent API
+// Enhanced paywall with marketing data from context
 ContentView()
     .withPurchases(products: products)
     .withPaywall { context in
         VStack {
             Text("Upgrade to unlock \(context.triggeredBy ?? "premium features")")
-            
+
+            // Simple approach - access marketing info directly
             ForEach(context.availableProducts, id: \.self) { product in
-                Button(product.displayName) {
-                    Task {
-                        try await InAppKit.shared.purchase(product)
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text(product.displayName)
+
+                        // Badge from context
+                        if let badge = context.badge(for: product) {
+                            Text(badge)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 2)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(4)
+                        }
+
+                        Spacer()
+
+                        VStack(alignment: .trailing) {
+                            Text(product.displayPrice)
+
+                            // Savings from context
+                            if let savings = context.savings(for: product) {
+                                Text(savings)
+                                    .foregroundColor(.green)
+                                    .font(.caption)
+                            }
+                        }
+                    }
+
+                    // Marketing features from context
+                    if let features = context.marketingFeatures(for: product) {
+                        VStack(alignment: .leading) {
+                            ForEach(features, id: \.self) { feature in
+                                Text("• \(feature)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    Button("Purchase") {
+                        Task {
+                            try await InAppKit.shared.purchase(product)
+                        }
                     }
                 }
+                .padding()
+                .border(Color.gray)
             }
-            
-            if let recommended = context.recommendedProduct {
-                Text("Recommended: \(recommended.displayName)")
+
+            // Advanced approach - use productsWithMarketing
+            ForEach(context.productsWithMarketing, id: \.product) { item in
+                ProductCard(
+                    product: item.product,
+                    badge: item.badge,
+                    features: item.features,
+                    savings: item.savings
+                )
             }
         }
     }
 ```
 
-### Paywall Context
+### Enhanced Paywall Context
 
-The `PaywallContext` provides rich information about how the paywall was triggered:
+The `PaywallContext` provides rich information about the paywall trigger and easy access to marketing data:
+
+> **Note**: Marketing information methods are `@MainActor` isolated since they access InAppKit's shared state. This is perfect for SwiftUI views which run on the main actor by default.
 
 ```swift
 public struct PaywallContext {
     public let triggeredBy: String?        // What action triggered this
-    public let availableProducts: [StoreKit.Product] // Products that can be purchased  
+    public let availableProducts: [StoreKit.Product] // Products that can be purchased
     public let recommendedProduct: StoreKit.Product?  // Best product recommendation
+
+    // Marketing Information Helpers (Main Actor)
+    @MainActor func badge(for product: StoreKit.Product) -> String?
+    @MainActor func marketingFeatures(for product: StoreKit.Product) -> [String]?
+    @MainActor func savings(for product: StoreKit.Product) -> String?
+    @MainActor func marketingInfo(for product: StoreKit.Product) -> (badge: String?, features: [String]?, savings: String?)
+    @MainActor var productsWithMarketing: [(product: StoreKit.Product, badge: String?, features: [String]?, savings: String?)]
 }
 ```
 
@@ -1145,7 +1203,7 @@ struct PhotoAppPaywallView: View {
                 }
             }
 
-            // Products
+            // Products - using enhanced PaywallContext
             VStack(spacing: 12) {
                 ForEach(context.availableProducts, id: \.self) { product in
                     PurchaseOptionCard(
@@ -1157,12 +1215,33 @@ struct PhotoAppPaywallView: View {
                                 dismiss()
                             }
                         },
-                        badge: InAppKit.shared.badge(for: product.id),
-                        features: InAppKit.shared.marketingFeatures(for: product.id),
-                        savings: InAppKit.shared.savings(for: product.id)
+                        badge: context.badge(for: product),        // ✨ From context
+                        features: context.marketingFeatures(for: product), // ✨ From context
+                        savings: context.savings(for: product)    // ✨ From context
                     )
                 }
             }
+
+            // Alternative: Use the convenience property
+            /*
+            VStack(spacing: 12) {
+                ForEach(context.productsWithMarketing, id: \.product) { item in
+                    PurchaseOptionCard(
+                        product: item.product,
+                        isSelected: item.product == context.recommendedProduct,
+                        onSelect: {
+                            Task {
+                                try await InAppKit.shared.purchase(item.product)
+                                dismiss()
+                            }
+                        },
+                        badge: item.badge,
+                        features: item.features,
+                        savings: item.savings
+                    )
+                }
+            }
+            */
 
             // Actions
             Button("Restore Purchases") {

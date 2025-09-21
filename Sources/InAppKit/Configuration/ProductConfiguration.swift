@@ -134,15 +134,54 @@ public extension ProductConfig {
 
 // MARK: - PaywallContext
 
-/// Context for product-based paywalls
+/// Context for product-based paywalls with marketing information
 public struct PaywallContext {
     public let triggeredBy: String?  // What action triggered the paywall
     public let availableProducts: [StoreKit.Product]  // Products that can be purchased
     public let recommendedProduct: StoreKit.Product?  // Best product to recommend
-    
+
     public init(triggeredBy: String? = nil, availableProducts: [StoreKit.Product] = [], recommendedProduct: StoreKit.Product? = nil) {
         self.triggeredBy = triggeredBy
         self.availableProducts = availableProducts
         self.recommendedProduct = recommendedProduct ?? availableProducts.first
+    }
+
+    // MARK: - Marketing Information Helpers
+
+    /// Get marketing badge for a product
+    @MainActor
+    public func badge(for product: StoreKit.Product) -> String? {
+        return InAppKit.shared.badge(for: product.id)
+    }
+
+    /// Get marketing features for a product
+    @MainActor
+    public func marketingFeatures(for product: StoreKit.Product) -> [String]? {
+        return InAppKit.shared.marketingFeatures(for: product.id)
+    }
+
+    /// Get savings information for a product
+    @MainActor
+    public func savings(for product: StoreKit.Product) -> String? {
+        return InAppKit.shared.savings(for: product.id)
+    }
+
+    /// Get all marketing information for a product
+    @MainActor
+    public func marketingInfo(for product: StoreKit.Product) -> (badge: String?, features: [String]?, savings: String?) {
+        return (
+            badge: badge(for: product),
+            features: marketingFeatures(for: product),
+            savings: savings(for: product)
+        )
+    }
+
+    /// Get products with their marketing information
+    @MainActor
+    public var productsWithMarketing: [(product: StoreKit.Product, badge: String?, features: [String]?, savings: String?)] {
+        return availableProducts.map { product in
+            let info = marketingInfo(for: product)
+            return (product: product, badge: info.badge, features: info.features, savings: info.savings)
+        }
     }
 }

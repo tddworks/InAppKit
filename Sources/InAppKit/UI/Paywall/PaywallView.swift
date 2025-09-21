@@ -180,7 +180,10 @@ public struct PaywallView: View {
                 PurchaseOptionCard(
                     product: product,
                     isSelected: selectedProduct?.id == product.id,
-                    onSelect: { selectedProduct = product }
+                    onSelect: { selectedProduct = product },
+                    badge: inAppKit.badge(for: product.id),
+                    features: inAppKit.marketingFeatures(for: product.id),
+                    savings: inAppKit.savings(for: product.id)
                 )
             }
             
@@ -257,6 +260,7 @@ public struct PaywallView: View {
         }
         .padding(.vertical, 12)
     }
+
 }
 
 #Preview {

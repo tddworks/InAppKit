@@ -88,6 +88,24 @@ ContentView()
     .withPurchases(products: [Product("com.yourapp.pro", features: [MyFeature.sync, MyFeature.export])])
 ```
 
+*Or with marketing information for better conversion:*
+```swift
+ContentView()
+    .withPurchases(products: [
+        Product("com.yourapp.monthly", features: [MyFeature.sync])
+            .withMarketingFeatures(["Cloud sync", "Premium filters"]),
+
+        Product("com.yourapp.annual", features: [MyFeature.sync, MyFeature.export])
+            .withBadge("Most Popular")
+            .withMarketingFeatures(["Cloud sync", "Premium filters", "Priority support"])
+            .withSavings("Save 15%"),
+
+        Product("com.yourapp.lifetime", features: MyFeature.allCases)
+            .withBadge("Best Value")
+            .withMarketingFeatures(["All features included", "Lifetime updates"])
+    ])
+```
+
 ### 2. Gate any feature (1 line)
 
 ```swift
@@ -381,6 +399,14 @@ await InAppKit.shared.purchase(product)
 
 // Advanced: Products with specific features
 .withPurchases(products: [Product("com.app.pro", AppFeature.allCases)])
+
+// Marketing-enhanced: Boost conversion with badges, features, and savings
+.withPurchases(products: [
+    Product("com.app.pro", AppFeature.allCases)
+        .withBadge("Most Popular")
+        .withMarketingFeatures(["Cloud sync", "AI features", "Priority support"])
+        .withSavings("Save 20%")
+])
 ```
 
 ## 🎯 Advanced Features

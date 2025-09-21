@@ -12,12 +12,46 @@ struct PurchaseOptionCard: View {
     let product: Product
     let isSelected: Bool
     let onSelect: () -> Void
+
+    // Optional marketing enhancements
+    let badge: String?
+    let features: [String]?
+    let savings: String?
+
+    init(
+        product: Product,
+        isSelected: Bool,
+        onSelect: @escaping () -> Void,
+        badge: String? = nil,
+        features: [String]? = nil,
+        savings: String? = nil
+    ) {
+        self.product = product
+        self.isSelected = isSelected
+        self.onSelect = onSelect
+        self.badge = badge
+        self.features = features
+        self.savings = savings
+    }
     
     private var productDescription: String {
         switch product.type {
         case .autoRenewable:
-            if let period = product.subscription?.subscriptionPeriod {
-                return "\(periodDescription(period)) subscription • Auto-renewable"
+            if let subscription = product.subscription {
+                var description = ""
+
+                // Add trial info if available
+                if let intro = subscription.introductoryOffer,
+                   intro.paymentMode == .freeTrial {
+                    let trialLength = periodText(intro.period)
+                    description += "\(trialLength) free trial • "
+                }
+
+                // Add subscription period
+                let period = subscription.subscriptionPeriod
+                description += "\(periodDescription(period)) subscription"
+
+                return description
             }
             return "Subscription • Auto-renewable"
         case .nonConsumable:
@@ -32,8 +66,8 @@ struct PurchaseOptionCard: View {
     private var billingPeriod: String {
         switch product.type {
         case .autoRenewable:
-            if let period = product.subscription?.subscriptionPeriod {
-                return periodText(period)
+            if let subscription = product.subscription {
+                return periodText(subscription.subscriptionPeriod)
             }
             return "Subscription"
         case .nonConsumable:
@@ -102,13 +136,46 @@ struct PurchaseOptionCard: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(product.displayName)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.primary)
+                    HStack {
+                        Text(product.displayName)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.primary)
+
+                        if let badge = badge {
+                            Text(badge)
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 2)
+                                .background(
+                                    Capsule()
+                                        .fill(badge.lowercased().contains("popular") ? Color.orange : Color.blue)
+                                )
+                        }
+
+                        Spacer()
+                    }
 
                     Text(productDescription)
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.secondary)
+
+                    // Show key features if provided
+                    if let features = features, !features.isEmpty {
+                        VStack(alignment: .leading, spacing: 2) {
+                            ForEach(features.prefix(2), id: \.self) { feature in
+                                HStack(spacing: 4) {
+                                    Text("•")
+                                        .foregroundColor(.secondary)
+                                        .font(.system(size: 11))
+                                    Text(feature)
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        }
+                        .padding(.top, 2)
+                    }
                 }
 
                 Spacer()
@@ -117,6 +184,12 @@ struct PurchaseOptionCard: View {
                     Text(product.displayPrice)
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.primary)
+
+                    if let savings = savings {
+                        Text(savings)
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(.green)
+                    }
 
                     Text(billingPeriod)
                         .font(.system(size: 12, weight: .medium))
@@ -150,32 +223,41 @@ struct PurchaseOptionCard: View {
             .padding(.bottom)
 
         VStack(spacing: 12) {
-            // Example showing different selection states
+            // Example showing different selection states and features
             Group {
-                // Unselected Monthly Card
+                // Monthly with trial
                 PurchaseOptionCardPreview(
                     title: "Pro Monthly",
-                    description: "Monthly subscription • Auto-renewable",
+                    description: "7 days free trial • Monthly subscription",
                     price: "$9.99",
                     billingPeriod: "Monthly",
+                    badge: nil,
+                    features: ["Cloud sync", "Premium filters"],
+                    savings: nil,
                     isSelected: false
                 )
 
-                // Selected Annual Card
+                // Annual with "Most Popular" badge and savings
                 PurchaseOptionCardPreview(
                     title: "Pro Annual",
                     description: "Annual subscription • Auto-renewable",
                     price: "$99.99",
                     billingPeriod: "Yearly",
+                    badge: "Most Popular",
+                    features: ["Cloud sync", "Premium filters", "Priority support"],
+                    savings: "Save 15%",
                     isSelected: true
                 )
 
-                // Lifetime Purchase Card
+                // Lifetime Purchase
                 PurchaseOptionCardPreview(
                     title: "Pro Lifetime",
                     description: "One-time purchase • Lifetime access",
                     price: "$199.99",
                     billingPeriod: "Lifetime",
+                    badge: "Best Value",
+                    features: ["All features included", "Lifetime updates"],
+                    savings: nil,
                     isSelected: false
                 )
             }
@@ -192,6 +274,9 @@ private struct PurchaseOptionCardPreview: View {
     let description: String
     let price: String
     let billingPeriod: String
+    let badge: String?
+    let features: [String]?
+    let savings: String?
     let isSelected: Bool
 
     var body: some View {
@@ -215,13 +300,45 @@ private struct PurchaseOptionCardPreview: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.primary)
+                    HStack {
+                        Text(title)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.primary)
+
+                        if let badge = badge {
+                            Text(badge)
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 2)
+                                .background(
+                                    Capsule()
+                                        .fill(badge.lowercased().contains("popular") ? Color.orange : Color.blue)
+                                )
+                        }
+
+                        Spacer()
+                    }
 
                     Text(description)
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.secondary)
+
+                    if let features = features, !features.isEmpty {
+                        VStack(alignment: .leading, spacing: 2) {
+                            ForEach(features.prefix(2), id: \.self) { feature in
+                                HStack(spacing: 4) {
+                                    Text("•")
+                                        .foregroundColor(.secondary)
+                                        .font(.system(size: 11))
+                                    Text(feature)
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        }
+                        .padding(.top, 2)
+                    }
                 }
 
                 Spacer()
@@ -230,6 +347,12 @@ private struct PurchaseOptionCardPreview: View {
                     Text(price)
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.primary)
+
+                    if let savings = savings {
+                        Text(savings)
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(.green)
+                    }
 
                     Text(billingPeriod)
                         .font(.system(size: 12, weight: .medium))

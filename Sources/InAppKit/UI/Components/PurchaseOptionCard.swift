@@ -18,6 +18,7 @@ private enum CardStyle {
     static let contentVerticalSpacing: CGFloat = 4
     static let featuresSpacing: CGFloat = 2
     static let featuresTopPadding: CGFloat = 2
+    static let maxFeaturesHeight: CGFloat = 45
 
     static let selectionIndicatorSize: CGFloat = 20
     static let selectionIndicatorFillSize: CGFloat = 10
@@ -236,18 +237,23 @@ private struct PurchaseOptionCardView: View {
                         .foregroundColor(.secondary)
 
                     if let features = features, !features.isEmpty {
-                        VStack(alignment: .leading, spacing: CardStyle.featuresSpacing) {
-                            ForEach(features.prefix(2), id: \.self) { feature in
-                                HStack(spacing: 4) {
-                                    Text("•")
-                                        .foregroundColor(.secondary)
-                                        .font(.system(size: CardStyle.featureFontSize))
-                                    Text(feature)
-                                        .font(.system(size: CardStyle.featureFontSize))
-                                        .foregroundColor(.secondary)
+                        ScrollView(.vertical, showsIndicators: false
+                        ) {
+                            VStack(alignment: .leading, spacing: CardStyle.featuresSpacing) {
+                                ForEach(features, id: \.self) { feature in
+                                    HStack(spacing: 4) {
+                                        Text("•")
+                                            .foregroundColor(.secondary)
+                                            .font(.system(size: CardStyle.featureFontSize))
+                                        Text(feature)
+                                            .font(.system(size: CardStyle.featureFontSize))
+                                            .foregroundColor(.secondary)
+                                        Spacer()
+                                    }
                                 }
                             }
                         }
+                        .frame(maxHeight: CardStyle.maxFeaturesHeight)
                         .padding(.top, CardStyle.featuresTopPadding)
                     }
                 }
@@ -316,14 +322,23 @@ private struct PurchaseOptionCardView: View {
                 onSelect: { print("Selected: Pro Monthly") }
             )
 
-            // Popular annual plan with savings
+            // Popular annual plan with savings (many features to show scrolling)
             PurchaseOptionCardView(
                 title: "Pro Annual",
                 description: "Annual subscription • Auto-renewable",
                 price: "$99.99",
                 billingPeriod: "Yearly",
                 badge: "Most Popular",
-                features: ["Cloud sync", "Premium filters", "Priority support"],
+                features: [
+                    "Cloud sync across devices",
+                    "Premium AI-powered filters",
+                    "Priority customer support",
+                    "Advanced export options",
+                    "Team collaboration tools",
+                    "Full API access",
+                    "Custom branding options",
+                    "Analytics dashboard"
+                ],
                 savings: "Save 30%",
                 isSelected: true,
                 onSelect: { print("Selected: Pro Annual") }
@@ -343,7 +358,7 @@ private struct PurchaseOptionCardView: View {
             )
         }
 
-        VStack(spacing: 4) {
+        VStack(spacing: 8) {
             Text("Features Demonstrated:")
                 .font(.caption.bold())
                 .foregroundColor(.secondary)
@@ -352,16 +367,23 @@ private struct PurchaseOptionCardView: View {
                 Text("• Selection states (selected/unselected)")
                 Text("• Marketing badges (Most Popular, Best Value)")
                 Text("• Savings indicators (Save 30%)")
-                Text("• Feature lists with bullet points")
+                Text("• Scrollable feature lists (no limit on features)")
                 Text("• Different product types (subscription, lifetime)")
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
             .font(.caption2)
             .foregroundColor(.secondary)
+
+            Text("💡 Tip: Scroll within the 'Most Popular' card's feature list to see all 8 features!")
+                .font(.caption2)
+                .foregroundColor(.blue)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
         }
         .padding(.top, 8)
     }
+    .frame(height: 800)
     .padding()
     .background(Color(NSColor.windowBackgroundColor))
 }

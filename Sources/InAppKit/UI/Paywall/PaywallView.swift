@@ -177,7 +177,7 @@ public struct PaywallView: View {
     private var productsSection: some View {
         VStack(spacing: 20) {
             ForEach(inAppKit.availableProducts, id: \.self) { product in
-                ProductCard(
+                PurchaseOptionCard(
                     product: product,
                     isSelected: selectedProduct?.id == product.id,
                     onSelect: { selectedProduct = product }

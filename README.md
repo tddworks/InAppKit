@@ -318,7 +318,7 @@ InAppKit provides several built-in UI components:
 - **`PurchaseRequiredBadge`** - Premium crown badge overlay  
 - **`TermsPrivacyFooter`** - Configurable footer for terms and privacy
 - **`FeatureRow`** - Styled feature list rows
-- **`ModernProductCard`** - Product selection cards
+- **`PurchaseOptionCard`** - Purchase option selection cards with dynamic pricing
 
 #### Using UI Components
 

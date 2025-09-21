@@ -52,20 +52,38 @@ struct InAppKitTests {
     
     @Test @MainActor func testPaywallConfiguration() async throws {
         var paywallCalled = false
-        
+
         let config = StoreKitConfiguration()
             .withPurchases("com.test.pro")
             .withPaywall { context in
                 paywallCalled = true
                 return Text("Custom Paywall")
             }
-        
+
         #expect(config.paywallBuilder != nil)
-        
+
         // Test paywall builder
         let context = PaywallContext()
         _ = config.paywallBuilder?(context)
         #expect(paywallCalled)
+    }
+
+    @MainActor
+    @Test func testPaywallContextMarketingHelpers() {
+        // Create a context with empty products for testing
+        let context = PaywallContext(
+            triggeredBy: "test_feature",
+            availableProducts: [],
+            recommendedProduct: nil
+        )
+
+        // Test productsWithMarketing property with empty products
+        #expect(context.productsWithMarketing.isEmpty)
+
+        // Test that the context initializes correctly
+        #expect(context.triggeredBy == "test_feature")
+        #expect(context.availableProducts.isEmpty)
+        #expect(context.recommendedProduct == nil)
     }
     
     @Test @MainActor func testTermsAndPrivacyConfiguration() async throws {

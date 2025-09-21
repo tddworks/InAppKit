@@ -38,13 +38,29 @@ public class StoreKitConfiguration {
     
     /// Configure purchases with features
     public func withPurchases<T: Hashable & Sendable>(products: [ProductConfig<T>]) -> StoreKitConfiguration {
-        productConfigs.append(contentsOf: products.map { InternalProductConfig(id: $0.id, features: $0.features.map(AnyHashable.init)) })
+        productConfigs.append(contentsOf: products.map {
+            InternalProductConfig(
+                id: $0.id,
+                features: $0.features.map(AnyHashable.init),
+                badge: $0.badge,
+                marketingFeatures: $0.marketingFeatures,
+                savings: $0.savings
+            )
+        })
         return self
     }
 
     /// Configure purchases with simple products (no features)
     public func withPurchases(products: [ProductConfig<String>]) -> StoreKitConfiguration {
-        productConfigs.append(contentsOf: products.map { InternalProductConfig(id: $0.id, features: []) })
+        productConfigs.append(contentsOf: products.map {
+            InternalProductConfig(
+                id: $0.id,
+                features: [],
+                badge: $0.badge,
+                marketingFeatures: $0.marketingFeatures,
+                savings: $0.savings
+            )
+        })
         return self
     }
     
@@ -69,18 +85,8 @@ public class StoreKitConfiguration {
     // MARK: - Internal Setup
     
     internal func setup() async {
-        let productIds = productConfigs.map { $0.id }
-        
-        // Register features
-        for config in productConfigs {
-            for feature in config.features {
-                InAppKit.shared.registerFeature(feature, productIds: [config.id])
-            }
-        }
-        
-        // Load products
-        await InAppKit.shared.loadProducts(productIds: productIds)
-        InAppKit.shared.isInitialized = true
+        // Use the existing InAppKit.initialize method which handles both features and marketing info
+        await InAppKit.shared.initialize(with: productConfigs)
     }
 }
 

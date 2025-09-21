@@ -14,10 +14,22 @@ import StoreKit
 public struct ProductConfig<T: Hashable & Sendable>: Sendable {
     public let id: String
     public let features: [T]
-    
-    public init(_ id: String, features: [T]) {
+    public let badge: String?
+    public let marketingFeatures: [String]?
+    public let savings: String?
+
+    public init(
+        _ id: String,
+        features: [T],
+        badge: String? = nil,
+        marketingFeatures: [String]? = nil,
+        savings: String? = nil
+    ) {
         self.id = id
         self.features = features
+        self.badge = badge
+        self.marketingFeatures = marketingFeatures
+        self.savings = savings
     }
 }
 
@@ -25,10 +37,22 @@ public struct ProductConfig<T: Hashable & Sendable>: Sendable {
 public struct InternalProductConfig: @unchecked Sendable {
     public let id: String
     public let features: [AnyHashable]
-    
-    public init(id: String, features: [AnyHashable]) {
+    public let badge: String?
+    public let marketingFeatures: [String]?
+    public let savings: String?
+
+    public init(
+        id: String,
+        features: [AnyHashable],
+        badge: String? = nil,
+        marketingFeatures: [String]? = nil,
+        savings: String? = nil
+    ) {
         self.id = id
         self.features = features
+        self.badge = badge
+        self.marketingFeatures = marketingFeatures
+        self.savings = savings
     }
 }
 
@@ -44,6 +68,23 @@ public func Product<T: Hashable & Sendable>(_ id: String, features: [T]) -> Prod
     ProductConfig(id, features: features)
 }
 
+// Product with marketing information
+public func Product<T: Hashable & Sendable>(
+    _ id: String,
+    features: [T],
+    badge: String? = nil,
+    marketingFeatures: [String]? = nil,
+    savings: String? = nil
+) -> ProductConfig<T> {
+    ProductConfig(
+        id,
+        features: features,
+        badge: badge,
+        marketingFeatures: marketingFeatures,
+        savings: savings
+    )
+}
+
 // Support for .allCases pattern - for when you pass [EnumType.allCases]
 public func Product<T: CaseIterable & Hashable & Sendable>(_ id: String, _ allCases: T.AllCases) -> ProductConfig<T> {
     ProductConfig(id, features: Array(allCases))
@@ -54,17 +95,93 @@ public func Product<T: Hashable & Sendable>(_ id: String, _ features: [T]) -> Pr
     ProductConfig(id, features: features)
 }
 
+// MARK: - Fluent API Extensions for Marketing
+
+public extension ProductConfig {
+    /// Add a promotional badge to the product
+    func withBadge(_ badge: String) -> ProductConfig<T> {
+        ProductConfig(
+            id,
+            features: features,
+            badge: badge,
+            marketingFeatures: marketingFeatures,
+            savings: savings
+        )
+    }
+
+    /// Add marketing features (shown as bullet points in UI)
+    func withMarketingFeatures(_ features: [String]) -> ProductConfig<T> {
+        ProductConfig(
+            id,
+            features: self.features,
+            badge: badge,
+            marketingFeatures: features,
+            savings: savings
+        )
+    }
+
+    /// Add savings information
+    func withSavings(_ savings: String) -> ProductConfig<T> {
+        ProductConfig(
+            id,
+            features: features,
+            badge: badge,
+            marketingFeatures: marketingFeatures,
+            savings: savings
+        )
+    }
+}
+
 // MARK: - PaywallContext
 
-/// Context for product-based paywalls
+/// Context for product-based paywalls with marketing information
 public struct PaywallContext {
     public let triggeredBy: String?  // What action triggered the paywall
     public let availableProducts: [StoreKit.Product]  // Products that can be purchased
     public let recommendedProduct: StoreKit.Product?  // Best product to recommend
-    
+
     public init(triggeredBy: String? = nil, availableProducts: [StoreKit.Product] = [], recommendedProduct: StoreKit.Product? = nil) {
         self.triggeredBy = triggeredBy
         self.availableProducts = availableProducts
         self.recommendedProduct = recommendedProduct ?? availableProducts.first
+    }
+
+    // MARK: - Marketing Information Helpers
+
+    /// Get marketing badge for a product
+    @MainActor
+    public func badge(for product: StoreKit.Product) -> String? {
+        return InAppKit.shared.badge(for: product.id)
+    }
+
+    /// Get marketing features for a product
+    @MainActor
+    public func marketingFeatures(for product: StoreKit.Product) -> [String]? {
+        return InAppKit.shared.marketingFeatures(for: product.id)
+    }
+
+    /// Get savings information for a product
+    @MainActor
+    public func savings(for product: StoreKit.Product) -> String? {
+        return InAppKit.shared.savings(for: product.id)
+    }
+
+    /// Get all marketing information for a product
+    @MainActor
+    public func marketingInfo(for product: StoreKit.Product) -> (badge: String?, features: [String]?, savings: String?) {
+        return (
+            badge: badge(for: product),
+            features: marketingFeatures(for: product),
+            savings: savings(for: product)
+        )
+    }
+
+    /// Get products with their marketing information
+    @MainActor
+    public var productsWithMarketing: [(product: StoreKit.Product, badge: String?, features: [String]?, savings: String?)] {
+        return availableProducts.map { product in
+            let info = marketingInfo(for: product)
+            return (product: product, badge: info.badge, features: info.features, savings: info.savings)
+        }
     }
 }

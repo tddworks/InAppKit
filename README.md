@@ -88,6 +88,24 @@ ContentView()
     .withPurchases(products: [Product("com.yourapp.pro", features: [MyFeature.sync, MyFeature.export])])
 ```
 
+*Or with marketing information for better conversion:*
+```swift
+ContentView()
+    .withPurchases(products: [
+        Product("com.yourapp.monthly", features: [MyFeature.sync])
+            .withMarketingFeatures(["Cloud sync", "Premium filters"]),
+
+        Product("com.yourapp.annual", features: [MyFeature.sync, MyFeature.export])
+            .withBadge("Most Popular")
+            .withMarketingFeatures(["Cloud sync", "Premium filters", "Priority support"])
+            .withSavings("Save 15%"),
+
+        Product("com.yourapp.lifetime", features: MyFeature.allCases)
+            .withBadge("Best Value")
+            .withMarketingFeatures(["All features included", "Lifetime updates"])
+    ])
+```
+
 ### 2. Gate any feature (1 line)
 
 ```swift
@@ -105,7 +123,7 @@ Button("Premium Feature") { doPremiumThing() }
 <summary>📋 Define specific features</summary>
 
 ```swift
-enum AppFeature: String, InAppKit.AppFeature {
+enum AppFeature: String, AppFeature {
     case removeAds = "remove_ads"
     case cloudSync = "cloud_sync"
     case exportPDF = "export_pdf"
@@ -113,7 +131,7 @@ enum AppFeature: String, InAppKit.AppFeature {
 
 ContentView()
     .withPurchases(products: [
-        Product("com.yourapp.pro", AppFeature.allCases)
+        Product("com.yourapp.pro", features: AppFeature.allCases)
     ])
 ```
 </details>
@@ -271,42 +289,100 @@ ContentView()
     .withPurchases(products: products)
 ```
 
-### Custom Paywall
+### Custom Paywall with Marketing Information
 
-Create your own paywall with full context information:
+Create your own paywall with full context and marketing information:
 
 ```swift
-// Context-aware paywall with fluent API
+// Enhanced paywall with marketing data from context
 ContentView()
     .withPurchases(products: products)
     .withPaywall { context in
         VStack {
             Text("Upgrade to unlock \(context.triggeredBy ?? "premium features")")
-            
+
+            // Simple approach - access marketing info directly
             ForEach(context.availableProducts, id: \.self) { product in
-                Button(product.displayName) {
-                    Task {
-                        try await InAppKit.shared.purchase(product)
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text(product.displayName)
+
+                        // Badge from context
+                        if let badge = context.badge(for: product) {
+                            Text(badge)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 2)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(4)
+                        }
+
+                        Spacer()
+
+                        VStack(alignment: .trailing) {
+                            Text(product.displayPrice)
+
+                            // Savings from context
+                            if let savings = context.savings(for: product) {
+                                Text(savings)
+                                    .foregroundColor(.green)
+                                    .font(.caption)
+                            }
+                        }
+                    }
+
+                    // Marketing features from context
+                    if let features = context.marketingFeatures(for: product) {
+                        VStack(alignment: .leading) {
+                            ForEach(features, id: \.self) { feature in
+                                Text("• \(feature)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    Button("Purchase") {
+                        Task {
+                            try await InAppKit.shared.purchase(product)
+                        }
                     }
                 }
+                .padding()
+                .border(Color.gray)
             }
-            
-            if let recommended = context.recommendedProduct {
-                Text("Recommended: \(recommended.displayName)")
+
+            // Advanced approach - use productsWithMarketing
+            ForEach(context.productsWithMarketing, id: \.product) { item in
+                ProductCard(
+                    product: item.product,
+                    badge: item.badge,
+                    features: item.features,
+                    savings: item.savings
+                )
             }
         }
     }
 ```
 
-### Paywall Context
+### Enhanced Paywall Context
 
-The `PaywallContext` provides rich information about how the paywall was triggered:
+The `PaywallContext` provides rich information about the paywall trigger and easy access to marketing data:
+
+> **Note**: Marketing information methods are `@MainActor` isolated since they access InAppKit's shared state. This is perfect for SwiftUI views which run on the main actor by default.
 
 ```swift
 public struct PaywallContext {
     public let triggeredBy: String?        // What action triggered this
-    public let availableProducts: [StoreKit.Product] // Products that can be purchased  
+    public let availableProducts: [StoreKit.Product] // Products that can be purchased
     public let recommendedProduct: StoreKit.Product?  // Best product recommendation
+
+    // Marketing Information Helpers (Main Actor)
+    @MainActor func badge(for product: StoreKit.Product) -> String?
+    @MainActor func marketingFeatures(for product: StoreKit.Product) -> [String]?
+    @MainActor func savings(for product: StoreKit.Product) -> String?
+    @MainActor func marketingInfo(for product: StoreKit.Product) -> (badge: String?, features: [String]?, savings: String?)
+    @MainActor var productsWithMarketing: [(product: StoreKit.Product, badge: String?, features: [String]?, savings: String?)]
 }
 ```
 
@@ -381,19 +457,104 @@ await InAppKit.shared.purchase(product)
 
 // Advanced: Products with specific features
 .withPurchases(products: [Product("com.app.pro", AppFeature.allCases)])
+
+// Marketing-enhanced: Boost conversion with badges, features, and savings
+.withPurchases(products: [
+    Product("com.app.pro", AppFeature.allCases)
+        .withBadge("Most Popular")
+        .withMarketingFeatures(["Cloud sync", "AI features", "Priority support"])
+        .withSavings("Save 20%")
+])
 ```
 
 ## 🎯 Advanced Features
 
+### 🎨 Marketing-Enhanced Products for Higher Conversion
+
+InAppKit supports rich marketing information to boost conversion rates through badges, feature highlights, and savings displays.
+
+#### **Configuration Options**
+
+**Option 1: Direct Configuration**
+```swift
+Product("com.app.annual",
+    features: [MyFeature.sync, MyFeature.export],
+    badge: "Most Popular",
+    marketingFeatures: ["Cloud sync", "AI features"],
+    savings: "Save 15%"
+)
+```
+
+**Option 2: Fluent API (Recommended)**
+```swift
+Product("com.app.annual", features: [MyFeature.sync, MyFeature.export])
+    .withBadge("Most Popular")
+    .withMarketingFeatures(["Cloud sync", "AI features", "Priority support"])
+    .withSavings("Save 15%")
+```
+
+#### **🚀 Complete Marketing Example**
+
+```swift
+ContentView()
+    .withPurchases(products: [
+        // Monthly Plan
+        Product("com.yourapp.monthly", features: [MyFeature.sync])
+            .withMarketingFeatures(["Cloud sync", "Basic support"]),
+
+        // Annual Plan (Most Popular)
+        Product("com.yourapp.annual", features: [MyFeature.sync, MyFeature.export])
+            .withBadge("Most Popular")
+            .withMarketingFeatures(["Cloud sync", "Advanced features", "Priority support"])
+            .withSavings("Save 30%"),
+
+        // Lifetime Plan
+        Product("com.yourapp.lifetime", features: MyFeature.allCases)
+            .withBadge("Best Value")
+            .withMarketingFeatures(["All features included", "Lifetime updates"])
+    ])
+```
+
+#### **🎯 Marketing Features**
+
+- **🏷️ Badges**: `"Most Popular"`, `"Best Value"`, `"Limited Time"`, custom text
+- **✨ Marketing Features**: User-friendly benefit statements (up to 2 shown as bullet points)
+- **💰 Savings**: `"Save 15%"`, `"50% OFF"`, custom savings text
+- **🔄 Auto-Trial Detection**: Automatically shows free trial periods from StoreKit
+
+#### **What Users See**
+
+**Before Enhancement:**
+```
+Pro Annual                    $99.99
+Annual subscription           Yearly
+```
+
+**After Enhancement:**
+```
+Pro Annual  [Most Popular]    $99.99
+7 days free trial • Annual    Save 30%
+• Cloud sync                  Yearly
+• Advanced features
+```
+
 ### Multiple Product Tiers in Practice
 
 ```swift
-// E-commerce App Example
+// E-commerce App Example with Marketing Enhancement
 ContentView()
     .withPurchases(products: [
-        Product("com.shopapp.basic", [AppFeature.trackOrders, AppFeature.wishlist]),
-        Product("com.shopapp.plus", [AppFeature.trackOrders, AppFeature.wishlist, AppFeature.fastShipping]),
+        Product("com.shopapp.basic", [AppFeature.trackOrders, AppFeature.wishlist])
+            .withMarketingFeatures(["Track orders", "Wishlist"]),
+
+        Product("com.shopapp.plus", [AppFeature.trackOrders, AppFeature.wishlist, AppFeature.fastShipping])
+            .withBadge("Most Popular")
+            .withMarketingFeatures(["Fast shipping", "Premium support"])
+            .withSavings("Save 25%"),
+
         Product("com.shopapp.premium", AppFeature.allCases)
+            .withBadge("Best Value")
+            .withMarketingFeatures(["All features", "Priority processing"])
     ])
     .withPaywall { context in
         ShopPaywallView(context: context)
@@ -424,6 +585,212 @@ InAppKit.shared.registerFeature(
     AppFeature.advanced, 
     productIds: ["com.app.pro"]
 )
+```
+
+### Marketing API Methods
+
+InAppKit provides fluent API methods for enhanced product configuration:
+
+```swift
+// Product configuration with marketing
+Product("com.app.pro", features: [MyFeature.sync])
+    .withBadge("Most Popular")           // Promotional badge
+    .withMarketingFeatures([             // User-friendly features (bullet points)
+        "Cloud sync across devices",
+        "Priority customer support"
+    ])
+    .withSavings("Save 30%")            // Savings/discount info
+
+// Access marketing data programmatically
+let badge = InAppKit.shared.badge(for: "com.app.pro")
+let features = InAppKit.shared.marketingFeatures(for: "com.app.pro")
+let savings = InAppKit.shared.savings(for: "com.app.pro")
+```
+
+### 🎯 Advanced Feature Configuration
+
+InAppKit supports two approaches for defining features, giving you flexibility based on your app's complexity:
+
+#### **Approach 1: Type-Safe AppFeature Protocol (Recommended)**
+
+Define features using the `AppFeature` protocol for type safety and better developer experience:
+
+```swift
+import InAppKit
+
+// Define your app's features
+enum AppFeature: String, AppFeature, CaseIterable {
+    case cloudSync = "cloud_sync"
+    case advancedFilters = "advanced_filters"
+    case exportPDF = "export_pdf"
+    case prioritySupport = "priority_support"
+    case teamCollaboration = "team_collaboration"
+}
+
+// Configure products with type-safe features
+ContentView()
+    .withPurchases(products: [
+        // Basic Plan
+        Product("com.yourapp.basic", features: [AppFeature.cloudSync])
+            .withMarketingFeatures(["Cloud sync across devices"]),
+
+        // Pro Plan
+        Product("com.yourapp.pro", features: [AppFeature.cloudSync, AppFeature.advancedFilters, AppFeature.exportPDF])
+            .withBadge("Most Popular")
+            .withMarketingFeatures(["Advanced filters", "PDF export", "Priority support"])
+            .withSavings("Save 25%"),
+
+        // Premium Plan
+        Product("com.yourapp.premium", features: AppFeature.allCases)
+            .withBadge("Best Value")
+            .withMarketingFeatures(["All features included", "Team collaboration"])
+    ])
+```
+
+**Benefits of AppFeature Protocol:**
+- ✅ **Type Safety**: Compile-time checks prevent typos
+- ✅ **Autocomplete**: IDE provides feature suggestions
+- ✅ **Refactoring**: Easy to rename features across codebase
+- ✅ **Documentation**: Self-documenting feature names
+
+#### **Approach 2: Flexible Hashable Features**
+
+Use any `Hashable` type for maximum flexibility:
+
+```swift
+// Use String literals (simple but less safe)
+Product("com.yourapp.pro", features: ["sync", "export", "filters"])
+
+// Use custom types
+struct Feature: Hashable {
+    let name: String
+    let category: String
+}
+
+Product("com.yourapp.pro", features: [
+    Feature(name: "sync", category: "storage"),
+    Feature(name: "export", category: "sharing")
+])
+
+// Mix and match different types
+Product("com.yourapp.pro", features: ["basic_sync", 42, AppFeature.cloudSync])
+```
+
+#### **Feature Usage in UI**
+
+Both approaches work seamlessly with InAppKit's gating system:
+
+```swift
+// Type-safe approach (recommended)
+Button("Sync to Cloud") { syncToCloud() }
+    .requiresPurchase(AppFeature.cloudSync)
+
+Button("Export as PDF") { exportPDF() }
+    .requiresPurchase(AppFeature.exportPDF)
+
+// Flexible approach
+Button("Advanced Feature") { useAdvancedFeature() }
+    .requiresPurchase("advanced_feature")
+
+// Conditional gating
+Button("Team Collaboration") { openTeamPanel() }
+    .requiresPurchase(AppFeature.teamCollaboration, when: isTeamMember)
+```
+
+#### **Runtime Feature Management**
+
+Access and manage features programmatically:
+
+```swift
+// Check feature access
+if InAppKit.shared.hasAccess(to: AppFeature.cloudSync) {
+    enableCloudSync()
+}
+
+// Register features manually (usually automatic)
+InAppKit.shared.registerFeature(AppFeature.cloudSync, productIds: ["com.app.pro"])
+
+// Check feature registration
+if InAppKit.shared.isFeatureRegistered(AppFeature.exportPDF) {
+    showExportButton()
+}
+
+// Get products that provide a feature
+let syncProducts = InAppKit.shared.products(for: AppFeature.cloudSync)
+```
+
+#### **Complex Feature Hierarchies**
+
+For apps with complex feature sets, organize features into logical groups:
+
+```swift
+enum CreativeFeature: String, AppFeature, CaseIterable {
+    // Export Features
+    case exportHD = "export_hd"
+    case exportRAW = "export_raw"
+    case batchExport = "batch_export"
+
+    // Filter Features
+    case basicFilters = "basic_filters"
+    case aiFilters = "ai_filters"
+    case customFilters = "custom_filters"
+
+    // Storage Features
+    case cloudStorage = "cloud_storage"
+    case unlimitedStorage = "unlimited_storage"
+    case versionHistory = "version_history"
+
+    // Collaboration Features
+    case sharing = "sharing"
+    case teamWorkspace = "team_workspace"
+    case realTimeCollab = "realtime_collab"
+}
+
+// Organize products by user personas
+ContentView()
+    .withPurchases(products: [
+        // Hobbyist
+        Product("com.creativeapp.hobbyist", features: [
+            .basicFilters, .exportHD, .cloudStorage
+        ]),
+
+        // Professional
+        Product("com.creativeapp.pro", features: [
+            .basicFilters, .aiFilters, .exportHD, .exportRAW,
+            .batchExport, .cloudStorage, .sharing
+        ]),
+
+        // Studio/Team
+        Product("com.creativeapp.studio", features: CreativeFeature.allCases)
+    ])
+```
+
+#### **Best Practices**
+
+1. **Use Descriptive Names**: `cloudSync` not `sync`
+2. **Group Related Features**: Use enum cases that make logical sense
+3. **Consider User Mental Models**: Features should match how users think about functionality
+4. **Plan for Growth**: Design your feature enum to accommodate future additions
+5. **Document Feature Purpose**: Add comments explaining what each feature unlocks
+
+```swift
+enum AppFeature: String, AppFeature, CaseIterable {
+    // Storage & Sync
+    case cloudSync = "cloud_sync"           // Sync data across devices
+    case unlimitedStorage = "unlimited"     // Remove storage limits
+
+    // Content Creation
+    case advancedTools = "advanced_tools"   // Professional editing tools
+    case batchProcessing = "batch"          // Process multiple items
+
+    // Sharing & Collaboration
+    case shareLinks = "share_links"         // Generate shareable links
+    case teamWorkspace = "team_workspace"   // Multi-user collaboration
+
+    // Support & Service
+    case prioritySupport = "priority"       // Fast customer support
+    case earlyAccess = "early_access"       // Beta features access
+}
 ```
 
 ### Custom Premium Modifiers
@@ -600,97 +967,360 @@ ContentView()
 .requiresPurchase(AppFeature.premiumContent)
 ```
 
-### Complete Implementation: Photo Editing App
+### 📋 Complete Implementation Guide: Photo Editing App
+
+Here's a step-by-step implementation that shows how to use InAppKit's advanced features in a real app:
+
+#### **Step 1: Define Your App Features**
 
 ```swift
 import SwiftUI
 import InAppKit
 
 // Define app features aligned with business tiers
-enum AppFeature: String, InAppKit.AppFeature {
-    // Basic tier features
+enum AppFeature: String, AppFeature, CaseIterable {
+    // Basic tier features (always free)
     case basicFilters = "basic_filters"
     case cropResize = "crop_resize"
-    
+
     // Pro tier features
     case advancedFilters = "advanced_filters"
     case batchProcessing = "batch_processing"
     case cloudStorage = "cloud_storage"
-    
+
     // Professional tier features
     case rawSupport = "raw_support"
     case teamCollaboration = "team_collaboration"
     case prioritySupport = "priority_support"
-    
+
     // Enterprise tier features
     case apiAccess = "api_access"
     case whiteLabeling = "white_labeling"
     case ssoIntegration = "sso_integration"
 }
+```
 
+#### **Step 2: Configure Products with Marketing Enhancement**
+
+```swift
 @main
 struct PhotoEditApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .withPurchases(products: [
-                    // Freemium: Basic features included free
-                    Product("com.photoapp.pro", [
-                        AppFeature.advancedFilters, 
-                        AppFeature.batchProcessing, 
+                    // Pro Plan - Individual users
+                    Product("com.photoapp.pro", features: [
+                        AppFeature.advancedFilters,
+                        AppFeature.batchProcessing,
                         AppFeature.cloudStorage
-                    ]),
-                    Product("com.photoapp.professional", [
-                        AppFeature.advancedFilters, 
-                        AppFeature.batchProcessing, 
+                    ])
+                    .withBadge("Most Popular")
+                    .withMarketingFeatures([
+                        "AI-powered filters",
+                        "Batch processing",
+                        "Cloud storage"
+                    ])
+                    .withSavings("Save 30%"),
+
+                    // Professional Plan - Power users
+                    Product("com.photoapp.professional", features: [
+                        AppFeature.advancedFilters,
+                        AppFeature.batchProcessing,
                         AppFeature.cloudStorage,
-                        AppFeature.rawSupport, 
-                        AppFeature.teamCollaboration, 
+                        AppFeature.rawSupport,
+                        AppFeature.teamCollaboration,
                         AppFeature.prioritySupport
+                    ])
+                    .withBadge("Pro Choice")
+                    .withMarketingFeatures([
+                        "RAW file support",
+                        "Team collaboration",
+                        "Priority support"
                     ]),
-                    Product("com.photoapp.enterprise", AppFeature.allCases)
+
+                    // Enterprise Plan - Teams & organizations
+                    Product("com.photoapp.enterprise", features: AppFeature.allCases)
+                    .withBadge("Best Value")
+                    .withMarketingFeatures([
+                        "All features included",
+                        "API access",
+                        "White-label options"
+                    ])
                 ])
                 .withPaywall { context in
-                    PhotoAppPaywallView(
-                        triggeredBy: context.triggeredBy,
-                        products: context.availableProducts
-                    )
+                    PhotoAppPaywallView(context: context)
                 }
         }
     }
 }
+```
 
+#### **Step 3: Implement Feature Gating in UI**
+
+```swift
 struct ContentView: View {
     @State private var imageCount = 1
     @State private var isTeamMember = false
-    
+    @State private var selectedImages: [UIImage] = []
+
     var body: some View {
         VStack(spacing: 20) {
+            Text("Photo Editor Pro")
+                .font(.largeTitle.bold())
+
             // Always free - basic features
-            Button("Apply Basic Filter") { applyBasicFilter() }
-            Button("Crop & Resize") { cropAndResize() }
-            
-            // Pro tier gating
-            Button("Advanced AI Filter") { applyAIFilter() }
+            Group {
+                Button("Apply Basic Filter") {
+                    applyBasicFilter()
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button("Crop & Resize") {
+                    cropAndResize()
+                }
+                .buttonStyle(.bordered)
+            }
+
+            Divider()
+
+            // Pro tier gating - shows paywall if not purchased
+            Group {
+                Button("Advanced AI Filter") {
+                    applyAIFilter()
+                }
                 .requiresPurchase(AppFeature.advancedFilters)
-            
-            Button("Batch Process") { batchProcess() }
-                .requiresPurchase(AppFeature.batchProcessing, when: imageCount > 5)
-            
+
+                Button("Batch Process \(selectedImages.count) Images") {
+                    batchProcess()
+                }
+                .requiresPurchase(AppFeature.batchProcessing, when: selectedImages.count > 5)
+
+                Button("Save to Cloud") {
+                    saveToCloud()
+                }
+                .requiresPurchase(AppFeature.cloudStorage)
+            }
+
+            Divider()
+
             // Professional tier gating
-            Button("Edit RAW Files") { editRAW() }
+            Group {
+                Button("Edit RAW Files") {
+                    editRAW()
+                }
                 .requiresPurchase(AppFeature.rawSupport)
-            
-            Button("Team Collaboration") { openTeamPanel() }
+
+                Button("Team Collaboration") {
+                    openTeamPanel()
+                }
                 .requiresPurchase(AppFeature.teamCollaboration, when: isTeamMember)
-            
+            }
+
+            Divider()
+
             // Enterprise tier gating
-            Button("API Access") { configureAPI() }
-                .requiresPurchase(AppFeature.apiAccess)
+            Button("Configure API Access") {
+                configureAPI()
+            }
+            .requiresPurchase(AppFeature.apiAccess)
+
+            Spacer()
+
+            // Show current subscription status
+            SubscriptionStatusView()
         }
+        .padding()
+    }
+
+    // MARK: - Feature Implementation
+
+    private func applyBasicFilter() {
+        // Always available
+        print("Applied basic filter")
+    }
+
+    private func cropAndResize() {
+        // Always available
+        print("Cropped and resized image")
+    }
+
+    private func applyAIFilter() {
+        // Requires AppFeature.advancedFilters
+        print("Applied AI-powered filter")
+    }
+
+    private func batchProcess() {
+        // Requires AppFeature.batchProcessing when > 5 images
+        print("Batch processing \(selectedImages.count) images")
+    }
+
+    private func saveToCloud() {
+        // Requires AppFeature.cloudStorage
+        print("Saved to cloud storage")
+    }
+
+    private func editRAW() {
+        // Requires AppFeature.rawSupport
+        print("Opened RAW editor")
+    }
+
+    private func openTeamPanel() {
+        // Requires AppFeature.teamCollaboration
+        print("Opened team collaboration panel")
+    }
+
+    private func configureAPI() {
+        // Requires AppFeature.apiAccess
+        print("Opened API configuration")
     }
 }
 ```
+
+#### **Step 4: Custom Paywall (Optional)**
+
+```swift
+struct PhotoAppPaywallView: View {
+    let context: PaywallContext
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(spacing: 24) {
+            // Header
+            VStack(spacing: 12) {
+                Image(systemName: "camera.aperture")
+                    .font(.system(size: 60))
+                    .foregroundColor(.blue)
+
+                Text("Unlock Professional Photo Editing")
+                    .font(.title.bold())
+                    .multilineTextAlignment(.center)
+
+                if let triggeredBy = context.triggeredBy {
+                    Text("To use \(triggeredBy), upgrade to Pro")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            // Products - using enhanced PaywallContext
+            VStack(spacing: 12) {
+                ForEach(context.availableProducts, id: \.self) { product in
+                    PurchaseOptionCard(
+                        product: product,
+                        isSelected: product == context.recommendedProduct,
+                        onSelect: {
+                            Task {
+                                try await InAppKit.shared.purchase(product)
+                                dismiss()
+                            }
+                        },
+                        badge: context.badge(for: product),        // ✨ From context
+                        features: context.marketingFeatures(for: product), // ✨ From context
+                        savings: context.savings(for: product)    // ✨ From context
+                    )
+                }
+            }
+
+            // Alternative: Use the convenience property
+            /*
+            VStack(spacing: 12) {
+                ForEach(context.productsWithMarketing, id: \.product) { item in
+                    PurchaseOptionCard(
+                        product: item.product,
+                        isSelected: item.product == context.recommendedProduct,
+                        onSelect: {
+                            Task {
+                                try await InAppKit.shared.purchase(item.product)
+                                dismiss()
+                            }
+                        },
+                        badge: item.badge,
+                        features: item.features,
+                        savings: item.savings
+                    )
+                }
+            }
+            */
+
+            // Actions
+            Button("Restore Purchases") {
+                Task {
+                    await InAppKit.shared.restorePurchases()
+                    if InAppKit.shared.hasAnyPurchase {
+                        dismiss()
+                    }
+                }
+            }
+            .foregroundColor(.blue)
+        }
+        .padding()
+    }
+}
+```
+
+#### **Step 5: Subscription Status Display**
+
+```swift
+struct SubscriptionStatusView: View {
+    @State private var inAppKit = InAppKit.shared
+
+    var body: some View {
+        VStack(spacing: 8) {
+            if inAppKit.hasAnyPurchase {
+                Label("Pro Features Unlocked", systemImage: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+                    .font(.headline)
+
+                // Show specific features user has access to
+                VStack(alignment: .leading, spacing: 4) {
+                    if inAppKit.hasAccess(to: AppFeature.advancedFilters) {
+                        Text("• Advanced AI Filters")
+                    }
+                    if inAppKit.hasAccess(to: AppFeature.cloudStorage) {
+                        Text("• Cloud Storage")
+                    }
+                    if inAppKit.hasAccess(to: AppFeature.rawSupport) {
+                        Text("• RAW File Support")
+                    }
+                }
+                .font(.caption)
+                .foregroundColor(.secondary)
+            } else {
+                Label("Free Version", systemImage: "person.circle")
+                    .foregroundColor(.orange)
+                    .font(.headline)
+
+                Text("Upgrade to unlock all features")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
+    }
+}
+```
+
+#### **What This Implementation Demonstrates:**
+
+- ✅ **Type-safe feature definitions** with `AppFeature` enum
+- ✅ **Marketing-enhanced products** with badges, features, and savings
+- ✅ **Conditional feature gating** based on usage patterns
+- ✅ **Professional paywall integration** with context awareness
+- ✅ **Real-time subscription status** display
+- ✅ **Graceful feature degradation** for free users
+
+#### **Expected User Experience:**
+
+1. **Free users** can use basic filters and crop/resize
+2. **When they try advanced features**, they see a contextual paywall
+3. **After purchase**, all features unlock immediately
+4. **Premium badges** appear on unlocked features
+5. **Subscription status** is clearly displayed
+
+This implementation follows InAppKit's design principles while providing a professional user experience that converts free users to paid subscribers.
 
 ## 🤝 Contributing
 

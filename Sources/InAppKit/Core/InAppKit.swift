@@ -24,6 +24,7 @@ public class InAppKit {
     // Feature-based configuration storage
     private var featureToProductMapping: [AnyHashable: [String]] = [:]
     private var productToFeatureMapping: [String: [AnyHashable]] = [:]
+    private var productMarketingInfo: [String: (badge: String?, features: [String]?, savings: String?)] = [:]
     
     private var updateListenerTask: Task<Void, Error>?
     
@@ -43,14 +44,22 @@ public class InAppKit {
     /// Initialize with product configurations (for fluent API)
     internal func initialize(with productConfigs: [InternalProductConfig]) async {
         let productIDs = productConfigs.map { $0.id }
-        
-        // Register features
+
+        // Register features and marketing info
         for config in productConfigs {
+            // Register features
             for feature in config.features {
                 registerFeature(feature, productIds: [config.id])
             }
+
+            // Store marketing information
+            productMarketingInfo[config.id] = (
+                badge: config.badge,
+                features: config.marketingFeatures,
+                savings: config.savings
+            )
         }
-        
+
         await loadProducts(productIds: productIDs)
         isInitialized = true
     }
@@ -156,6 +165,23 @@ public class InAppKit {
     /// Check if a feature is registered (AnyHashable version)
     public func isFeatureRegistered(_ feature: AnyHashable) -> Bool {
         return featureToProductMapping[feature] != nil
+    }
+
+    // MARK: - Marketing Information
+
+    /// Get marketing badge for a product
+    public func badge(for productId: String) -> String? {
+        return productMarketingInfo[productId]?.badge
+    }
+
+    /// Get marketing features for a product
+    public func marketingFeatures(for productId: String) -> [String]? {
+        return productMarketingInfo[productId]?.features
+    }
+
+    /// Get savings information for a product
+    public func savings(for productId: String) -> String? {
+        return productMarketingInfo[productId]?.savings
     }
     
     // MARK: - Development Helpers

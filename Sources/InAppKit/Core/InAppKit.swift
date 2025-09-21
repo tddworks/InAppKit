@@ -113,28 +113,18 @@ public class InAppKit {
     
     /// Check if user has access to a specific feature
     public func hasAccess<F: Hashable>(to feature: F) -> Bool {
-        let featureKey = AnyHashable(feature)
-        let requiredProducts = featureToProductMapping[featureKey] ?? []
-        
-        // If no products mapped to this feature, fall back to any purchase check
-        if requiredProducts.isEmpty {
-            return hasAnyPurchase
-        }
-        
-        return requiredProducts.contains { productId in
-            purchasedProductIDs.contains(productId)
-        }
+        return hasAccess(to: AnyHashable(feature))
     }
-    
+
     /// Check if user has access to a feature (AnyHashable version)
     public func hasAccess(to feature: AnyHashable) -> Bool {
         let requiredProducts = featureToProductMapping[feature] ?? []
-        
+
         // If no products mapped to this feature, fall back to any purchase check
         if requiredProducts.isEmpty {
             return hasAnyPurchase
         }
-        
+
         return requiredProducts.contains { productId in
             purchasedProductIDs.contains(productId)
         }
@@ -160,10 +150,9 @@ public class InAppKit {
     
     /// Check if a feature is registered (for validation)
     public func isFeatureRegistered<F: Hashable>(_ feature: F) -> Bool {
-        let featureKey = AnyHashable(feature)
-        return featureToProductMapping[featureKey] != nil
+        return isFeatureRegistered(AnyHashable(feature))
     }
-    
+
     /// Check if a feature is registered (AnyHashable version)
     public func isFeatureRegistered(_ feature: AnyHashable) -> Bool {
         return featureToProductMapping[feature] != nil
@@ -238,11 +227,26 @@ public class InAppKit {
 
 public enum StoreError: Error {
     case failedVerification
-    
+    case productNotFound(String)
+    case purchaseInProgress
+    case userCancelled
+    case networkError(Error)
+    case unknownError(Error)
+
     public var localizedDescription: String {
         switch self {
         case .failedVerification:
             return "Purchase verification failed. Please try again."
+        case .productNotFound(let productId):
+            return "Product '\(productId)' not found in App Store."
+        case .purchaseInProgress:
+            return "A purchase is already in progress."
+        case .userCancelled:
+            return "Purchase was cancelled by user."
+        case .networkError:
+            return "Network error occurred. Please check your connection."
+        case .unknownError(let error):
+            return "An unexpected error occurred: \(error.localizedDescription)"
         }
     }
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 import StoreKit
 
-struct ModernProductCard: View {
+struct ProductCard: View {
     let product: Product
     let isSelected: Bool
     let onSelect: () -> Void

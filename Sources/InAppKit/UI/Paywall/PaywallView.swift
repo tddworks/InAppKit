@@ -63,7 +63,6 @@ public struct PaywallView: View {
         }
         .frame(width: 520, height: 700)
         .background(Color(NSColor.windowBackgroundColor))
-        .cornerRadius(20)
         .shadow(color: Color.black.opacity(0.15), radius: 20, x: 0, y: 10)
         .onAppear {
             withAnimation(.easeOut(duration: 0.6).delay(0.1)) {
@@ -178,7 +177,7 @@ public struct PaywallView: View {
     private var productsSection: some View {
         VStack(spacing: 20) {
             ForEach(inAppKit.availableProducts, id: \.self) { product in
-                ModernProductCard(
+                ProductCard(
                     product: product,
                     isSelected: selectedProduct?.id == product.id,
                     onSelect: { selectedProduct = product }

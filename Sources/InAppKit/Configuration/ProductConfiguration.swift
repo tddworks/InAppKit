@@ -11,7 +11,15 @@ import StoreKit
 
 // MARK: - Product Configuration Support
 
-public struct ProductConfig<T: Hashable & Sendable>: Sendable {
+public protocol AnyProductConfig {
+    var id: String { get }
+    var badge: String? { get }
+    var marketingFeatures: [String]? { get }
+    var savings: String? { get }
+    func toInternal() -> InternalProductConfig
+}
+
+public struct ProductConfig<T: Hashable>: AnyProductConfig {
     public let id: String
     public let features: [T]
     public let badge: String?
@@ -30,6 +38,16 @@ public struct ProductConfig<T: Hashable & Sendable>: Sendable {
         self.badge = badge
         self.marketingFeatures = marketingFeatures
         self.savings = savings
+    }
+
+    public func toInternal() -> InternalProductConfig {
+        InternalProductConfig(
+            id: id,
+            features: features.map { AnyHashable($0) },
+            badge: badge,
+            marketingFeatures: marketingFeatures,
+            savings: savings
+        )
     }
 }
 
@@ -64,12 +82,12 @@ public func Product(_ id: String) -> ProductConfig<String> {
 }
 
 // New fluent API convenience functions
-public func Product<T: Hashable & Sendable>(_ id: String, features: [T]) -> ProductConfig<T> {
+public func Product<T: Hashable>(_ id: String, features: [T]) -> ProductConfig<T> {
     ProductConfig(id, features: features)
 }
 
 // Support for .allCases with features: label (consistent API)
-public func Product<T: CaseIterable & Hashable & Sendable>(_ id: String, features allCases: T.AllCases) -> ProductConfig<T> {
+public func Product<T: CaseIterable & Hashable>(_ id: String, features allCases: T.AllCases) -> ProductConfig<T> {
     ProductConfig(id, features: Array(allCases))
 }
 

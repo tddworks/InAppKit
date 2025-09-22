@@ -36,8 +36,8 @@ public class StoreKitConfiguration {
         return self
     }
     
-    /// Configure purchases with features
-    public func withPurchases<T: Hashable & Sendable>(products: [ProductConfig<T>]) -> StoreKitConfiguration {
+    /// Configure purchases with features (supports mixed types)
+    public func withPurchases<T: Hashable>(products: [ProductConfig<T>]) -> StoreKitConfiguration {
         productConfigs.append(contentsOf: products.map {
             InternalProductConfig(
                 id: $0.id,
@@ -63,7 +63,13 @@ public class StoreKitConfiguration {
         })
         return self
     }
-    
+
+    /// Configure purchases with mixed product types (generic protocol approach)
+    public func withPurchases(products: [AnyProductConfig]) -> StoreKitConfiguration {
+        productConfigs.append(contentsOf: products.map { $0.toInternal() })
+        return self
+    }
+
     /// Configure custom paywall
     public func withPaywall<Content: View>(@ViewBuilder _ builder: @escaping (PaywallContext) -> Content) -> StoreKitConfiguration {
         paywallBuilder = { context in AnyView(builder(context)) }
@@ -176,7 +182,7 @@ private struct InAppKitModifier: ViewModifier {
 
 public extension View {
     /// Start fluent API chain with products
-    func withPurchases<T: Hashable & Sendable>(products: [ProductConfig<T>]) -> ChainableStoreKitView<Self> {
+    func withPurchases<T: Hashable>(products: [ProductConfig<T>]) -> ChainableStoreKitView<Self> {
         let config = StoreKitConfiguration()
             .withPurchases(products: products)
         return ChainableStoreKitView(content: self, config: config)
@@ -188,7 +194,14 @@ public extension View {
             .withPurchases(products: products)
         return ChainableStoreKitView(content: self, config: config)
     }
-    
+
+    /// Start fluent API chain with mixed product types
+    func withPurchases(products: [AnyProductConfig]) -> ChainableStoreKitView<Self> {
+        let config = StoreKitConfiguration()
+            .withPurchases(products: products)
+        return ChainableStoreKitView(content: self, config: config)
+    }
+
     /// Start fluent API chain with single product
     func withPurchases(_ productId: String) -> ChainableStoreKitView<Self> {
         let config = StoreKitConfiguration()

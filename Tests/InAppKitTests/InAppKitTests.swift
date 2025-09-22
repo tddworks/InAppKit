@@ -301,20 +301,26 @@ struct InAppKitTests {
     }
 
     @Test @MainActor func testProductConfiguration() {
-        // Test complete configuration with explicit array vs allCases
+        // Test complete configuration with mixed product types
         let config = StoreKitConfiguration()
             .withPurchases(products: [
                 Product("com.test.basic", features: [TestFeature.sync, TestFeature.export, TestFeature.premium]),
-                Product("com.test.premium", features: TestFeature.allCases)
+                Product("com.test.premium", features: TestFeature.allCases),
+                Product("com.test.premium1", features: ["some-feature"]),
+                Product("com.test.basic1")
             ])
 
-        #expect(config.productConfigs.count == 2)
+        #expect(config.productConfigs.count == 4)
         #expect(config.productConfigs[0].id == "com.test.basic")
         #expect(config.productConfigs[1].id == "com.test.premium")
+        #expect(config.productConfigs[2].id == "com.test.premium1")
+        #expect(config.productConfigs[3].id == "com.test.basic1")
 
-        // Both products should have same features (3 each)
+        // Features count verification
         #expect(config.productConfigs[0].features.count == 3)
         #expect(config.productConfigs[1].features.count == 3)
+        #expect(config.productConfigs[2].features.count == 1)
+        #expect(config.productConfigs[3].features.isEmpty)
     }
 
     @Test @MainActor func testProductWithView() {

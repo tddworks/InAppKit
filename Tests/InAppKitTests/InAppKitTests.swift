@@ -197,13 +197,13 @@ struct InAppKitTests {
         #expect(product1.id == "com.test.basic")
         #expect(product1.features.count == 1)
         
-        // Test array syntax
-        let product2 = Product("com.test.pro", [TestFeature.sync, TestFeature.export])
+        // Test array syntax with features: label
+        let product2 = Product("com.test.pro", features: [TestFeature.sync, TestFeature.export])
         #expect(product2.id == "com.test.pro")
         #expect(product2.features.count == 2)
-        
-        // Test .allCases support (would work with a CaseIterable enum)
-        let product3 = Product("com.test.premium", TestFeature.allCases)
+
+        // Test .allCases support with features: label
+        let product3 = Product("com.test.premium", features: TestFeature.allCases)
         #expect(product3.id == "com.test.premium")
         #expect(product3.features.count == TestFeature.allCases.count)
     }
@@ -241,5 +241,96 @@ struct InAppKitTests {
         #expect(chainedView.config.paywallBuilder == nil) // No custom paywall
         #expect(chainedView.config.termsBuilder != nil) // But terms are configured
         #expect(chainedView.config.privacyBuilder != nil) // And privacy is configured
+    }
+
+    // MARK: - TDD: Consistent Product API Tests
+
+    @Test @MainActor func testProductNoFeatures() {
+        // Test: Product("id") - no features
+        let product = Product("com.test.simple")
+
+        #expect(product.id == "com.test.simple")
+        #expect(product.features.isEmpty)
+        #expect(type(of: product) == ProductConfig<String>.self)
+    }
+
+    @Test @MainActor func testProductWithEnumFeatures() {
+        // Test: Product("id", features: [.enum]) - enum features with label
+        let product = Product("com.test.basic", features: [TestFeature.sync])
+
+        #expect(product.id == "com.test.basic")
+        #expect(product.features.count == 1)
+        #expect(product.features.contains(TestFeature.sync))
+        #expect(type(of: product) == ProductConfig<TestFeature>.self)
+    }
+
+    @Test @MainActor func testProductWithMultipleEnumFeatures() {
+        // Test: Product("id", features: [.enum1, .enum2]) - multiple enum features
+        let product = Product("com.test.pro", features: [TestFeature.sync, TestFeature.export, TestFeature.premium])
+
+        #expect(product.id == "com.test.pro")
+        #expect(product.features.count == 3)
+        #expect(product.features.contains(TestFeature.sync))
+        #expect(product.features.contains(TestFeature.export))
+        #expect(product.features.contains(TestFeature.premium))
+    }
+
+    @Test @MainActor func testProductWithAllCases() {
+        // Test: Product("id", features: Enum.allCases) - allCases with label
+        let product = Product("com.test.premium", features: TestFeature.allCases)
+
+        #expect(product.id == "com.test.premium")
+        #expect(product.features.count == TestFeature.allCases.count)
+        #expect(product.features.count == 3) // sync, export, premium
+
+        // Verify all cases are included
+        for feature in TestFeature.allCases {
+            #expect(product.features.contains(feature))
+        }
+    }
+
+    @Test @MainActor func testProductWithStringFeatures() {
+        // Test: Product("id", features: ["string"]) - string features
+        let product = Product("com.test.string", features: ["feature1", "feature2"])
+
+        #expect(product.id == "com.test.string")
+        #expect(product.features.count == 2)
+        #expect(product.features.contains("feature1"))
+        #expect(product.features.contains("feature2"))
+        #expect(type(of: product) == ProductConfig<String>.self)
+    }
+
+    @Test @MainActor func testProductConfiguration() {
+        // Test complete configuration with explicit array vs allCases
+        let config = StoreKitConfiguration()
+            .withPurchases(products: [
+                Product("com.test.basic", features: [TestFeature.sync, TestFeature.export, TestFeature.premium]),
+                Product("com.test.premium", features: TestFeature.allCases)
+            ])
+
+        #expect(config.productConfigs.count == 2)
+        #expect(config.productConfigs[0].id == "com.test.basic")
+        #expect(config.productConfigs[1].id == "com.test.premium")
+
+        // Both products should have same features (3 each)
+        #expect(config.productConfigs[0].features.count == 3)
+        #expect(config.productConfigs[1].features.count == 3)
+    }
+
+    @Test @MainActor func testProductWithView() {
+        // Test Product with view chaining
+        let baseView = Text("Premium Content")
+
+        let premiumView = baseView
+            .withPurchases(products: [
+                Product("com.test.basic", features: [TestFeature.sync, TestFeature.export, TestFeature.premium])
+            ])
+            .withPaywall { context in
+                Text("Upgrade to Premium")
+            }
+
+        #expect(type(of: premiumView) == ChainableStoreKitView<Text>.self)
+        #expect(premiumView.config.productConfigs.count == 1)
+        #expect(premiumView.config.productConfigs.first?.features.count == 3)
     }
 }

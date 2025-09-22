@@ -68,31 +68,9 @@ public func Product<T: Hashable & Sendable>(_ id: String, features: [T]) -> Prod
     ProductConfig(id, features: features)
 }
 
-// Product with marketing information
-public func Product<T: Hashable & Sendable>(
-    _ id: String,
-    features: [T],
-    badge: String? = nil,
-    marketingFeatures: [String]? = nil,
-    savings: String? = nil
-) -> ProductConfig<T> {
-    ProductConfig(
-        id,
-        features: features,
-        badge: badge,
-        marketingFeatures: marketingFeatures,
-        savings: savings
-    )
-}
-
-// Support for .allCases pattern - for when you pass [EnumType.allCases]
-public func Product<T: CaseIterable & Hashable & Sendable>(_ id: String, _ allCases: T.AllCases) -> ProductConfig<T> {
+// Support for .allCases with features: label (consistent API)
+public func Product<T: CaseIterable & Hashable & Sendable>(_ id: String, features allCases: T.AllCases) -> ProductConfig<T> {
     ProductConfig(id, features: Array(allCases))
-}
-
-// Direct array support for cleaner syntax
-public func Product<T: Hashable & Sendable>(_ id: String, _ features: [T]) -> ProductConfig<T> {
-    ProductConfig(id, features: features)
 }
 
 // MARK: - Fluent API Extensions for Marketing

@@ -86,8 +86,8 @@ public struct PaywallView: View {
                 animationOpacity = 1
             }
         }
-        .alert("Restore Status", isPresented: $showRestoreAlert) {
-            Button("OK") { }
+        .alert("paywall.restore.title".localized(fallback: "Restore Status"), isPresented: $showRestoreAlert) {
+            Button("paywall.restore.ok".localized(fallback: "OK")) { }
         } message: {
             if let message = restoreMessage {
                 Text(message)
@@ -121,12 +121,12 @@ public struct PaywallView: View {
             }
             
             VStack(spacing: 8) {
-                Text("Upgrade to Pro")
+                Text("paywall.header.title".localized(fallback: "Upgrade to Pro"))
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                     .multilineTextAlignment(.center)
                 
-                Text("Unlock advanced features and premium support")
+                Text("paywall.header.subtitle".localized(fallback: "Unlock advanced features and premium support"))
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -141,7 +141,7 @@ public struct PaywallView: View {
                 .scaleEffect(1.2)
                 .progressViewStyle(CircularProgressViewStyle(tint: .blue))
             
-            Text("Loading products...")
+            Text("paywall.loading".localized(fallback: "Loading products..."))
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(.secondary)
         }
@@ -157,13 +157,13 @@ public struct PaywallView: View {
                     await inAppKit.restorePurchases()
                     
                     if inAppKit.hasAnyPurchase {
-                        restoreMessage = "Purchases restored successfully!"
+                        restoreMessage = "paywall.restore.success".localized(fallback: "Purchases restored successfully!")
                         showRestoreAlert = true
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                             dismiss()
                         }
                     } else {
-                        restoreMessage = "No previous purchases found."
+                        restoreMessage = "paywall.restore.none".localized(fallback: "No previous purchases found.")
                         showRestoreAlert = true
                     }
                     
@@ -176,7 +176,7 @@ public struct PaywallView: View {
                             .scaleEffect(0.8)
                             .progressViewStyle(CircularProgressViewStyle(tint: .blue))
                     }
-                    Text(isRestoring ? "Restoring..." : "Restore Purchases")
+                    Text(isRestoring ? "paywall.restore.restoring".localized(fallback: "Restoring...") : "paywall.restore.button".localized(fallback: "Restore Purchases"))
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(.blue)
                 }
@@ -221,7 +221,7 @@ public struct PaywallView: View {
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         }
                         
-                        Text(inAppKit.isPurchasing ? "Processing..." : "Purchase \(selectedProduct.displayPrice)")
+                        Text(inAppKit.isPurchasing ? "paywall.purchase.processing".localized(fallback: "Processing...") : "paywall.purchase.button".localized("\(selectedProduct.displayPrice)", fallback: "Purchase %@"))
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
                     }
@@ -247,30 +247,30 @@ public struct PaywallView: View {
     
     private var featuresSection: some View {
         VStack(spacing: 16) {
-            Text("What's Included")
+            Text("paywall.features.title".localized(fallback: "What's Included"))
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(.primary)
             
             VStack(spacing: 12) {
                 FeatureRow(
                     icon: "star.fill",
-                    title: "Premium Features",
-                    subtitle: "Access to all advanced functionality"
+                    title: "paywall.feature.premium.title".localized(fallback: "Premium Features"),
+                    subtitle: "paywall.feature.premium.subtitle".localized(fallback: "Access to all advanced functionality")
                 )
                 FeatureRow(
                     icon: "heart.fill",
-                    title: "Priority Support",
-                    subtitle: "Get help when you need it most"
+                    title: "paywall.feature.support.title".localized(fallback: "Priority Support"),
+                    subtitle: "paywall.feature.support.subtitle".localized(fallback: "Get help when you need it most")
                 )
                 FeatureRow(
                     icon: "arrow.clockwise",
-                    title: "Regular Updates",
-                    subtitle: "New features and improvements"
+                    title: "paywall.feature.updates.title".localized(fallback: "Regular Updates"),
+                    subtitle: "paywall.feature.updates.subtitle".localized(fallback: "New features and improvements")
                 )
                 FeatureRow(
                     icon: "checkmark.shield.fill",
-                    title: "Lifetime Access",
-                    subtitle: "One-time purchase, yours forever"
+                    title: "paywall.feature.lifetime.title".localized(fallback: "Lifetime Access"),
+                    subtitle: "paywall.feature.lifetime.subtitle".localized(fallback: "One-time purchase, yours forever")
                 )
             }
         }

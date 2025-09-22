@@ -107,8 +107,24 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## 📄 License
 
-MIT License. See [LICENSE](LICENSE) for details.
+Apache-2.0 License. See [LICENSE](LICENSE) for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- Built on Apple's StoreKit 2
+- Inspired by SwiftUI's declarative approach
+- Designed for modern iOS development
 
 ---
 
 **Ready to add premium features?** → **[Start with the Getting Started Guide](docs/getting-started.md)**
+
+<div align="center">
+
+**InAppKit** - Because in-app purchases shouldn't be complicated. 🚀
+
+Made with ❤️ by the [TDDWorks](https://github.com/tddworks) team
+
+</div>

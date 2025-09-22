@@ -22,11 +22,11 @@ Boost conversion rates with badges, feature highlights, and savings displays.
 ContentView()
     .withPurchases(products: [
         Product("com.app.basic", features: [Feature.removeAds])
-            .withBadge("Popular")
+            .withBadge("Popular", color: .orange)
             .withMarketingFeatures(["No ads", "Basic support"]),
 
         Product("com.app.pro", features: [Feature.removeAds, Feature.cloudSync])
-            .withBadge("Best Value")
+            .withBadge("Best Value", color: .green)
             .withMarketingFeatures([
                 "Everything in Basic",
                 "Cloud sync across devices",
@@ -35,7 +35,7 @@ ContentView()
             .withSavings("Save 30%"),
 
         Product("com.app.premium", features: Feature.allCases)
-            .withBadge("Professional")
+            .withBadge("Professional", color: .purple)
             .withMarketingFeatures([
                 "Everything in Pro",
                 "Advanced analytics",

@@ -198,6 +198,7 @@ public struct PaywallView: View {
                     isSelected: selectedProduct?.id == product.id,
                     onSelect: { selectedProduct = product },
                     badge: inAppKit.badge(for: product.id),
+                    badgeColor: inAppKit.badgeColor(for: product.id),
                     features: inAppKit.marketingFeatures(for: product.id),
                     savings: inAppKit.savings(for: product.id)
                 )

@@ -24,7 +24,7 @@ public class InAppKit {
     // Feature-based configuration storage
     private var featureToProductMapping: [AnyHashable: [String]] = [:]
     private var productToFeatureMapping: [String: [AnyHashable]] = [:]
-    private var productMarketingInfo: [String: (badge: String?, features: [String]?, savings: String?)] = [:]
+    private var productMarketingInfo: [String: (badge: String?, badgeColor: Color?, features: [String]?, savings: String?)] = [:]
     
     private var updateListenerTask: Task<Void, Error>?
     
@@ -55,6 +55,7 @@ public class InAppKit {
             // Store marketing information
             productMarketingInfo[config.id] = (
                 badge: config.badge,
+                badgeColor: config.badgeColor,
                 features: config.marketingFeatures,
                 savings: config.savings
             )
@@ -172,6 +173,11 @@ public class InAppKit {
     /// Get marketing badge for a product
     public func badge(for productId: String) -> String? {
         return productMarketingInfo[productId]?.badge
+    }
+
+    /// Get badge color for a product
+    public func badgeColor(for productId: String) -> Color? {
+        return productMarketingInfo[productId]?.badgeColor
     }
 
     /// Get marketing features for a product

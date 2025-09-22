@@ -49,6 +49,7 @@ struct PurchaseOptionCard: View {
 
     // Optional marketing enhancements
     let badge: String?
+    let badgeColor: Color?
     let features: [String]?
     let savings: String?
 
@@ -57,6 +58,7 @@ struct PurchaseOptionCard: View {
         isSelected: Bool,
         onSelect: @escaping () -> Void,
         badge: String? = nil,
+        badgeColor: Color? = nil,
         features: [String]? = nil,
         savings: String? = nil
     ) {
@@ -64,6 +66,7 @@ struct PurchaseOptionCard: View {
         self.isSelected = isSelected
         self.onSelect = onSelect
         self.badge = badge
+        self.badgeColor = badgeColor
         self.features = features
         self.savings = savings
     }
@@ -169,6 +172,7 @@ struct PurchaseOptionCard: View {
             price: product.displayPrice,
             billingPeriod: billingPeriod,
             badge: badge,
+            badgeColor: badgeColor,
             features: features,
             savings: savings,
             isSelected: isSelected,
@@ -185,6 +189,7 @@ private struct PurchaseOptionCardView: View {
     let price: String
     let billingPeriod: String
     let badge: String?
+    let badgeColor: Color?
     let features: [String]?
     let savings: String?
     let isSelected: Bool
@@ -224,7 +229,7 @@ private struct PurchaseOptionCardView: View {
                                 .padding(.vertical, CardStyle.badgeVerticalPadding)
                                 .background(
                                     Capsule()
-                                        .fill(badge.lowercased().contains("popular") ? Color.orange : Color.blue)
+                                        .fill(badgeColor ?? (badge.lowercased().contains("popular") ? Color.orange : Color.blue))
                                 )
                         }
 
@@ -310,6 +315,7 @@ private struct PurchaseOptionCardView: View {
                 price: "$9.99",
                 billingPeriod: "Monthly",
                 badge: nil,
+                badgeColor: nil,
                 features: ["Cloud sync", "Premium filters"],
                 savings: nil,
                 isSelected: false,
@@ -323,6 +329,7 @@ private struct PurchaseOptionCardView: View {
                 price: "$99.99",
                 billingPeriod: "Yearly",
                 badge: "Most Popular",
+                badgeColor: .orange,
                 features: ["Cloud sync", "Premium filters", "Priority support"],
                 savings: "Save 30%",
                 isSelected: true,
@@ -336,6 +343,7 @@ private struct PurchaseOptionCardView: View {
                 price: "$199.99",
                 billingPeriod: "Lifetime",
                 badge: "Best Value",
+                badgeColor: .green,
                 features: ["All features included", "Lifetime updates"],
                 savings: nil,
                 isSelected: false,

@@ -14,6 +14,7 @@ import StoreKit
 public protocol AnyProductConfig {
     var id: String { get }
     var badge: String? { get }
+    var badgeColor: Color? { get }
     var marketingFeatures: [String]? { get }
     var savings: String? { get }
     func toInternal() -> InternalProductConfig
@@ -23,6 +24,7 @@ public struct ProductConfig<T: Hashable>: AnyProductConfig {
     public let id: String
     public let features: [T]
     public let badge: String?
+    public let badgeColor: Color?
     public let marketingFeatures: [String]?
     public let savings: String?
 
@@ -30,12 +32,14 @@ public struct ProductConfig<T: Hashable>: AnyProductConfig {
         _ id: String,
         features: [T],
         badge: String? = nil,
+        badgeColor: Color? = nil,
         marketingFeatures: [String]? = nil,
         savings: String? = nil
     ) {
         self.id = id
         self.features = features
         self.badge = badge
+        self.badgeColor = badgeColor
         self.marketingFeatures = marketingFeatures
         self.savings = savings
     }
@@ -45,6 +49,7 @@ public struct ProductConfig<T: Hashable>: AnyProductConfig {
             id: id,
             features: features.map { AnyHashable($0) },
             badge: badge,
+            badgeColor: badgeColor,
             marketingFeatures: marketingFeatures,
             savings: savings
         )
@@ -56,6 +61,7 @@ public struct InternalProductConfig: @unchecked Sendable {
     public let id: String
     public let features: [AnyHashable]
     public let badge: String?
+    public let badgeColor: Color?
     public let marketingFeatures: [String]?
     public let savings: String?
 
@@ -63,12 +69,14 @@ public struct InternalProductConfig: @unchecked Sendable {
         id: String,
         features: [AnyHashable],
         badge: String? = nil,
+        badgeColor: Color? = nil,
         marketingFeatures: [String]? = nil,
         savings: String? = nil
     ) {
         self.id = id
         self.features = features
         self.badge = badge
+        self.badgeColor = badgeColor
         self.marketingFeatures = marketingFeatures
         self.savings = savings
     }
@@ -100,6 +108,19 @@ public extension ProductConfig {
             id,
             features: features,
             badge: badge,
+            badgeColor: badgeColor,
+            marketingFeatures: marketingFeatures,
+            savings: savings
+        )
+    }
+
+    /// Add a promotional badge with custom color
+    func withBadge(_ badge: String, color: Color) -> ProductConfig<T> {
+        ProductConfig(
+            id,
+            features: features,
+            badge: badge,
+            badgeColor: color,
             marketingFeatures: marketingFeatures,
             savings: savings
         )
@@ -111,6 +132,7 @@ public extension ProductConfig {
             id,
             features: self.features,
             badge: badge,
+            badgeColor: badgeColor,
             marketingFeatures: features,
             savings: savings
         )
@@ -122,6 +144,7 @@ public extension ProductConfig {
             id,
             features: features,
             badge: badge,
+            badgeColor: badgeColor,
             marketingFeatures: marketingFeatures,
             savings: savings
         )

@@ -363,7 +363,7 @@ ContentView()
     .withPurchases(products: [...])
     .withPaywallHeader {
         PaywallHeader(
-            icon: "sparkles",
+            icon: .system("sparkles"),
             title: "Go Premium",
             subtitle: "Transform your experience with powerful features",
             iconColor: .purple,
@@ -375,25 +375,25 @@ ContentView()
             title: "Premium Benefits",
             features: [
                 PaywallFeature(
-                    icon: "wand.and.stars",
+                    icon: .system("wand.and.stars"),
                     title: "AI-Powered Features",
                     subtitle: "Smart automation and intelligent suggestions",
                     iconColor: .purple
                 ),
                 PaywallFeature(
-                    icon: "icloud.and.arrow.up",
+                    icon: .asset("cloud-sync-icon"),  // Using custom asset
                     title: "Cloud Sync",
                     subtitle: "Seamless sync across all your devices",
                     iconColor: .blue
                 ),
                 PaywallFeature(
-                    icon: "chart.line.uptrend.xyaxis",
+                    icon: .system("chart.line.uptrend.xyaxis"),
                     title: "Advanced Analytics",
                     subtitle: "Detailed insights and performance metrics",
                     iconColor: .green
                 ),
                 PaywallFeature(
-                    icon: "person.badge.shield.checkmark",
+                    icon: .custom(Image("priority-badge").renderingMode(.template)),
                     title: "Priority Support",
                     subtitle: "Get expert help within 24 hours",
                     iconColor: .orange
@@ -406,10 +406,31 @@ ContentView()
 Or use the convenience methods for simpler customization:
 
 ```swift
+// System icon (default)
 ContentView()
     .withPurchases(products: [...])
     .withPaywallHeader(
-        icon: "crown.fill",
+        systemIcon: "crown.fill",
+        title: "Unlock Pro",
+        subtitle: "Get access to all premium features",
+        iconColor: .gold
+    )
+
+// Asset icon
+ContentView()
+    .withPurchases(products: [...])
+    .withPaywallHeader(
+        assetIcon: "premium-crown",
+        title: "Unlock Pro",
+        subtitle: "Get access to all premium features",
+        iconColor: .gold
+    )
+
+// PaywallIcon enum
+ContentView()
+    .withPurchases(products: [...])
+    .withPaywallHeader(
+        icon: .asset("premium-crown"),
         title: "Unlock Pro",
         subtitle: "Get access to all premium features",
         iconColor: .gold
@@ -418,6 +439,33 @@ ContentView()
         title: "What You Get",
         features: PaywallFeature.defaultFeatures
     )
+```
+
+### Icon Types
+
+PaywallIcon supports three different icon types:
+
+```swift
+// System icons (SF Symbols)
+PaywallFeature(icon: .system("star.fill"), title: "Premium", subtitle: "...")
+
+// Asset images from your app bundle
+PaywallFeature(icon: .asset("premium-icon"), title: "Premium", subtitle: "...")
+
+// Custom images with full control
+PaywallFeature(
+    icon: .custom(
+        Image("custom-icon")
+            .renderingMode(.template)
+            .resizable()
+    ),
+    title: "Premium",
+    subtitle: "..."
+)
+
+// Convenience initializers for backward compatibility
+PaywallFeature(systemIcon: "star.fill", title: "Premium", subtitle: "...")
+PaywallFeature(assetIcon: "premium-icon", title: "Premium", subtitle: "...")
 ```
 
 ### Custom Paywall Components

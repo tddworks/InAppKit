@@ -7,18 +7,38 @@
 
 import SwiftUI
 
+// MARK: - PaywallIcon
+
+/// Icon type for paywall components supporting system icons, asset images, and custom images
+public enum PaywallIcon: Sendable {
+    case system(String)
+    case asset(String)
+    case custom(Image)
+
+    public var image: Image {
+        switch self {
+        case .system(let name):
+            return Image(systemName: name)
+        case .asset(let name):
+            return Image(name)
+        case .custom(let image):
+            return image
+        }
+    }
+}
+
 // MARK: - Paywall Header Components
 
 /// Customizable paywall header with icon, title, and subtitle
 public struct PaywallHeader: View {
-    let icon: String
+    let icon: PaywallIcon
     let title: String
     let subtitle: String
     let iconColor: Color
     let backgroundColor: Color
 
     public init(
-        icon: String = "crown.fill",
+        icon: PaywallIcon = .system("crown.fill"),
         title: String = "Upgrade to Pro",
         subtitle: String = "Unlock advanced features and premium support",
         iconColor: Color = .blue,
@@ -29,6 +49,39 @@ public struct PaywallHeader: View {
         self.subtitle = subtitle
         self.iconColor = iconColor
         self.backgroundColor = backgroundColor
+    }
+
+    // Convenience initializers for backward compatibility
+    public init(
+        systemIcon: String,
+        title: String = "Upgrade to Pro",
+        subtitle: String = "Unlock advanced features and premium support",
+        iconColor: Color = .blue,
+        backgroundColor: Color = Color.blue.opacity(0.2)
+    ) {
+        self.init(
+            icon: .system(systemIcon),
+            title: title,
+            subtitle: subtitle,
+            iconColor: iconColor,
+            backgroundColor: backgroundColor
+        )
+    }
+
+    public init(
+        assetIcon: String,
+        title: String = "Upgrade to Pro",
+        subtitle: String = "Unlock advanced features and premium support",
+        iconColor: Color = .blue,
+        backgroundColor: Color = Color.blue.opacity(0.2)
+    ) {
+        self.init(
+            icon: .asset(assetIcon),
+            title: title,
+            subtitle: subtitle,
+            iconColor: iconColor,
+            backgroundColor: backgroundColor
+        )
     }
 
     public var body: some View {
@@ -45,7 +98,7 @@ public struct PaywallHeader: View {
                     )
                     .frame(width: 80, height: 80)
 
-                Image(systemName: icon)
+                icon.image
                     .font(.system(size: 32, weight: .bold))
                     .foregroundStyle(
                         LinearGradient(
@@ -76,13 +129,13 @@ public struct PaywallHeader: View {
 
 /// Individual feature row component
 public struct PaywallFeatureRow: View {
-    let icon: String
+    let icon: PaywallIcon
     let title: String
     let subtitle: String
     let iconColor: Color
 
     public init(
-        icon: String,
+        icon: PaywallIcon,
         title: String,
         subtitle: String,
         iconColor: Color = .blue
@@ -93,6 +146,35 @@ public struct PaywallFeatureRow: View {
         self.iconColor = iconColor
     }
 
+    // Convenience initializers
+    public init(
+        systemIcon: String,
+        title: String,
+        subtitle: String,
+        iconColor: Color = .blue
+    ) {
+        self.init(
+            icon: .system(systemIcon),
+            title: title,
+            subtitle: subtitle,
+            iconColor: iconColor
+        )
+    }
+
+    public init(
+        assetIcon: String,
+        title: String,
+        subtitle: String,
+        iconColor: Color = .blue
+    ) {
+        self.init(
+            icon: .asset(assetIcon),
+            title: title,
+            subtitle: subtitle,
+            iconColor: iconColor
+        )
+    }
+
     public var body: some View {
         HStack(spacing: 16) {
             ZStack {
@@ -100,7 +182,7 @@ public struct PaywallFeatureRow: View {
                     .fill(iconColor.opacity(0.15))
                     .frame(width: 44, height: 44)
 
-                Image(systemName: icon)
+                icon.image
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(iconColor)
             }
@@ -159,13 +241,13 @@ public struct PaywallFeatures: View {
 
 public struct PaywallFeature: Identifiable, Sendable {
     public let id = UUID()
-    public let icon: String
+    public let icon: PaywallIcon
     public let title: String
     public let subtitle: String
     public let iconColor: Color
 
     public init(
-        icon: String,
+        icon: PaywallIcon,
         title: String,
         subtitle: String,
         iconColor: Color = .blue
@@ -176,28 +258,57 @@ public struct PaywallFeature: Identifiable, Sendable {
         self.iconColor = iconColor
     }
 
+    // Convenience initializers
+    public init(
+        systemIcon: String,
+        title: String,
+        subtitle: String,
+        iconColor: Color = .blue
+    ) {
+        self.init(
+            icon: .system(systemIcon),
+            title: title,
+            subtitle: subtitle,
+            iconColor: iconColor
+        )
+    }
+
+    public init(
+        assetIcon: String,
+        title: String,
+        subtitle: String,
+        iconColor: Color = .blue
+    ) {
+        self.init(
+            icon: .asset(assetIcon),
+            title: title,
+            subtitle: subtitle,
+            iconColor: iconColor
+        )
+    }
+
     // MARK: - Default Features
 
     public static let premiumFeatures = PaywallFeature(
-        icon: "star.fill",
+        icon: .system("star.fill"),
         title: "Premium Features",
         subtitle: "Access to all advanced functionality"
     )
 
     public static let prioritySupport = PaywallFeature(
-        icon: "heart.fill",
+        icon: .system("heart.fill"),
         title: "Priority Support",
         subtitle: "Get help when you need it most"
     )
 
     public static let regularUpdates = PaywallFeature(
-        icon: "arrow.clockwise",
+        icon: .system("arrow.clockwise"),
         title: "Regular Updates",
         subtitle: "New features and improvements"
     )
 
     public static let lifetimeAccess = PaywallFeature(
-        icon: "checkmark.shield.fill",
+        icon: .system("checkmark.shield.fill"),
         title: "Lifetime Access",
         subtitle: "One-time purchase, yours forever"
     )
@@ -213,9 +324,51 @@ public struct PaywallFeature: Identifiable, Sendable {
 // MARK: - Convenience Extensions
 
 public extension View {
-    /// Add a custom paywall header to the chain
+    /// Add a custom paywall header to the chain with system icon
     func withPaywallHeader(
-        icon: String = "crown.fill",
+        systemIcon: String = "crown.fill",
+        title: String = "Upgrade to Pro",
+        subtitle: String = "Unlock advanced features and premium support",
+        iconColor: Color = .blue,
+        backgroundColor: Color = Color.blue.opacity(0.2)
+    ) -> ChainableStoreKitView<Self> {
+        let config = StoreKitConfiguration()
+        let newConfig = config.withPaywallHeader {
+            PaywallHeader(
+                icon: .system(systemIcon),
+                title: title,
+                subtitle: subtitle,
+                iconColor: iconColor,
+                backgroundColor: backgroundColor
+            )
+        }
+        return ChainableStoreKitView(content: self, config: newConfig)
+    }
+
+    /// Add a custom paywall header to the chain with asset icon
+    func withPaywallHeader(
+        assetIcon: String,
+        title: String = "Upgrade to Pro",
+        subtitle: String = "Unlock advanced features and premium support",
+        iconColor: Color = .blue,
+        backgroundColor: Color = Color.blue.opacity(0.2)
+    ) -> ChainableStoreKitView<Self> {
+        let config = StoreKitConfiguration()
+        let newConfig = config.withPaywallHeader {
+            PaywallHeader(
+                icon: .asset(assetIcon),
+                title: title,
+                subtitle: subtitle,
+                iconColor: iconColor,
+                backgroundColor: backgroundColor
+            )
+        }
+        return ChainableStoreKitView(content: self, config: newConfig)
+    }
+
+    /// Add a custom paywall header to the chain with PaywallIcon
+    func withPaywallHeader(
+        icon: PaywallIcon,
         title: String = "Upgrade to Pro",
         subtitle: String = "Unlock advanced features and premium support",
         iconColor: Color = .blue,

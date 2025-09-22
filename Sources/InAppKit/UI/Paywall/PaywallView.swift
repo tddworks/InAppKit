@@ -203,6 +203,12 @@ public struct PaywallView: View {
                     savings: inAppKit.savings(for: product.id)
                 )
             }
+            .onAppear {
+                // Auto-select first product if none selected (respects user's intended order)
+                if selectedProduct == nil && !inAppKit.availableProducts.isEmpty {
+                    selectedProduct = inAppKit.availableProducts.first
+                }
+            }
             
             if let selectedProduct = selectedProduct {
                 Button(action: {

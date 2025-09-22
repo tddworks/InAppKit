@@ -12,6 +12,8 @@ import OSLog
 public struct PaywallView: View {
     @State private var inAppKit = InAppKit.shared
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.paywallHeaderBuilder) private var paywallHeaderBuilder
+    @Environment(\.paywallFeaturesBuilder) private var paywallFeaturesBuilder
     @State private var selectedProduct: Product?
     @State private var isRestoring = false
     @State private var showRestoreAlert = false
@@ -37,10 +39,17 @@ public struct PaywallView: View {
             
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 32) {
-                    headerSection
-                        .offset(y: animationOffset)
-                        .opacity(animationOpacity)
-                    
+                    // Use custom header if provided, otherwise use default
+                    if let customHeader = paywallHeaderBuilder {
+                        customHeader()
+                            .offset(y: animationOffset)
+                            .opacity(animationOpacity)
+                    } else {
+                        headerSection
+                            .offset(y: animationOffset)
+                            .opacity(animationOpacity)
+                    }
+
                     if inAppKit.availableProducts.isEmpty {
                         loadingSection
                     } else {
@@ -48,11 +57,18 @@ public struct PaywallView: View {
                             .offset(y: animationOffset)
                             .opacity(animationOpacity)
                     }
-                    
-                    featuresSection
-                        .offset(y: animationOffset)
-                        .opacity(animationOpacity)
-                    
+
+                    // Use custom features if provided, otherwise use default
+                    if let customFeatures = paywallFeaturesBuilder {
+                        customFeatures()
+                            .offset(y: animationOffset)
+                            .opacity(animationOpacity)
+                    } else {
+                        featuresSection
+                            .offset(y: animationOffset)
+                            .opacity(animationOpacity)
+                    }
+
                     footerSection
                         .offset(y: animationOffset)
                         .opacity(animationOpacity)

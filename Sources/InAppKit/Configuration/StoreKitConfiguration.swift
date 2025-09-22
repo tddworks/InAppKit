@@ -15,6 +15,8 @@ import StoreKit
 public class StoreKitConfiguration {
     internal var productConfigs: [InternalProductConfig] = []
     internal var paywallBuilder: ((PaywallContext) -> AnyView)?
+    internal var paywallHeaderBuilder: (() -> AnyView)?
+    internal var paywallFeaturesBuilder: (() -> AnyView)?
     internal var termsBuilder: (() -> AnyView)?
     internal var privacyBuilder: (() -> AnyView)?
     
@@ -87,6 +89,18 @@ public class StoreKitConfiguration {
         privacyBuilder = { AnyView(builder()) }
         return self
     }
+
+    /// Configure paywall header section
+    public func withPaywallHeader<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> StoreKitConfiguration {
+        paywallHeaderBuilder = { AnyView(builder()) }
+        return self
+    }
+
+    /// Configure paywall features section
+    public func withPaywallFeatures<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> StoreKitConfiguration {
+        paywallFeaturesBuilder = { AnyView(builder()) }
+        return self
+    }
     
     // MARK: - Internal Setup
     
@@ -110,6 +124,14 @@ private struct PrivacyBuilderKey: EnvironmentKey {
     nonisolated(unsafe) static let defaultValue: (() -> AnyView)? = nil
 }
 
+private struct PaywallHeaderBuilderKey: EnvironmentKey {
+    nonisolated(unsafe) static let defaultValue: (() -> AnyView)? = nil
+}
+
+private struct PaywallFeaturesBuilderKey: EnvironmentKey {
+    nonisolated(unsafe) static let defaultValue: (() -> AnyView)? = nil
+}
+
 public extension EnvironmentValues {
     var paywallBuilder: ((PaywallContext) -> AnyView)? {
         get { self[PaywallBuilderKey.self] }
@@ -124,6 +146,16 @@ public extension EnvironmentValues {
     var privacyBuilder: (() -> AnyView)? {
         get { self[PrivacyBuilderKey.self] }
         set { self[PrivacyBuilderKey.self] = newValue }
+    }
+
+    var paywallHeaderBuilder: (() -> AnyView)? {
+        get { self[PaywallHeaderBuilderKey.self] }
+        set { self[PaywallHeaderBuilderKey.self] = newValue }
+    }
+
+    var paywallFeaturesBuilder: (() -> AnyView)? {
+        get { self[PaywallFeaturesBuilderKey.self] }
+        set { self[PaywallFeaturesBuilderKey.self] = newValue }
     }
 }
 
@@ -160,6 +192,18 @@ public struct ChainableStoreKitView<Content: View>: View {
         let newConfig = config.withPrivacy(builder)
         return ChainableStoreKitView(content: content, config: newConfig)
     }
+
+    /// Add paywall header configuration to the chain
+    public func withPaywallHeader<HeaderContent: View>(@ViewBuilder _ builder: @escaping () -> HeaderContent) -> ChainableStoreKitView<Content> {
+        let newConfig = config.withPaywallHeader(builder)
+        return ChainableStoreKitView(content: content, config: newConfig)
+    }
+
+    /// Add paywall features configuration to the chain
+    public func withPaywallFeatures<FeaturesContent: View>(@ViewBuilder _ builder: @escaping () -> FeaturesContent) -> ChainableStoreKitView<Content> {
+        let newConfig = config.withPaywallFeatures(builder)
+        return ChainableStoreKitView(content: content, config: newConfig)
+    }
 }
 
 // MARK: - InAppKit Modifier
@@ -170,6 +214,8 @@ private struct InAppKitModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .environment(\.paywallBuilder, config.paywallBuilder)
+            .environment(\.paywallHeaderBuilder, config.paywallHeaderBuilder)
+            .environment(\.paywallFeaturesBuilder, config.paywallFeaturesBuilder)
             .environment(\.termsBuilder, config.termsBuilder)
             .environment(\.privacyBuilder, config.privacyBuilder)
             .task {

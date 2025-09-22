@@ -353,6 +353,123 @@ ContentView()
     }
 ```
 
+### Custom Paywall Header and Features
+
+Customize the header section and features section of the default paywall to match your app's branding.
+
+```swift
+// Custom header with different icon and colors
+ContentView()
+    .withPurchases(products: [...])
+    .withPaywallHeader {
+        PaywallHeader(
+            icon: "sparkles",
+            title: "Go Premium",
+            subtitle: "Transform your experience with powerful features",
+            iconColor: .purple,
+            backgroundColor: .purple.opacity(0.15)
+        )
+    }
+    .withPaywallFeatures {
+        PaywallFeatures(
+            title: "Premium Benefits",
+            features: [
+                PaywallFeature(
+                    icon: "wand.and.stars",
+                    title: "AI-Powered Features",
+                    subtitle: "Smart automation and intelligent suggestions",
+                    iconColor: .purple
+                ),
+                PaywallFeature(
+                    icon: "icloud.and.arrow.up",
+                    title: "Cloud Sync",
+                    subtitle: "Seamless sync across all your devices",
+                    iconColor: .blue
+                ),
+                PaywallFeature(
+                    icon: "chart.line.uptrend.xyaxis",
+                    title: "Advanced Analytics",
+                    subtitle: "Detailed insights and performance metrics",
+                    iconColor: .green
+                ),
+                PaywallFeature(
+                    icon: "person.badge.shield.checkmark",
+                    title: "Priority Support",
+                    subtitle: "Get expert help within 24 hours",
+                    iconColor: .orange
+                )
+            ]
+        )
+    }
+```
+
+Or use the convenience methods for simpler customization:
+
+```swift
+ContentView()
+    .withPurchases(products: [...])
+    .withPaywallHeader(
+        icon: "crown.fill",
+        title: "Unlock Pro",
+        subtitle: "Get access to all premium features",
+        iconColor: .gold
+    )
+    .withPaywallFeatures(
+        title: "What You Get",
+        features: PaywallFeature.defaultFeatures
+    )
+```
+
+### Custom Paywall Components
+
+Build completely custom sections using the components:
+
+```swift
+ContentView()
+    .withPurchases(products: [...])
+    .withPaywallHeader {
+        VStack(spacing: 20) {
+            // Custom animated header
+            Lottie(name: "premium-animation")
+                .frame(height: 120)
+
+            VStack(spacing: 8) {
+                Text("Welcome to Premium")
+                    .font(.largeTitle)
+                    .fontWeight(.black)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.blue, .purple],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+
+                Text("Experience the full potential of our app")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+    }
+    .withPaywallFeatures {
+        VStack(spacing: 24) {
+            Text("Exclusive Features")
+                .font(.title2)
+                .fontWeight(.bold)
+
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ], spacing: 16) {
+                ForEach(customFeatures, id: \.id) { feature in
+                    FeatureCard(feature: feature)
+                }
+            }
+        }
+    }
+```
+
 ## Advanced Configuration
 
 ### Feature-Specific Paywalls

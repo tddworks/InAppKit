@@ -123,7 +123,7 @@ Button("Premium Feature") { doPremiumThing() }
 <summary>📋 Define specific features</summary>
 
 ```swift
-enum AppFeature: String, AppFeature {
+enum MyAppFeature: String, AppFeature {
     case removeAds = "remove_ads"
     case cloudSync = "cloud_sync"
     case exportPDF = "export_pdf"
@@ -131,7 +131,7 @@ enum AppFeature: String, AppFeature {
 
 ContentView()
     .withPurchases(products: [
-        Product("com.yourapp.pro", features: AppFeature.allCases)
+        Product("com.yourapp.pro", features: MyAppFeature.allCases)
     ])
 ```
 </details>
@@ -192,9 +192,9 @@ Button("Export for Client") { exportForClient() }
 **2. Features** - What gets unlocked
 
 ```swift
-// Product: "Pro Version" 
+// Product: "Pro Version"
 // Features: No ads, cloud sync, export
-Product("com.app.pro", [.noAds, .cloudSync, .export])
+Product("com.app.pro", features: [.noAds, .cloudSync, .export])
 ```
 
 ### Choose Your Monetization Strategy
@@ -206,7 +206,7 @@ InAppKit adapts to how your users think about value, not just technical features
 
 ```swift
 // Users get core functionality, pay for advanced features
-Product("com.photoapp.pro", [AppFeature.advancedFilters, AppFeature.cloudStorage])
+Product("com.photoapp.pro", features: [AppFeature.advancedFilters, AppFeature.cloudStorage])
 ```
 
 **User Mental Model**: *"I love this app, now I want more powerful features"*
@@ -219,13 +219,13 @@ Product("com.photoapp.pro", [AppFeature.advancedFilters, AppFeature.cloudStorage
 
 ```swift
 // Starter: Casual users
-Product("com.designapp.starter", [AppFeature.basicTemplates, AppFeature.export])
+Product("com.designapp.starter", features: [AppFeature.basicTemplates, AppFeature.export])
 
 // Professional: Power users  
-Product("com.designapp.pro", [AppFeature.premiumTemplates, AppFeature.advancedExport, AppFeature.teamSharing])
+Product("com.designapp.pro", features: [AppFeature.premiumTemplates, AppFeature.advancedExport, AppFeature.teamSharing])
 
 // Enterprise: Teams & organizations
-Product("com.designapp.enterprise", AppFeature.allCases)
+Product("com.designapp.enterprise", features: AppFeature.allCases)
 ```
 
 **User Mental Model**: *"I know what level of user I am, show me my tier"*
@@ -238,10 +238,10 @@ Product("com.designapp.enterprise", AppFeature.allCases)
 
 ```swift
 // Content Creator Pack
-Product("com.videoapp.creator", [AppFeature.advancedEditing, AppFeature.exportFormats, AppFeature.musicLibrary])
+Product("com.videoapp.creator", features: [AppFeature.advancedEditing, AppFeature.exportFormats, AppFeature.musicLibrary])
 
 // Business Pack
-Product("com.videoapp.business", [AppFeature.branding, AppFeature.analytics, AppFeature.teamWorkspace])
+Product("com.videoapp.business", features: [AppFeature.branding, AppFeature.analytics, AppFeature.teamWorkspace])
 ```
 
 **User Mental Model**: *"I need tools for my specific workflow"*
@@ -254,10 +254,10 @@ Product("com.videoapp.business", [AppFeature.branding, AppFeature.analytics, App
 
 ```swift
 // Monthly: Try it out
-Product("com.cloudapp.monthly", [AppFeature.cloudSync, AppFeature.prioritySupport])
+Product("com.cloudapp.monthly", features: [AppFeature.cloudSync, AppFeature.prioritySupport])
 
 // Annual: Committed users
-Product("com.cloudapp.annual", [AppFeature.cloudSync, AppFeature.prioritySupport, AppFeature.advancedFeatures])
+Product("com.cloudapp.annual", features: [AppFeature.cloudSync, AppFeature.prioritySupport, AppFeature.advancedFeatures])
 ```
 
 **User Mental Model**: *"I'm paying for ongoing service and updates"*
@@ -271,7 +271,7 @@ InAppKit uses a **fluent chainable API** for clean, readable configuration:
 
 ```swift
 ContentView()
-    .withPurchases(products: [Product("com.app.pro", AppFeature.allCases)])
+    .withPurchases(products: [Product("com.app.pro", features: AppFeature.allCases)])
     .withPaywall { context in CustomPaywall(context) }
     .withTerms { TermsView() }
     .withPrivacy { PrivacyView() }
@@ -456,11 +456,11 @@ await InAppKit.shared.purchase(product)
 .withPurchases("com.app.pro1", "com.app.pro2")
 
 // Advanced: Products with specific features
-.withPurchases(products: [Product("com.app.pro", AppFeature.allCases)])
+.withPurchases(products: [Product("com.app.pro", features: AppFeature.allCases)])
 
 // Marketing-enhanced: Boost conversion with badges, features, and savings
 .withPurchases(products: [
-    Product("com.app.pro", AppFeature.allCases)
+    Product("com.app.pro", features: AppFeature.allCases)
         .withBadge("Most Popular")
         .withMarketingFeatures(["Cloud sync", "AI features", "Priority support"])
         .withSavings("Save 20%")
@@ -473,19 +473,31 @@ await InAppKit.shared.purchase(product)
 
 InAppKit supports rich marketing information to boost conversion rates through badges, feature highlights, and savings displays.
 
-#### **Configuration Options**
+#### **Product API Guidelines**
 
-**Option 1: Direct Configuration**
+InAppKit uses a consistent Product API pattern. **Simple rule**: *Need features? Always use `features:` parameter*
+
+**✅ Correct Syntax:**
 ```swift
-Product("com.app.annual",
-    features: [MyFeature.sync, MyFeature.export],
-    badge: "Most Popular",
-    marketingFeatures: ["Cloud sync", "AI features"],
-    savings: "Save 15%"
-)
+// No features
+Product("com.app.basic")
+
+// Enum features
+Product("com.app.pro", features: [MyFeature.sync, MyFeature.export])
+
+// All enum cases
+Product("com.app.premium", features: MyFeature.allCases)
+
+// String features
+Product("com.app.custom", features: ["feature1", "feature2"])
 ```
 
-**Option 2: Fluent API (Recommended)**
+#### **Configuration Options**
+
+**Option 1: Removed - Use Fluent API Instead**
+*The direct configuration with multiple parameters was removed for API consistency*
+
+**Fluent API for Marketing (Recommended)**
 ```swift
 Product("com.app.annual", features: [MyFeature.sync, MyFeature.export])
     .withBadge("Most Popular")
@@ -544,15 +556,15 @@ Pro Annual  [Most Popular]    $99.99
 // E-commerce App Example with Marketing Enhancement
 ContentView()
     .withPurchases(products: [
-        Product("com.shopapp.basic", [AppFeature.trackOrders, AppFeature.wishlist])
+        Product("com.shopapp.basic", features: [AppFeature.trackOrders, AppFeature.wishlist])
             .withMarketingFeatures(["Track orders", "Wishlist"]),
 
-        Product("com.shopapp.plus", [AppFeature.trackOrders, AppFeature.wishlist, AppFeature.fastShipping])
+        Product("com.shopapp.plus", features: [AppFeature.trackOrders, AppFeature.wishlist, AppFeature.fastShipping])
             .withBadge("Most Popular")
             .withMarketingFeatures(["Fast shipping", "Premium support"])
             .withSavings("Save 25%"),
 
-        Product("com.shopapp.premium", AppFeature.allCases)
+        Product("com.shopapp.premium", features: AppFeature.allCases)
             .withBadge("Best Value")
             .withMarketingFeatures(["All features", "Priority processing"])
     ])
@@ -563,16 +575,16 @@ ContentView()
 // Productivity App Example  
 ContentView()
     .withPurchases(products: [
-        Product("com.prodapp.starter", [AppFeature.basicProjects]),
-        Product("com.prodapp.professional", [AppFeature.basicProjects, AppFeature.teamCollaboration, AppFeature.advancedReports]),
-        Product("com.prodapp.enterprise", AppFeature.allCases)
+        Product("com.prodapp.starter", features: [AppFeature.basicProjects]),
+        Product("com.prodapp.professional", features: [AppFeature.basicProjects, AppFeature.teamCollaboration, AppFeature.advancedReports]),
+        Product("com.prodapp.enterprise", features: AppFeature.allCases)
     ])
 
 // Media App Subscription Tiers
 ContentView()
     .withPurchases(products: [
-        Product("com.mediaapp.monthly", [AppFeature.hdStreaming, AppFeature.downloads]),
-        Product("com.mediaapp.annual", [AppFeature.hdStreaming, AppFeature.downloads, AppFeature.offlineMode, AppFeature.familySharing])
+        Product("com.mediaapp.monthly", features: [AppFeature.hdStreaming, AppFeature.downloads]),
+        Product("com.mediaapp.annual", features: [AppFeature.hdStreaming, AppFeature.downloads, AppFeature.offlineMode, AppFeature.familySharing])
     ])
 ```
 
@@ -876,7 +888,7 @@ enum CreativeFeature: String, InAppKit.AppFeature {
 // Solution: Let them create first, then offer enhancement
 ContentView()
     .withPurchases(products: [
-        Product("com.creative.pro", CreativeFeature.allCases)
+        Product("com.creative.pro", features: CreativeFeature.allCases)
     ])
     .withPaywall { context in
         CreativePaywallView(triggeredBy: context.triggeredBy)
@@ -917,7 +929,7 @@ enum EntertainmentFeature: String, InAppKit.AppFeature {
 // Solution: Offer "more of what they love"
 ContentView()
     .withPurchases(products: [
-        Product("com.game.premium", EntertainmentFeature.allCases)
+        Product("com.game.premium", features: EntertainmentFeature.allCases)
     ])
 ```
 
@@ -936,8 +948,8 @@ enum BusinessFeature: String, InAppKit.AppFeature {
 // Solution: Clear business tiers
 ContentView()
     .withPurchases(products: [
-        Product("com.business.professional", [BusinessFeature.advancedReports, BusinessFeature.prioritySupport]),
-        Product("com.business.enterprise", BusinessFeature.allCases)
+        Product("com.business.professional", features: [BusinessFeature.advancedReports, BusinessFeature.prioritySupport]),
+        Product("com.business.enterprise", features: BusinessFeature.allCases)
     ])
 ```
 

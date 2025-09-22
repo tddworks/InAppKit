@@ -97,13 +97,13 @@ struct PurchaseOptionCard: View {
 
                 return description
             }
-            return "Subscription • Auto-renewable"
+            return "purchase.subscription.description".localized(fallback: "Subscription • Auto-renewable")
         case .nonConsumable:
-            return "One-time purchase • Lifetime access"
+            return "purchase.lifetime.description".localized(fallback: "One-time purchase • Lifetime access")
         case .consumable:
-            return "Consumable purchase"
+            return "purchase.consumable.description".localized(fallback: "Consumable purchase")
         default:
-            return "In-app purchase"
+            return "purchase.unknown.description".localized(fallback: "In-app purchase")
         }
     }
 
@@ -113,13 +113,13 @@ struct PurchaseOptionCard: View {
             if let subscription = product.subscription {
                 return periodText(subscription.subscriptionPeriod, style: .billing)
             }
-            return "Subscription"
+            return "purchase.subscription.type".localized(fallback: "Subscription")
         case .nonConsumable:
-            return "Lifetime"
+            return "purchase.lifetime.type".localized(fallback: "Lifetime")
         case .consumable:
-            return "Per use"
+            return "purchase.consumable.type".localized(fallback: "Per use")
         default:
-            return "Purchase"
+            return "purchase.unknown.type".localized(fallback: "Purchase")
         }
     }
 

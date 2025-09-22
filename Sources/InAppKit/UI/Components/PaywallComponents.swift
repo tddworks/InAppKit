@@ -39,8 +39,8 @@ public struct PaywallHeader: View {
 
     public init(
         icon: PaywallIcon = .system("crown.fill"),
-        title: String = "Upgrade to Pro",
-        subtitle: String = "Unlock advanced features and premium support",
+        title: String = "paywall.header.title".localized(fallback: "Upgrade to Pro"),
+        subtitle: String = "paywall.header.subtitle".localized(fallback: "Unlock advanced features and premium support"),
         iconColor: Color = .blue,
         backgroundColor: Color = Color.blue.opacity(0.2)
     ) {
@@ -54,8 +54,8 @@ public struct PaywallHeader: View {
     // Convenience initializers for backward compatibility
     public init(
         systemIcon: String,
-        title: String = "Upgrade to Pro",
-        subtitle: String = "Unlock advanced features and premium support",
+        title: String = "paywall.header.title".localized(fallback: "Upgrade to Pro"),
+        subtitle: String = "paywall.header.subtitle".localized(fallback: "Unlock advanced features and premium support"),
         iconColor: Color = .blue,
         backgroundColor: Color = Color.blue.opacity(0.2)
     ) {
@@ -70,8 +70,8 @@ public struct PaywallHeader: View {
 
     public init(
         assetIcon: String,
-        title: String = "Upgrade to Pro",
-        subtitle: String = "Unlock advanced features and premium support",
+        title: String = "paywall.header.title".localized(fallback: "Upgrade to Pro"),
+        subtitle: String = "paywall.header.subtitle".localized(fallback: "Unlock advanced features and premium support"),
         iconColor: Color = .blue,
         backgroundColor: Color = Color.blue.opacity(0.2)
     ) {
@@ -209,7 +209,7 @@ public struct PaywallFeatures: View {
     let features: [PaywallFeature]
 
     public init(
-        title: String = "What's Included",
+        title: String = "paywall.features.title".localized(fallback: "What's Included"),
         features: [PaywallFeature]
     ) {
         self.title = title
@@ -291,26 +291,26 @@ public struct PaywallFeature: Identifiable, Sendable {
 
     public static let premiumFeatures = PaywallFeature(
         icon: .system("star.fill"),
-        title: "Premium Features",
-        subtitle: "Access to all advanced functionality"
+        title: "paywall.feature.premium.title".localized(fallback: "Premium Features"),
+        subtitle: "paywall.feature.premium.subtitle".localized(fallback: "Access to all advanced functionality")
     )
 
     public static let prioritySupport = PaywallFeature(
         icon: .system("heart.fill"),
-        title: "Priority Support",
-        subtitle: "Get help when you need it most"
+        title: "paywall.feature.support.title".localized(fallback: "Priority Support"),
+        subtitle: "paywall.feature.support.subtitle".localized(fallback: "Get help when you need it most")
     )
 
     public static let regularUpdates = PaywallFeature(
         icon: .system("arrow.clockwise"),
-        title: "Regular Updates",
-        subtitle: "New features and improvements"
+        title: "paywall.feature.updates.title".localized(fallback: "Regular Updates"),
+        subtitle: "paywall.feature.updates.subtitle".localized(fallback: "New features and improvements")
     )
 
     public static let lifetimeAccess = PaywallFeature(
         icon: .system("checkmark.shield.fill"),
-        title: "Lifetime Access",
-        subtitle: "One-time purchase, yours forever"
+        title: "paywall.feature.lifetime.title".localized(fallback: "Lifetime Access"),
+        subtitle: "paywall.feature.lifetime.subtitle".localized(fallback: "One-time purchase, yours forever")
     )
 
     public static let defaultFeatures: [PaywallFeature] = [
@@ -327,8 +327,8 @@ public extension View {
     /// Add a custom paywall header to the chain with system icon
     func withPaywallHeader(
         systemIcon: String = "crown.fill",
-        title: String = "Upgrade to Pro",
-        subtitle: String = "Unlock advanced features and premium support",
+        title: String = "paywall.header.title".localized(fallback: "Upgrade to Pro"),
+        subtitle: String = "paywall.header.subtitle".localized(fallback: "Unlock advanced features and premium support"),
         iconColor: Color = .blue,
         backgroundColor: Color = Color.blue.opacity(0.2)
     ) -> ChainableStoreKitView<Self> {
@@ -348,8 +348,8 @@ public extension View {
     /// Add a custom paywall header to the chain with asset icon
     func withPaywallHeader(
         assetIcon: String,
-        title: String = "Upgrade to Pro",
-        subtitle: String = "Unlock advanced features and premium support",
+        title: String = "paywall.header.title".localized(fallback: "Upgrade to Pro"),
+        subtitle: String = "paywall.header.subtitle".localized(fallback: "Unlock advanced features and premium support"),
         iconColor: Color = .blue,
         backgroundColor: Color = Color.blue.opacity(0.2)
     ) -> ChainableStoreKitView<Self> {
@@ -369,8 +369,8 @@ public extension View {
     /// Add a custom paywall header to the chain with PaywallIcon
     func withPaywallHeader(
         icon: PaywallIcon,
-        title: String = "Upgrade to Pro",
-        subtitle: String = "Unlock advanced features and premium support",
+        title: String = "paywall.header.title".localized(fallback: "Upgrade to Pro"),
+        subtitle: String = "paywall.header.subtitle".localized(fallback: "Unlock advanced features and premium support"),
         iconColor: Color = .blue,
         backgroundColor: Color = Color.blue.opacity(0.2)
     ) -> ChainableStoreKitView<Self> {
@@ -389,7 +389,7 @@ public extension View {
 
     /// Add custom paywall features to the chain
     func withPaywallFeatures(
-        title: String = "What's Included",
+        title: String = "paywall.features.title".localized(fallback: "What's Included"),
         features: [PaywallFeature]
     ) -> ChainableStoreKitView<Self> {
         let config = StoreKitConfiguration()

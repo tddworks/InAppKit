@@ -16,23 +16,23 @@ struct DefaultTermsView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Terms of Service")
+                    Text("terms.title".localized(fallback: "Terms of Service"))
                         .font(.title)
                         .fontWeight(.bold)
                     
-                    Text("By using this app, you agree to our terms of service.")
+                    Text("terms.content".localized(fallback: "By using this app, you agree to our terms of service."))
                         .font(.body)
                     
-                    Text("This is a default terms view. Configure custom terms using the StoreKit customization API.")
+                    Text("terms.default.note".localized(fallback: "This is a default terms view. Configure custom terms using the StoreKit customization API."))
                         .font(.body)
                         .foregroundColor(.secondary)
                 }
                 .padding()
             }
-            .navigationTitle("Terms")
+            .navigationTitle("terms.navigation.title".localized(fallback: "Terms"))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button("Close") { dismiss() }
+                    Button("common.close".localized(fallback: "Close")) { dismiss() }
                 }
             }
         }
@@ -47,23 +47,23 @@ struct DefaultPrivacyView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Privacy Policy")
+                    Text("privacy.title".localized(fallback: "Privacy Policy"))
                         .font(.title)
                         .fontWeight(.bold)
                     
-                    Text("We respect your privacy and are committed to protecting your personal information.")
+                    Text("privacy.content".localized(fallback: "We respect your privacy and are committed to protecting your personal information."))
                         .font(.body)
                     
-                    Text("This is a default privacy view. Configure custom privacy policy using the StoreKit customization API.")
+                    Text("privacy.default.note".localized(fallback: "This is a default privacy view. Configure custom privacy policy using the StoreKit customization API."))
                         .font(.body)
                         .foregroundColor(.secondary)
                 }
                 .padding()
             }
-            .navigationTitle("Privacy")
+            .navigationTitle("privacy.navigation.title".localized(fallback: "Privacy"))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button("Close") { dismiss() }
+                    Button("common.close".localized(fallback: "Close")) { dismiss() }
                 }
             }
         }

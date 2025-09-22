@@ -15,6 +15,7 @@ ContentView()
 - **🎯 Type-safe features** - Enum-based feature gating prevents errors
 - **💳 StoreKit integration** - Handles purchases, receipts, and validation
 - **🎨 Customizable paywalls** - Beautiful UI out of the box, fully customizable
+- **🌍 Localization support** - Built-in internationalization with fallback safety
 - **📱 iOS 17+ support** - Built with latest SwiftUI and StoreKit 2
 
 ## 🚧 Requirements
@@ -69,6 +70,9 @@ Choose the right strategy: Freemium, Premium, or Subscription
 
 ### 🎨 **[Customization Guide](docs/customization.md)**
 Customize UI, add marketing info, and advanced configuration
+
+### 🌍 **[Localization Guide](docs/localization-keys.md)**
+Multi-language support with 30+ localization keys and fallback safety
 
 ### 📖 **[API Reference](docs/api-reference.md)**
 Complete API documentation and advanced features

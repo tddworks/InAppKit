@@ -19,7 +19,7 @@ public struct TermsPrivacyFooter: View {
     
     public var body: some View {
         HStack(spacing: 8) {
-            Button(L("paywall.terms")) {
+            Button("paywall.terms".localized(fallback: "Terms")) {
                 showTerms = true
             }
             .font(.system(size: 12, weight: .medium))
@@ -32,7 +32,7 @@ public struct TermsPrivacyFooter: View {
             )
             .buttonStyle(PlainButtonStyle())
             
-            Button(L("paywall.privacy")) {
+            Button("paywall.privacy".localized(fallback: "Privacy")) {
                 showPrivacy = true
             }
             .font(.system(size: 12, weight: .medium))

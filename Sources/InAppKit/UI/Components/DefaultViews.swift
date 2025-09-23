@@ -36,7 +36,10 @@ struct DefaultTermsView: View {
                 }
             }
         }
-        .frame(width: 440, height: 600)
+        .frame(
+            idealWidth: Platform.isMacOS ? 500 : 375,
+            idealHeight: Platform.isMacOS ? 600 : 700
+        )
     }
 }
 
@@ -67,6 +70,9 @@ struct DefaultPrivacyView: View {
                 }
             }
         }
-        .frame(width: 440, height: 600)
+        .frame(
+            idealWidth: Platform.isMacOS ? 500 : 375,
+            idealHeight: Platform.isMacOS ? 600 : 700
+        )
     }
 }

@@ -279,7 +279,7 @@ private struct PurchaseOptionCardView: View {
             .padding(.vertical, CardStyle.verticalPadding)
             .background(
                 RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
-                    .fill(isSelected ? Color.blue.opacity(0.06) : Color(NSColor.controlBackgroundColor))
+                    .fill(isSelected ? Color.blue.opacity(0.06) : Color.platformSecondaryBackground)
                     .overlay(
                         RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
                             .stroke(isSelected ? Color.blue.opacity(0.4) : Color.gray.opacity(0.15),
@@ -287,9 +287,10 @@ private struct PurchaseOptionCardView: View {
                     )
             )
         }
-        .buttonStyle(PlainButtonStyle())
+        .platformButtonStyle()
         .scaleEffect(isSelected ? CardStyle.selectedScale : 1.0)
         .animation(.easeInOut(duration: CardStyle.animationDuration), value: isSelected)
+        .platformHoverEffect()
     }
 }
 
@@ -371,6 +372,6 @@ private struct PurchaseOptionCardView: View {
         .padding(.top, 8)
     }
     .padding()
-    .background(Color(NSColor.windowBackgroundColor))
+    .background(Color.platformBackground)
 }
 #endif

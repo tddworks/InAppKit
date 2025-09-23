@@ -30,7 +30,7 @@ public struct PaywallView: View {
                 colors: [
                     Color.blue.opacity(0.1),
                     Color.purple.opacity(0.05),
-                    Color(NSColor.windowBackgroundColor)
+                    Color.platformBackground
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -73,13 +73,22 @@ public struct PaywallView: View {
                         .offset(y: animationOffset)
                         .opacity(animationOpacity)
                 }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 32)
+                .padding(.horizontal, PlatformConstants.defaultPadding)
+                .padding(.vertical, PlatformConstants.defaultPadding * 1.5)
             }
         }
-        .frame(width: 520, height: 700)
-        .background(Color(NSColor.windowBackgroundColor))
-        .shadow(color: Color.black.opacity(0.15), radius: 20, x: 0, y: 10)
+        .frame(
+            idealWidth: PlatformConstants.paywallSize.width,
+            maxWidth: Platform.isMacOS ? PlatformConstants.maxPaywallWidth : .infinity,
+            idealHeight: PlatformConstants.paywallSize.height
+        )
+        .background(Color.platformBackground)
+        .shadow(
+            color: Color.black.opacity(Platform.isMacOS ? 0.15 : 0.1),
+            radius: Platform.isMacOS ? 20 : 8,
+            x: 0,
+            y: Platform.isMacOS ? 10 : 4
+        )
         .onAppear {
             withAnimation(.easeOut(duration: 0.6).delay(0.1)) {
                 animationOffset = 0
@@ -182,7 +191,7 @@ public struct PaywallView: View {
                 }
                 .frame(height: 44)
             }
-            .buttonStyle(PlainButtonStyle())
+            .platformButtonStyle()
             .disabled(isRestoring)
             
             // Use the configurable terms and privacy footer
@@ -244,7 +253,7 @@ public struct PaywallView: View {
                     .cornerRadius(16)
                     .shadow(color: Color.blue.opacity(0.3), radius: 8, x: 0, y: 4)
                 }
-                .buttonStyle(PlainButtonStyle())
+                .platformButtonStyle()
                 .disabled(inAppKit.isPurchasing)
                 .scaleEffect(inAppKit.isPurchasing ? 0.98 : 1.0)
                 .animation(.easeInOut(duration: 0.1), value: inAppKit.isPurchasing)

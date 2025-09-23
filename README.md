@@ -9,6 +9,31 @@ ContentView()
     .withPurchases("com.yourapp.pro")
 ```
 
+## 🎨 Visual Showcase
+
+<div align="center">
+
+<table>
+<tr>
+<td width="50%" align="center">
+<img src="docs/screenshots/IMG_2515.PNG" width="250" alt="InAppKit Paywall"/>
+<br/>
+<strong>🚀 Ready-to-use Paywalls</strong>
+<br/>
+<em>Beautiful, localized paywalls that work out of the box</em>
+</td>
+<td width="50%" align="center">
+<img src="docs/screenshots/IMG_2514.PNG" width="250" alt="InAppKit Purchase Options"/>
+<br/>
+<strong>💳 Smart Purchase Options</strong>
+<br/>
+<em>Flexible pricing cards with marketing badges and savings indicators</em>
+</td>
+</tr>
+</table>
+
+</div>
+
 ## ✨ What You Get
 
 - **🚀 One-line setup** - Add premium features instantly

@@ -155,28 +155,44 @@ struct PurchaseOptionCard: View {
         case .billing:
             switch unit {
             case .day:
-                return value == 1 ? "Daily" : "\(value)-day"
+                return value == 1
+                    ? "purchase.period.billing.daily".localized(fallback: "Daily")
+                    : "purchase.period.billing.day_multiple".localized("\(value)", fallback: "\(value)-day")
             case .week:
-                return value == 1 ? "Weekly" : "\(value)-week"
+                return value == 1
+                    ? "purchase.period.billing.weekly".localized(fallback: "Weekly")
+                    : "purchase.period.billing.week_multiple".localized("\(value)", fallback: "\(value)-week")
             case .month:
-                return value == 1 ? "Monthly" : "\(value)-month"
+                return value == 1
+                    ? "purchase.period.billing.monthly".localized(fallback: "Monthly")
+                    : "purchase.period.billing.month_multiple".localized("\(value)", fallback: "\(value)-month")
             case .year:
-                return value == 1 ? "Annual" : "\(value)-year"
+                return value == 1
+                    ? "purchase.period.billing.annual".localized(fallback: "Annual")
+                    : "purchase.period.billing.year_multiple".localized("\(value)", fallback: "\(value)-year")
             @unknown default:
-                return "Periodic"
+                return "purchase.period.billing.periodic".localized(fallback: "Periodic")
             }
         case .descriptive:
             switch unit {
             case .day:
-                return value == 1 ? "Daily" : "Every \(value) days"
+                return value == 1
+                    ? "purchase.period.descriptive.daily".localized(fallback: "Daily")
+                    : "purchase.period.descriptive.day_multiple".localized("\(value)", fallback: "Every \(value) days")
             case .week:
-                return value == 1 ? "Weekly" : "Every \(value) weeks"
+                return value == 1
+                    ? "purchase.period.descriptive.weekly".localized(fallback: "Weekly")
+                    : "purchase.period.descriptive.week_multiple".localized("\(value)", fallback: "Every \(value) weeks")
             case .month:
-                return value == 1 ? "Monthly" : "Every \(value) months"
+                return value == 1
+                    ? "purchase.period.descriptive.monthly".localized(fallback: "Monthly")
+                    : "purchase.period.descriptive.month_multiple".localized("\(value)", fallback: "Every \(value) months")
             case .year:
-                return value == 1 ? "Yearly" : "Every \(value) years"
+                return value == 1
+                    ? "purchase.period.descriptive.yearly".localized(fallback: "Yearly")
+                    : "purchase.period.descriptive.year_multiple".localized("\(value)", fallback: "Every \(value) years")
             @unknown default:
-                return "Periodic"
+                return "purchase.period.descriptive.periodic".localized(fallback: "Periodic")
             }
         }
     }

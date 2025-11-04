@@ -83,6 +83,44 @@ All strings support the `.localized(fallback:)` pattern:
 | `purchase.consumable.type` | "Per use" |
 | `purchase.unknown.type` | "Purchase" |
 
+## Introductory Offers
+
+| Key | Default Value |
+|-----|---------------|
+| `purchase.intro.free_trial` | "%@ free trial" (formatted with period) |
+| `purchase.intro.pay_as_you_go_single` | "%@ for first %@" (formatted with price, period) |
+| `purchase.intro.pay_as_you_go_multiple` | "%@ for %@ %@s" (formatted with price, count, period) |
+| `purchase.intro.pay_upfront_single` | "%@ for first %@" (formatted with price, period) |
+| `purchase.intro.pay_upfront_multiple` | "%@ for first %@ %@s" (formatted with price, count, period) |
+
+## Period Text - Billing Style
+
+| Key | Default Value |
+|-----|---------------|
+| `purchase.period.billing.daily` | "Daily" |
+| `purchase.period.billing.weekly` | "Weekly" |
+| `purchase.period.billing.monthly` | "Monthly" |
+| `purchase.period.billing.annual` | "Annual" |
+| `purchase.period.billing.day_multiple` | "%@-day" (formatted with count) |
+| `purchase.period.billing.week_multiple` | "%@-week" (formatted with count) |
+| `purchase.period.billing.month_multiple` | "%@-month" (formatted with count) |
+| `purchase.period.billing.year_multiple` | "%@-year" (formatted with count) |
+| `purchase.period.billing.periodic` | "Periodic" |
+
+## Period Text - Descriptive Style
+
+| Key | Default Value |
+|-----|---------------|
+| `purchase.period.descriptive.daily` | "Daily" |
+| `purchase.period.descriptive.weekly` | "Weekly" |
+| `purchase.period.descriptive.monthly` | "Monthly" |
+| `purchase.period.descriptive.yearly` | "Yearly" |
+| `purchase.period.descriptive.day_multiple` | "Every %@ days" (formatted with count) |
+| `purchase.period.descriptive.week_multiple` | "Every %@ weeks" (formatted with count) |
+| `purchase.period.descriptive.month_multiple` | "Every %@ months" (formatted with count) |
+| `purchase.period.descriptive.year_multiple` | "Every %@ years" (formatted with count) |
+| `purchase.period.descriptive.periodic` | "Periodic" |
+
 ## Common
 
 | Key | Default Value |
@@ -98,12 +136,30 @@ Create a `Localizable.strings` file in your app bundle:
 "paywall.header.title" = "Upgrade to Pro";
 "paywall.header.subtitle" = "Unlock advanced features and premium support";
 "paywall.features.title" = "What's Included";
+
+// Purchase periods
+"purchase.period.billing.monthly" = "Monthly";
+"purchase.period.billing.annual" = "Annual";
+"purchase.period.descriptive.monthly" = "Monthly";
+
+// Introductory offers
+"purchase.intro.free_trial" = "%@ free trial";
+"purchase.intro.pay_as_you_go_multiple" = "%@ for %@ %@s";
 // ... add more keys as needed
 
 // Spanish (es.lproj/Localizable.strings)
 "paywall.header.title" = "Actualizar a Pro";
 "paywall.header.subtitle" = "Desbloquea funciones avanzadas y soporte premium";
 "paywall.features.title" = "Qué Incluye";
+
+// Períodos de compra
+"purchase.period.billing.monthly" = "Mensual";
+"purchase.period.billing.annual" = "Anual";
+"purchase.period.descriptive.monthly" = "Mensual";
+
+// Ofertas introductorias
+"purchase.intro.free_trial" = "%@ de prueba gratis";
+"purchase.intro.pay_as_you_go_multiple" = "%@ por %@ %@s";
 // ... add more keys as needed
 ```
 

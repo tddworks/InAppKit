@@ -45,6 +45,7 @@ public class StoreKitConfiguration {
                 id: $0.id,
                 features: $0.features.map(AnyHashable.init),
                 badge: $0.badge,
+                badgeColor: $0.badgeColor,
                 marketingFeatures: $0.marketingFeatures,
                 savings: $0.savings
             )
@@ -59,6 +60,7 @@ public class StoreKitConfiguration {
                 id: $0.id,
                 features: [],
                 badge: $0.badge,
+                badgeColor: $0.badgeColor,
                 marketingFeatures: $0.marketingFeatures,
                 savings: $0.savings
             )

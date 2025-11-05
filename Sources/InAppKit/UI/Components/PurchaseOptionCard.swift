@@ -233,127 +233,107 @@ private struct PurchaseOptionCardView: View {
     let description: String?
     let isSelected: Bool
     let onSelect: () -> Void
-
+    
     var body: some View {
         Button(action: onSelect) {
             VStack(spacing: 0) {
-                HStack(spacing: CardStyle.contentSpacing) {
-                // Selection indicator
-                ZStack {
-                    Circle()
-                        .stroke(isSelected ? Color.blue : Color.gray.opacity(0.3), lineWidth: CardStyle.selectionIndicatorStroke)
-                        .frame(width: CardStyle.selectionIndicatorSize, height: CardStyle.selectionIndicatorSize)
-                        .background(
-                            Circle()
-                                .fill(isSelected ? Color.blue.opacity(0.1) : Color.clear)
-                        )
-
-                    if isSelected {
+                HStack(alignment: .top, spacing: CardStyle.contentSpacing) {
+                    // Selection indicator (radio button)
+                    ZStack {
                         Circle()
-                            .fill(Color.blue)
-                            .frame(width: CardStyle.selectionIndicatorFillSize, height: CardStyle.selectionIndicatorFillSize)
+                            .stroke(isSelected ? Color.blue : Color.gray.opacity(0.3), lineWidth: CardStyle.selectionIndicatorStroke)
+                            .frame(width: CardStyle.selectionIndicatorSize, height: CardStyle.selectionIndicatorSize)
+                        
+                        if isSelected {
+                            Circle()
+                                .fill(Color.blue)
+                                .frame(width: CardStyle.selectionIndicatorFillSize, height: CardStyle.selectionIndicatorFillSize)
+                        }
                     }
-                }
-
-                VStack(alignment: .leading, spacing: CardStyle.contentVerticalSpacing) {
-                    HStack {
+                    .padding(.top, 2)
+                    
+                    // Left side: Title and intro offer
+                    VStack(alignment: .leading, spacing: 6) {
                         Text(title)
-                            .font(.system(size: CardStyle.titleFontSize, weight: .semibold))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.primary)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
 
-                        if let badge = badge {
-                            Spacer()
-                            Text(badge)
-                                .font(.system(size: CardStyle.badgeFontSize, weight: .bold))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, CardStyle.badgeHorizontalPadding)
-                                .padding(.vertical, CardStyle.badgeVerticalPadding)
-                                .background(
-                                    Capsule()
-                                        .fill(badgeColor ?? (badge.lowercased().contains("popular") ? Color.orange : Color.blue))
-                                )
-                        }
-                    }
-
-                    // Display introductory offer prominently
-                    if let introOffer = introductoryOffer {
-                        HStack(spacing: 4) {
-                            Image(systemName: "gift.fill")
-                                .font(.system(size: CardStyle.featureFontSize - 1))
-                                .foregroundColor(.green)
-                            Text(introOffer)
-                                .font(.system(size: CardStyle.featureFontSize + 1, weight: .semibold))
-                                .foregroundColor(.green)
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            RoundedRectangle(cornerRadius: 6)
-                                .fill(Color.green.opacity(0.12))
-                        )
-                        .padding(.top, 2)
-                    }
-
-                    if let features = features, !features.isEmpty {
-                        VStack(alignment: .leading, spacing: CardStyle.featuresSpacing) {
-                            ForEach(features.prefix(2), id: \.self) { feature in
-                                HStack(spacing: 4) {
-                                    Text("•")
-                                        .foregroundColor(.secondary)
-                                        .font(.system(size: CardStyle.featureFontSize))
-                                    Text(feature)
-                                        .font(.system(size: CardStyle.featureFontSize))
-                                        .foregroundColor(.secondary)
-                                }
+                        // Introductory offer badge
+                        if let introOffer = introductoryOffer {
+                            HStack(spacing: 4) {
+                                Image(systemName: "gift.fill")
+                                    .font(.system(size: 9))
+                                    .foregroundColor(.green)
+                                Text(introOffer)
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(.green)
                             }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(Color.green.opacity(0.15))
+                            )
                         }
-                        .padding(.top, CardStyle.featuresTopPadding)
+                    }
+                    
+                    Spacer()
+                    
+                    // Right side: Price and period
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text(price)
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(.primary)
+                        
+                        Text(billingPeriod)
+                            .font(.system(size: 13, weight: .regular))
+                            .foregroundColor(.secondary)
                     }
                 }
-
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: CardStyle.featuresSpacing) {
-                    Text(price)
-                        .font(.system(size: CardStyle.priceFontSize, weight: .bold))
-                        .foregroundColor(.primary)
-
-                    if let savings = savings {
-                        Text(savings)
-                            .font(.system(size: CardStyle.savingsFontSize, weight: .semibold))
-                            .foregroundColor(.green)
-                    }
-
-                    Text(billingPeriod)
-                        .font(.system(size: CardStyle.billingPeriodFontSize, weight: .medium))
+                .padding(.horizontal, CardStyle.horizontalPadding)
+                .padding(.vertical, CardStyle.verticalPadding)
+                
+                // Description at bottom after divider
+                if let description = description {
+                    Divider()
+                        .padding(.horizontal, CardStyle.horizontalPadding)
+                    
+                    Text(description)
+                        .font(.system(size: 12, weight: .regular))
                         .foregroundColor(.secondary)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, CardStyle.horizontalPadding)
+                        .padding(.vertical, 12)
                 }
             }
-            .padding(.horizontal, CardStyle.horizontalPadding)
-            .padding(.vertical, CardStyle.verticalPadding)
-
-            if let description = description {
-                Divider()
-                    .padding(.horizontal, CardStyle.horizontalPadding)
-
-                Text(description)
-                    .font(.system(size: 11, weight: .regular))
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, CardStyle.horizontalPadding)
-                    .padding(.vertical, 10)
-            }
-        }
-        .background(
-            RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
-                .fill(isSelected ? Color.blue.opacity(0.06) : Color.platformSecondaryBackground)
-                .overlay(
-                    RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
-                        .stroke(isSelected ? Color.blue.opacity(0.4) : Color.gray.opacity(0.15),
-                               lineWidth: isSelected ? CardStyle.selectedStrokeWidth : CardStyle.unselectedStrokeWidth)
-                )
+            .background(
+                RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
+                    .fill(isSelected ? Color.blue.opacity(0.06) : Color.platformSecondaryBackground)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
+                            .stroke(isSelected ? Color.blue.opacity(0.4) : Color.gray.opacity(0.15),
+                                    lineWidth: isSelected ? CardStyle.selectedStrokeWidth : CardStyle.unselectedStrokeWidth)
+                    )
             )
+            .overlay(alignment: .topTrailing) {
+                // Badge overlay at top-right corner above price
+                if let badge = badge {
+                    Text(badge)
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(
+                            Capsule()
+                                .fill(badgeColor ?? (badge.lowercased().contains("popular") ? Color.orange : Color.blue))
+                        )
+                        .offset(y: -8)
+                        .padding(.trailing, 10)
+                }
+            }
         }
         .platformButtonStyle()
         .scaleEffect(isSelected ? CardStyle.selectedScale : 1.0)
@@ -362,24 +342,25 @@ private struct PurchaseOptionCardView: View {
     }
 }
 
+
+
 // MARK: - Preview
 
-#if DEBUG
 #Preview("Purchase Option Cards") {
     VStack(spacing: 20) {
         VStack(spacing: 8) {
             Text("PurchaseOptionCard Preview")
                 .font(.title2.bold())
-
+            
             Text("Different states and configurations")
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
-
+        
         VStack(spacing: 12) {
             // Standard monthly subscription with trial
             PurchaseOptionCardView(
-                title: "Pro Monthly",
+                title: "This is Pro Monthly package",
                 price: "$9.99",
                 billingPeriod: "Monthly",
                 badge: nil,
@@ -391,10 +372,10 @@ private struct PurchaseOptionCardView: View {
                 isSelected: false,
                 onSelect: { print("Selected: Pro Monthly") }
             )
-
+            
             // Popular annual plan with savings and pay-as-you-go intro
             PurchaseOptionCardView(
-                title: "Pro Annual",
+                title: "This is Pro Annual package",
                 price: "$99.99",
                 billingPeriod: "Yearly",
                 badge: "Most Popular",
@@ -406,10 +387,10 @@ private struct PurchaseOptionCardView: View {
                 isSelected: true,
                 onSelect: { print("Selected: Pro Annual") }
             )
-
+            
             // Lifetime purchase option (no intro offer)
             PurchaseOptionCardView(
-                title: "Pro Lifetime",
+                title: "This is Pro LifeTime package",
                 price: "$199.99",
                 billingPeriod: "Lifetime",
                 badge: "Best Value",
@@ -422,12 +403,12 @@ private struct PurchaseOptionCardView: View {
                 onSelect: { print("Selected: Pro Lifetime") }
             )
         }
-
+        
         VStack(spacing: 4) {
             Text("Features Demonstrated:")
                 .font(.caption.bold())
                 .foregroundColor(.secondary)
-
+            
             VStack(alignment: .leading, spacing: 2) {
                 Text("• Selection states (selected/unselected)")
                 Text("• Introductory offers (free trial, discounted pricing)")
@@ -446,4 +427,4 @@ private struct PurchaseOptionCardView: View {
     .padding()
     .background(Color.platformBackground)
 }
-#endif
+

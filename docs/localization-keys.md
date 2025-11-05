@@ -92,7 +92,7 @@ All strings support the `.localized(fallback:)` pattern:
 
 | Key | Default Value |
 |-----|---------------|
-| `purchase.intro.free_trial` | "%@ free trial" (formatted with period) |
+| `purchase.intro.free_trial` | "%@ free trial" (formatted with duration, e.g., "7 days free trial") |
 | `purchase.intro.pay_as_you_go_single` | "%@ for first %@" (formatted with price, period) |
 | `purchase.intro.pay_as_you_go_multiple` | "%@ for %@ %@s" (formatted with price, count, period) |
 | `purchase.intro.pay_upfront_single` | "%@ for first %@" (formatted with price, period) |
@@ -126,6 +126,22 @@ All strings support the `.localized(fallback:)` pattern:
 | `purchase.period.descriptive.year_multiple` | "Every %@ years" (formatted with count) |
 | `purchase.period.descriptive.periodic` | "Periodic" |
 
+## Duration Text
+
+Used for introductory offer descriptions to show specific durations (e.g., "7 days free trial" instead of "Weekly free trial").
+
+| Key | Default Value |
+|-----|---------------|
+| `purchase.duration.day_single` | "1 day" |
+| `purchase.duration.day_multiple` | "%@ days" (formatted with count) |
+| `purchase.duration.week_single` | "1 week" |
+| `purchase.duration.week_multiple` | "%@ weeks" (formatted with count) |
+| `purchase.duration.month_single` | "1 month" |
+| `purchase.duration.month_multiple` | "%@ months" (formatted with count) |
+| `purchase.duration.year_single` | "1 year" |
+| `purchase.duration.year_multiple` | "%@ years" (formatted with count) |
+| `purchase.duration.unknown` | "%@ periods" (formatted with count) |
+
 ## Common
 
 | Key | Default Value |
@@ -147,6 +163,12 @@ Create a `Localizable.strings` file in your app bundle:
 "purchase.period.billing.annual" = "Annual";
 "purchase.period.descriptive.monthly" = "Monthly";
 
+// Duration text (for intro offers)
+"purchase.duration.day_single" = "1 day";
+"purchase.duration.day_multiple" = "%@ days";
+"purchase.duration.week_single" = "1 week";
+"purchase.duration.month_single" = "1 month";
+
 // Introductory offers
 "purchase.intro.free_trial" = "%@ free trial";
 "purchase.intro.pay_as_you_go_multiple" = "%@ for %@ %@s";
@@ -161,6 +183,12 @@ Create a `Localizable.strings` file in your app bundle:
 "purchase.period.billing.monthly" = "Mensual";
 "purchase.period.billing.annual" = "Anual";
 "purchase.period.descriptive.monthly" = "Mensual";
+
+// Texto de duración (para ofertas introductorias)
+"purchase.duration.day_single" = "1 día";
+"purchase.duration.day_multiple" = "%@ días";
+"purchase.duration.week_single" = "1 semana";
+"purchase.duration.month_single" = "1 mes";
 
 // Ofertas introductorias
 "purchase.intro.free_trial" = "%@ de prueba gratis";

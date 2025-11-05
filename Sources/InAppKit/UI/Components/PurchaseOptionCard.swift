@@ -111,7 +111,8 @@ struct PurchaseOptionCard: View {
         switch intro.paymentMode {
         case .freeTrial:
             // e.g., "7 days free trial"
-            return "purchase.intro.free_trial".localized("\(period)", fallback: "\(period) free trial")
+            let duration = durationText(intro.period)
+            return "purchase.intro.free_trial".localized("\(duration)", fallback: "\(duration) free trial")
         case .payAsYouGo:
             // e.g., "$0.99 for first 3 months" or "$0.99/month for 3 months"
             if periodCount > 1 {
@@ -128,6 +129,33 @@ struct PurchaseOptionCard: View {
             }
         default:
             return nil
+        }
+    }
+
+    /// Formats a subscription period as a duration (e.g., "7 days", "1 month", "3 months")
+    private func durationText(_ period: Product.SubscriptionPeriod) -> String {
+        let unit = period.unit
+        let value = period.value
+
+        switch unit {
+        case .day:
+            return value == 1
+                ? "purchase.duration.day_single".localized(fallback: "1 day")
+                : "purchase.duration.day_multiple".localized("\(value)", fallback: "\(value) days")
+        case .week:
+            return value == 1
+                ? "purchase.duration.week_single".localized(fallback: "1 week")
+                : "purchase.duration.week_multiple".localized("\(value)", fallback: "\(value) weeks")
+        case .month:
+            return value == 1
+                ? "purchase.duration.month_single".localized(fallback: "1 month")
+                : "purchase.duration.month_multiple".localized("\(value)", fallback: "\(value) months")
+        case .year:
+            return value == 1
+                ? "purchase.duration.year_single".localized(fallback: "1 year")
+                : "purchase.duration.year_multiple".localized("\(value)", fallback: "\(value) years")
+        @unknown default:
+            return "purchase.duration.unknown".localized(fallback: "\(value) periods")
         }
     }
 

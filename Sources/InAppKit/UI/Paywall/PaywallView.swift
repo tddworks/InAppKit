@@ -26,7 +26,7 @@ public struct PaywallView: View {
     public var body: some View {
         VStack(spacing: 0) {
             // Scrollable content: header, features, and product cards
-            ScrollView(showsIndicators: false) {
+            ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 32) {
                     // Use custom header if provided, otherwise use default
                     if let customHeader = paywallHeaderBuilder {
@@ -74,19 +74,20 @@ public struct PaywallView: View {
                     endPoint: .bottomTrailing
                 )
             )
-
-            // Fixed bottom section: purchase button and restore button
-            if !inAppKit.availableProducts.isEmpty {
-                fixedBottomSection
-                    .offset(y: animationOffset)
-                    .opacity(animationOpacity)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                // Fixed bottom section: purchase button and restore button
+                if !inAppKit.availableProducts.isEmpty {
+                    fixedBottomSection
+                        .offset(y: animationOffset)
+                        .opacity(animationOpacity)
+                }
             }
         }
-        .frame(
-            idealWidth: PlatformConstants.paywallSize.width,
-            maxWidth: Platform.isMacOS ? PlatformConstants.maxPaywallWidth : .infinity,
-            idealHeight: PlatformConstants.paywallSize.height
-        )
+//        .frame(
+//            idealWidth: PlatformConstants.paywallSize.width,
+//            maxWidth: Platform.isMacOS ? PlatformConstants.maxPaywallWidth : .infinity,
+//            idealHeight: PlatformConstants.paywallSize.height
+//        )
 //        .background(Color.platformBackground)
         .shadow(
             color: Color.black.opacity(Platform.isMacOS ? 0.15 : 0.1),

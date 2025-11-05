@@ -205,7 +205,6 @@ struct PurchaseOptionCard: View {
     var body: some View {
         PurchaseOptionCardView(
             title: product.displayName,
-            description: productDescription,
             price: product.displayPrice,
             billingPeriod: billingPeriod,
             badge: badge,
@@ -213,6 +212,7 @@ struct PurchaseOptionCard: View {
             features: features,
             savings: savings,
             introductoryOffer: introductoryOfferDescription,
+            description: productDescription,
             isSelected: isSelected,
             onSelect: onSelect
         )
@@ -223,7 +223,6 @@ struct PurchaseOptionCard: View {
 
 private struct PurchaseOptionCardView: View {
     let title: String
-    let description: String
     let price: String
     let billingPeriod: String
     let badge: String?
@@ -231,12 +230,14 @@ private struct PurchaseOptionCardView: View {
     let features: [String]?
     let savings: String?
     let introductoryOffer: String?
+    let description: String?
     let isSelected: Bool
     let onSelect: () -> Void
 
     var body: some View {
         Button(action: onSelect) {
-            HStack(spacing: CardStyle.contentSpacing) {
+            VStack(spacing: 0) {
+                HStack(spacing: CardStyle.contentSpacing) {
                 // Selection indicator
                 ZStack {
                     Circle()
@@ -273,10 +274,6 @@ private struct PurchaseOptionCardView: View {
                                 )
                         }
                     }
-
-                    Text(description)
-                        .font(.system(size: CardStyle.descriptionFontSize, weight: .medium))
-                        .foregroundColor(.secondary)
 
                     // Display introductory offer prominently
                     if let introOffer = introductoryOffer {
@@ -334,14 +331,28 @@ private struct PurchaseOptionCardView: View {
             }
             .padding(.horizontal, CardStyle.horizontalPadding)
             .padding(.vertical, CardStyle.verticalPadding)
-            .background(
-                RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
-                    .fill(isSelected ? Color.blue.opacity(0.06) : Color.platformSecondaryBackground)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
-                            .stroke(isSelected ? Color.blue.opacity(0.4) : Color.gray.opacity(0.15),
-                                   lineWidth: isSelected ? CardStyle.selectedStrokeWidth : CardStyle.unselectedStrokeWidth)
-                    )
+
+            if let description = description {
+                Divider()
+                    .padding(.horizontal, CardStyle.horizontalPadding)
+
+                Text(description)
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, CardStyle.horizontalPadding)
+                    .padding(.vertical, 10)
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
+                .fill(isSelected ? Color.blue.opacity(0.06) : Color.platformSecondaryBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
+                        .stroke(isSelected ? Color.blue.opacity(0.4) : Color.gray.opacity(0.15),
+                               lineWidth: isSelected ? CardStyle.selectedStrokeWidth : CardStyle.unselectedStrokeWidth)
+                )
             )
         }
         .platformButtonStyle()
@@ -369,7 +380,6 @@ private struct PurchaseOptionCardView: View {
             // Standard monthly subscription with trial
             PurchaseOptionCardView(
                 title: "Pro Monthly",
-                description: "Monthly subscription",
                 price: "$9.99",
                 billingPeriod: "Monthly",
                 badge: nil,
@@ -377,6 +387,7 @@ private struct PurchaseOptionCardView: View {
                 features: ["Cloud sync", "Premium filters"],
                 savings: nil,
                 introductoryOffer: "7 days free trial",
+                description: "Monthly subscription",
                 isSelected: false,
                 onSelect: { print("Selected: Pro Monthly") }
             )
@@ -384,7 +395,6 @@ private struct PurchaseOptionCardView: View {
             // Popular annual plan with savings and pay-as-you-go intro
             PurchaseOptionCardView(
                 title: "Pro Annual",
-                description: "Annual subscription",
                 price: "$99.99",
                 billingPeriod: "Yearly",
                 badge: "Most Popular",
@@ -392,6 +402,7 @@ private struct PurchaseOptionCardView: View {
                 features: ["Cloud sync", "Premium filters", "Priority support"],
                 savings: "Save 30%",
                 introductoryOffer: "$0.99 for first 3 months",
+                description: "Annual subscription",
                 isSelected: true,
                 onSelect: { print("Selected: Pro Annual") }
             )
@@ -399,7 +410,6 @@ private struct PurchaseOptionCardView: View {
             // Lifetime purchase option (no intro offer)
             PurchaseOptionCardView(
                 title: "Pro Lifetime",
-                description: "One-time purchase • Lifetime access",
                 price: "$199.99",
                 billingPeriod: "Lifetime",
                 badge: "Best Value",
@@ -407,6 +417,7 @@ private struct PurchaseOptionCardView: View {
                 features: ["All features included", "Lifetime updates"],
                 savings: nil,
                 introductoryOffer: nil,
+                description: "One-time purchase • Lifetime access",
                 isSelected: false,
                 onSelect: { print("Selected: Pro Lifetime") }
             )

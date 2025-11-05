@@ -24,19 +24,8 @@ public struct PaywallView: View {
     public init() {}
     
     public var body: some View {
-        ZStack {
-            // Modern gradient background
-            LinearGradient(
-                colors: [
-                    Color.blue.opacity(0.1),
-                    Color.purple.opacity(0.05),
-                    Color.platformBackground
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-            
+        VStack(spacing: 0) {
+            // Scrollable content: header, features, and product cards
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 32) {
                     // Use custom header if provided, otherwise use default
@@ -49,7 +38,7 @@ public struct PaywallView: View {
                             .offset(y: animationOffset)
                             .opacity(animationOpacity)
                     }
-                    
+
                     // Use custom features if provided, otherwise use default
                     if let customFeatures = paywallFeaturesBuilder {
                         customFeatures()
@@ -64,17 +53,33 @@ public struct PaywallView: View {
                     if inAppKit.availableProducts.isEmpty {
                         loadingSection
                     } else {
-                        productsSection
+                        productCardsSection
                             .offset(y: animationOffset)
                             .opacity(animationOpacity)
                     }
-
-                    footerSection
-                        .offset(y: animationOffset)
-                        .opacity(animationOpacity)
                 }
                 .padding(.horizontal, PlatformConstants.defaultPadding)
-                .padding(.vertical, PlatformConstants.defaultPadding * 1.5)
+                .padding(.top, PlatformConstants.defaultPadding * 1.5)
+                .padding(.bottom, PlatformConstants.defaultPadding)
+            }
+            .background(
+                // Modern gradient background
+                LinearGradient(
+                    colors: [
+                        Color.blue.opacity(0.1),
+                        Color.purple.opacity(0.05),
+                        Color.platformBackground
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+
+            // Fixed bottom section: purchase button and restore button
+            if !inAppKit.availableProducts.isEmpty {
+                fixedBottomSection
+                    .offset(y: animationOffset)
+                    .opacity(animationOpacity)
             }
         }
         .frame(
@@ -82,7 +87,7 @@ public struct PaywallView: View {
             maxWidth: Platform.isMacOS ? PlatformConstants.maxPaywallWidth : .infinity,
             idealHeight: PlatformConstants.paywallSize.height
         )
-        .background(Color.platformBackground)
+//        .background(Color.platformBackground)
         .shadow(
             color: Color.black.opacity(Platform.isMacOS ? 0.15 : 0.1),
             radius: Platform.isMacOS ? 20 : 8,
@@ -191,47 +196,9 @@ public struct PaywallView: View {
         return inAppKit.isPurchased(product.id) || inAppKit.isPurchasing
     }
 
-    private var footerSection: some View {
-        VStack(spacing: 16) {
-            // Restore button
+    // MARK: - Product Cards (Scrollable)
 
-            Button(action: {
-                Task {
-                    isRestoring = true
-                    await inAppKit.restorePurchases()
-
-                    if inAppKit.hasAnyPurchase {
-                        restoreMessage = "paywall.restore.success".localized(fallback: "Purchases restored successfully!")
-                        showRestoreAlert = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                            dismiss()
-                        }
-                    } else {
-                        restoreMessage = "paywall.restore.none".localized(fallback: "No previous purchases found.")
-                        showRestoreAlert = true
-                    }
-
-                    isRestoring = false
-                }
-            }) {
-                HStack(spacing: 6) {
-                    if isRestoring {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                            .progressViewStyle(CircularProgressViewStyle(tint: .blue))
-                    }
-                    Text(isRestoring ? "paywall.restore.restoring".localized(fallback: "Restoring...") : "paywall.restore.button".localized(fallback: "Restore Purchases"))
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(.blue)
-                }
-                .frame(height: 44)
-            }
-            .platformButtonStyle()
-            .disabled(isRestoring)
-        }
-    }
-    
-    private var productsSection: some View {
+    private var productCardsSection: some View {
         VStack(spacing: 20) {
             ForEach(inAppKit.availableProducts, id: \.self) { product in
                 PurchaseOptionCard(
@@ -250,52 +217,101 @@ public struct PaywallView: View {
                     selectedProduct = inAppKit.availableProducts.first
                 }
             }
-            
-            if let selectedProduct = selectedProduct {
-                let buttonText = purchaseButtonText(for: selectedProduct)
-                let isDisabled = isPurchaseButtonDisabled(for: selectedProduct)
-                let isPurchased = inAppKit.isPurchased(selectedProduct.id)
 
-                Button(action: {
-                    Task {
-                        do {
-                            try await inAppKit.purchase(selectedProduct)
-                            dismiss()
-                        } catch {
-                            // Handle error
+            // Use the configurable terms and privacy footer
+            TermsPrivacyFooter()
+        }
+    }
+
+    // MARK: - Fixed Bottom Section (Always Visible)
+
+    private var fixedBottomSection: some View {
+        VStack(spacing: 16) {
+            // Purchase button
+            if let selectedProduct = selectedProduct {
+                    let buttonText = purchaseButtonText(for: selectedProduct)
+                    let isDisabled = isPurchaseButtonDisabled(for: selectedProduct)
+                    let isPurchased = inAppKit.isPurchased(selectedProduct.id)
+
+                    Button(action: {
+                        Task { @MainActor in
+                            do {
+                                try await inAppKit.purchase(selectedProduct)
+                                dismiss()
+                            } catch {
+                                // Handle error
+                            }
                         }
+                    }) {
+                        HStack(spacing: 12) {
+                            if inAppKit.isPurchasing {
+                                ProgressView()
+                                    .scaleEffect(0.8)
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            }
+
+                            // Show contextual button text with price when not processing and not purchased
+                            Text(inAppKit.isPurchasing ? "paywall.purchase.processing".localized(fallback: "Processing...") : "\(buttonText) \(isPurchased ? "" : selectedProduct.displayPrice)")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.white)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 54)
+                        .background(
+                            LinearGradient(
+                                colors: isPurchased ? [Color.gray, Color.gray.opacity(0.8)] : [Color.blue, Color.blue.opacity(0.8)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .cornerRadius(16)
+                        .shadow(color: isPurchased ? Color.gray.opacity(0.3) : Color.blue.opacity(0.3), radius: 8, x: 0, y: 4)
+                    }
+                    .platformButtonStyle()
+                    .disabled(isDisabled)
+                    .scaleEffect(inAppKit.isPurchasing ? 0.98 : 1.0)
+                    .animation(.easeInOut(duration: 0.1), value: inAppKit.isPurchasing)
+                }
+
+                // Restore button
+                Button(action: {
+                    Task { @MainActor in
+                        isRestoring = true
+                        await inAppKit.restorePurchases()
+
+                        if inAppKit.hasAnyPurchase {
+                            restoreMessage = "paywall.restore.success".localized(fallback: "Purchases restored successfully!")
+                            showRestoreAlert = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                dismiss()
+                            }
+                        } else {
+                            restoreMessage = "paywall.restore.none".localized(fallback: "No previous purchases found.")
+                            showRestoreAlert = true
+                        }
+
+                        isRestoring = false
                     }
                 }) {
-                    HStack(spacing: 12) {
-                        if inAppKit.isPurchasing {
+                    HStack(spacing: 6) {
+                        if isRestoring {
                             ProgressView()
                                 .scaleEffect(0.8)
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .progressViewStyle(CircularProgressViewStyle(tint: .blue))
                         }
-
-                        // Show contextual button text with price when not processing and not purchased
-                        Text(inAppKit.isPurchasing ? "paywall.purchase.processing".localized(fallback: "Processing...") : "\(buttonText) \(isPurchased ? "" : selectedProduct.displayPrice)")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.white)
+                        Text(isRestoring ? "paywall.restore.restoring".localized(fallback: "Restoring...") : "paywall.restore.button".localized(fallback: "Restore Purchases"))
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(.blue)
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 54)
-                    .background(
-                        LinearGradient(
-                            colors: isPurchased ? [Color.gray, Color.gray.opacity(0.8)] : [Color.blue, Color.blue.opacity(0.8)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .cornerRadius(16)
-                    .shadow(color: isPurchased ? Color.gray.opacity(0.3) : Color.blue.opacity(0.3), radius: 8, x: 0, y: 4)
+                    .frame(height: 44)
                 }
                 .platformButtonStyle()
-                .disabled(isDisabled)
-                .scaleEffect(inAppKit.isPurchasing ? 0.98 : 1.0)
-                .animation(.easeInOut(duration: 0.1), value: inAppKit.isPurchasing)
-            }
+                .disabled(isRestoring)
         }
+        .padding(.horizontal, PlatformConstants.defaultPadding)
+        .padding(.top, PlatformConstants.defaultPadding)
+        .padding(.bottom, PlatformConstants.defaultPadding)
+        .background(.ultraThinMaterial)
     }
     
     private var featuresSection: some View {

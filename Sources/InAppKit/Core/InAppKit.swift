@@ -12,7 +12,7 @@ import OSLog
 
 @Observable
 @MainActor
-public class InAppKit {
+public class InAppKit: Sendable {
     public static let shared = InAppKit()
     
     public var purchasedProductIDs: Set<String> = []

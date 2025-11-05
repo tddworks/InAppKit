@@ -18,35 +18,26 @@ public struct TermsPrivacyFooter: View {
     public init() {}
     
     public var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 4) {
             Button("paywall.terms".localized(fallback: "Terms")) {
                 showTerms = true
             }
-            .font(.system(size: 12, weight: .medium))
-            .foregroundColor(.blue) // Match light theme
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(Color.blue.opacity(0.08))
-            )
+            .font(.system(size: 11, weight: .regular))
+            .foregroundColor(.secondary)
             .buttonStyle(PlainButtonStyle())
-            
+
+            Text("•")
+                .font(.system(size: 11))
+                .foregroundColor(.secondary.opacity(0.6))
+
             Button("paywall.privacy".localized(fallback: "Privacy")) {
                 showPrivacy = true
             }
-            .font(.system(size: 12, weight: .medium))
-            .foregroundColor(.blue) // Match light theme
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(Color.blue.opacity(0.08))
-            )
+            .font(.system(size: 11, weight: .regular))
+            .foregroundColor(.secondary)
             .buttonStyle(PlainButtonStyle())
         }
-        .padding(.bottom, 16)
-        .padding(.top, 8)
+        .padding(.vertical, 8)
         .sheet(isPresented: $showTerms) {
             if let customTerms = termsBuilder {
                 customTerms()

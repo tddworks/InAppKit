@@ -14,7 +14,6 @@ public struct TermsPrivacyFooter: View {
     @Environment(\.privacyBuilder) private var privacyBuilder
     @Environment(\.termsURL) private var termsURL
     @Environment(\.privacyURL) private var privacyURL
-    @Environment(\.openURL) private var openURL
     @State private var showTerms = false
     @State private var showPrivacy = false
 
@@ -23,11 +22,7 @@ public struct TermsPrivacyFooter: View {
     public var body: some View {
         HStack(spacing: 4) {
             Button("paywall.terms".localized(fallback: "Terms")) {
-                if let url = termsURL {
-                    openURL(url)
-                } else {
-                    showTerms = true
-                }
+                showTerms = true
             }
             .font(.system(size: 11, weight: .regular))
             .foregroundColor(.secondary)
@@ -38,11 +33,7 @@ public struct TermsPrivacyFooter: View {
                 .foregroundColor(.secondary.opacity(0.6))
 
             Button("paywall.privacy".localized(fallback: "Privacy")) {
-                if let url = privacyURL {
-                    openURL(url)
-                } else {
-                    showPrivacy = true
-                }
+                showPrivacy = true
             }
             .font(.system(size: 11, weight: .regular))
             .foregroundColor(.secondary)
@@ -50,14 +41,18 @@ public struct TermsPrivacyFooter: View {
         }
         .padding(.vertical, 8)
         .sheet(isPresented: $showTerms) {
-            if let customTerms = termsBuilder {
+            if let url = termsURL {
+                WebView(url: url)
+            } else if let customTerms = termsBuilder {
                 customTerms()
             } else {
                 DefaultTermsView()
             }
         }
         .sheet(isPresented: $showPrivacy) {
-            if let customPrivacy = privacyBuilder {
+            if let url = privacyURL {
+                WebView(url: url)
+            } else if let customPrivacy = privacyBuilder {
                 customPrivacy()
             } else {
                 DefaultPrivacyView()
@@ -112,7 +107,6 @@ public struct TermsButton: View {
     let title: String
     @Environment(\.termsBuilder) private var termsBuilder
     @Environment(\.termsURL) private var termsURL
-    @Environment(\.openURL) private var openURL
     @State private var showTerms = false
 
     public init(_ title: String = "Terms") {
@@ -121,14 +115,12 @@ public struct TermsButton: View {
 
     public var body: some View {
         Button(title) {
-            if let url = termsURL {
-                openURL(url)
-            } else {
-                showTerms = true
-            }
+            showTerms = true
         }
         .sheet(isPresented: $showTerms) {
-            if let customTerms = termsBuilder {
+            if let url = termsURL {
+                WebView(url: url)
+            } else if let customTerms = termsBuilder {
                 customTerms()
             } else {
                 DefaultTermsView()
@@ -141,7 +133,6 @@ public struct PrivacyButton: View {
     let title: String
     @Environment(\.privacyBuilder) private var privacyBuilder
     @Environment(\.privacyURL) private var privacyURL
-    @Environment(\.openURL) private var openURL
     @State private var showPrivacy = false
 
     public init(_ title: String = "Privacy") {
@@ -150,14 +141,12 @@ public struct PrivacyButton: View {
 
     public var body: some View {
         Button(title) {
-            if let url = privacyURL {
-                openURL(url)
-            } else {
-                showPrivacy = true
-            }
+            showPrivacy = true
         }
         .sheet(isPresented: $showPrivacy) {
-            if let customPrivacy = privacyBuilder {
+            if let url = privacyURL {
+                WebView(url: url)
+            } else if let customPrivacy = privacyBuilder {
                 customPrivacy()
             } else {
                 DefaultPrivacyView()

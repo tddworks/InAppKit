@@ -233,7 +233,7 @@ private struct PurchaseOptionCardView: View {
     let description: String?
     let isSelected: Bool
     let onSelect: () -> Void
-    
+
     var body: some View {
         Button(action: onSelect) {
             VStack(spacing: 0) {
@@ -252,7 +252,7 @@ private struct PurchaseOptionCardView: View {
                     }
                     .padding(.top, 2)
                     
-                    // Left side: Title and intro offer
+                    // Left side: Title and intro offer or description
                     VStack(alignment: .leading, spacing: 6) {
                         Text(title)
                             .font(.system(size: 16, weight: .semibold))
@@ -260,7 +260,7 @@ private struct PurchaseOptionCardView: View {
                             .lineLimit(1)
                             .truncationMode(.tail)
 
-                        // Introductory offer badge
+                        // Introductory offer badge or description highlight
                         if let introOffer = introductoryOffer {
                             HStack(spacing: 4) {
                                 Image(systemName: "gift.fill")
@@ -276,6 +276,17 @@ private struct PurchaseOptionCardView: View {
                                 RoundedRectangle(cornerRadius: 4)
                                     .fill(Color.green.opacity(0.15))
                             )
+                        } else if description != nil {
+                            // Show golden infinity icon when no intro offer (represents lifetime)
+                            Image(systemName: "infinity")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [Color.yellow, Color.orange],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
                         }
                     }
                     

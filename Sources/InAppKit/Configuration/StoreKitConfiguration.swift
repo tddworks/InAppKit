@@ -19,7 +19,9 @@ public class StoreKitConfiguration {
     internal var paywallFeaturesBuilder: (() -> AnyView)?
     internal var termsBuilder: (() -> AnyView)?
     internal var privacyBuilder: (() -> AnyView)?
-    
+    internal var termsURL: URL?
+    internal var privacyURL: URL?
+
     public init() {}
     
     // MARK: - Fluent API Methods
@@ -80,15 +82,31 @@ public class StoreKitConfiguration {
         return self
     }
     
-    /// Configure terms view
+    /// Configure terms view with custom SwiftUI content
     public func withTerms<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> StoreKitConfiguration {
         termsBuilder = { AnyView(builder()) }
         return self
     }
-    
-    /// Configure privacy view
+
+    /// Configure terms with a URL to display
+    /// - Parameter url: The URL to open when terms is tapped
+    /// - Returns: The configuration instance for chaining
+    public func withTerms(url: URL) -> StoreKitConfiguration {
+        termsURL = url
+        return self
+    }
+
+    /// Configure privacy view with custom SwiftUI content
     public func withPrivacy<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> StoreKitConfiguration {
         privacyBuilder = { AnyView(builder()) }
+        return self
+    }
+
+    /// Configure privacy with a URL to display
+    /// - Parameter url: The URL to open when privacy is tapped
+    /// - Returns: The configuration instance for chaining
+    public func withPrivacy(url: URL) -> StoreKitConfiguration {
+        privacyURL = url
         return self
     }
 
@@ -134,17 +152,25 @@ private struct PaywallFeaturesBuilderKey: EnvironmentKey {
     nonisolated(unsafe) static let defaultValue: (() -> AnyView)? = nil
 }
 
+private struct TermsURLKey: EnvironmentKey {
+    static let defaultValue: URL? = nil
+}
+
+private struct PrivacyURLKey: EnvironmentKey {
+    static let defaultValue: URL? = nil
+}
+
 public extension EnvironmentValues {
     var paywallBuilder: ((PaywallContext) -> AnyView)? {
         get { self[PaywallBuilderKey.self] }
         set { self[PaywallBuilderKey.self] = newValue }
     }
-    
+
     var termsBuilder: (() -> AnyView)? {
         get { self[TermsBuilderKey.self] }
         set { self[TermsBuilderKey.self] = newValue }
     }
-    
+
     var privacyBuilder: (() -> AnyView)? {
         get { self[PrivacyBuilderKey.self] }
         set { self[PrivacyBuilderKey.self] = newValue }
@@ -158,6 +184,16 @@ public extension EnvironmentValues {
     var paywallFeaturesBuilder: (() -> AnyView)? {
         get { self[PaywallFeaturesBuilderKey.self] }
         set { self[PaywallFeaturesBuilderKey.self] = newValue }
+    }
+
+    var termsURL: URL? {
+        get { self[TermsURLKey.self] }
+        set { self[TermsURLKey.self] = newValue }
+    }
+
+    var privacyURL: URL? {
+        get { self[PrivacyURLKey.self] }
+        set { self[PrivacyURLKey.self] = newValue }
     }
 }
 
@@ -183,15 +219,27 @@ public struct ChainableStoreKitView<Content: View>: View {
         return ChainableStoreKitView(content: content, config: newConfig)
     }
     
-    /// Add terms configuration to the chain
+    /// Add terms configuration to the chain with custom SwiftUI content
     public func withTerms<TermsContent: View>(@ViewBuilder _ builder: @escaping () -> TermsContent) -> ChainableStoreKitView<Content> {
         let newConfig = config.withTerms(builder)
         return ChainableStoreKitView(content: content, config: newConfig)
     }
-    
-    /// Add privacy configuration to the chain
+
+    /// Add terms configuration to the chain with a URL
+    public func withTerms(url: URL) -> ChainableStoreKitView<Content> {
+        let newConfig = config.withTerms(url: url)
+        return ChainableStoreKitView(content: content, config: newConfig)
+    }
+
+    /// Add privacy configuration to the chain with custom SwiftUI content
     public func withPrivacy<PrivacyContent: View>(@ViewBuilder _ builder: @escaping () -> PrivacyContent) -> ChainableStoreKitView<Content> {
         let newConfig = config.withPrivacy(builder)
+        return ChainableStoreKitView(content: content, config: newConfig)
+    }
+
+    /// Add privacy configuration to the chain with a URL
+    public func withPrivacy(url: URL) -> ChainableStoreKitView<Content> {
+        let newConfig = config.withPrivacy(url: url)
         return ChainableStoreKitView(content: content, config: newConfig)
     }
 
@@ -212,7 +260,7 @@ public struct ChainableStoreKitView<Content: View>: View {
 
 private struct InAppKitModifier: ViewModifier {
     let config: StoreKitConfiguration
-    
+
     func body(content: Content) -> some View {
         content
             .environment(\.paywallBuilder, config.paywallBuilder)
@@ -220,6 +268,8 @@ private struct InAppKitModifier: ViewModifier {
             .environment(\.paywallFeaturesBuilder, config.paywallFeaturesBuilder)
             .environment(\.termsBuilder, config.termsBuilder)
             .environment(\.privacyBuilder, config.privacyBuilder)
+            .environment(\.termsURL, config.termsURL)
+            .environment(\.privacyURL, config.privacyURL)
             .task {
                 await config.setup()
             }

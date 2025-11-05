@@ -339,7 +339,7 @@ private struct PurchaseOptionCardView: View {
                         .padding(.vertical, 3)
                         .background(
                             Capsule()
-                                .fill(badgeColor ?? (badge.lowercased().contains("popular") ? Color.orange : Color.blue))
+                                .fill(badgeColor ?? Color.blue)
                         )
                         .offset(y: -8)
                         .padding(.trailing, 10)

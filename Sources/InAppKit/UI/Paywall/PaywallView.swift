@@ -49,15 +49,7 @@ public struct PaywallView: View {
                             .offset(y: animationOffset)
                             .opacity(animationOpacity)
                     }
-
-                    if inAppKit.availableProducts.isEmpty {
-                        loadingSection
-                    } else {
-                        productsSection
-                            .offset(y: animationOffset)
-                            .opacity(animationOpacity)
-                    }
-
+                    
                     // Use custom features if provided, otherwise use default
                     if let customFeatures = paywallFeaturesBuilder {
                         customFeatures()
@@ -65,6 +57,14 @@ public struct PaywallView: View {
                             .opacity(animationOpacity)
                     } else {
                         featuresSection
+                            .offset(y: animationOffset)
+                            .opacity(animationOpacity)
+                    }
+
+                    if inAppKit.availableProducts.isEmpty {
+                        loadingSection
+                    } else {
+                        productsSection
                             .offset(y: animationOffset)
                             .opacity(animationOpacity)
                     }
@@ -157,14 +157,49 @@ public struct PaywallView: View {
         .frame(maxHeight: 100)
     }
     
+    /// Determines the appropriate button text based on product type and purchase state
+    private func purchaseButtonText(for product: Product) -> String {
+        // Check if this product is already purchased
+        if inAppKit.isPurchased(product.id) {
+            return "paywall.purchase.purchased".localized(fallback: "Purchased")
+        }
+
+        // Check product type for appropriate action text
+        switch product.type {
+        case .autoRenewable:
+            // Check if user has any subscription
+            let hasAnySubscription = inAppKit.availableProducts
+                .filter { $0.type == .autoRenewable }
+                .contains { inAppKit.isPurchased($0.id) }
+
+            if hasAnySubscription {
+                return "paywall.purchase.change_plan".localized(fallback: "Change Plan")
+            } else {
+                return "paywall.purchase.subscribe".localized(fallback: "Subscribe")
+            }
+        case .nonConsumable:
+            return "paywall.purchase.buy".localized(fallback: "Buy")
+        case .consumable:
+            return "paywall.purchase.purchase".localized(fallback: "Purchase")
+        default:
+            return "paywall.purchase.button".localized("\(product.displayPrice)", fallback: "Purchase %@")
+        }
+    }
+
+    /// Determines if the purchase button should be disabled
+    private func isPurchaseButtonDisabled(for product: Product) -> Bool {
+        return inAppKit.isPurchased(product.id) || inAppKit.isPurchasing
+    }
+
     private var footerSection: some View {
         VStack(spacing: 16) {
             // Restore button
+
             Button(action: {
                 Task {
                     isRestoring = true
                     await inAppKit.restorePurchases()
-                    
+
                     if inAppKit.hasAnyPurchase {
                         restoreMessage = "paywall.restore.success".localized(fallback: "Purchases restored successfully!")
                         showRestoreAlert = true
@@ -175,7 +210,7 @@ public struct PaywallView: View {
                         restoreMessage = "paywall.restore.none".localized(fallback: "No previous purchases found.")
                         showRestoreAlert = true
                     }
-                    
+
                     isRestoring = false
                 }
             }) {
@@ -193,9 +228,6 @@ public struct PaywallView: View {
             }
             .platformButtonStyle()
             .disabled(isRestoring)
-            
-            // Use the configurable terms and privacy footer
-            TermsPrivacyFooter()
         }
     }
     
@@ -220,6 +252,10 @@ public struct PaywallView: View {
             }
             
             if let selectedProduct = selectedProduct {
+                let buttonText = purchaseButtonText(for: selectedProduct)
+                let isDisabled = isPurchaseButtonDisabled(for: selectedProduct)
+                let isPurchased = inAppKit.isPurchased(selectedProduct.id)
+
                 Button(action: {
                     Task {
                         do {
@@ -236,8 +272,9 @@ public struct PaywallView: View {
                                 .scaleEffect(0.8)
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         }
-                        
-                        Text(inAppKit.isPurchasing ? "paywall.purchase.processing".localized(fallback: "Processing...") : "paywall.purchase.button".localized("\(selectedProduct.displayPrice)", fallback: "Purchase %@"))
+
+                        // Show contextual button text with price when not processing and not purchased
+                        Text(inAppKit.isPurchasing ? "paywall.purchase.processing".localized(fallback: "Processing...") : "\(buttonText) \(isPurchased ? "" : selectedProduct.displayPrice)")
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
                     }
@@ -245,16 +282,16 @@ public struct PaywallView: View {
                     .frame(height: 54)
                     .background(
                         LinearGradient(
-                            colors: [Color.blue, Color.blue.opacity(0.8)],
+                            colors: isPurchased ? [Color.gray, Color.gray.opacity(0.8)] : [Color.blue, Color.blue.opacity(0.8)],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
                     .cornerRadius(16)
-                    .shadow(color: Color.blue.opacity(0.3), radius: 8, x: 0, y: 4)
+                    .shadow(color: isPurchased ? Color.gray.opacity(0.3) : Color.blue.opacity(0.3), radius: 8, x: 0, y: 4)
                 }
                 .platformButtonStyle()
-                .disabled(inAppKit.isPurchasing)
+                .disabled(isDisabled)
                 .scaleEffect(inAppKit.isPurchasing ? 0.98 : 1.0)
                 .animation(.easeInOut(duration: 0.1), value: inAppKit.isPurchasing)
             }

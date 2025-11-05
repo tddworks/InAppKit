@@ -38,6 +38,11 @@ All strings support the `.localized(fallback:)` pattern:
 | `paywall.loading` | "Loading products..." |
 | `paywall.purchase.button` | "Purchase %@" (formatted with price) |
 | `paywall.purchase.processing` | "Processing..." |
+| `paywall.purchase.purchased` | "Purchased" |
+| `paywall.purchase.subscribe` | "Subscribe" |
+| `paywall.purchase.change_plan` | "Change Plan" |
+| `paywall.purchase.buy` | "Buy" |
+| `paywall.purchase.purchase` | "Purchase" |
 | `paywall.restore.button` | "Restore Purchases" |
 | `paywall.restore.restoring` | "Restoring..." |
 | `paywall.restore.title` | "Restore Status" |

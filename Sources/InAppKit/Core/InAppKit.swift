@@ -10,8 +10,8 @@ import StoreKit
 import SwiftUI
 import OSLog
 
-@MainActor
 @Observable
+@MainActor
 public class InAppKit {
     public static let shared = InAppKit()
     
@@ -221,6 +221,8 @@ public class InAppKit {
         for await result in Transaction.currentEntitlements {
             do {
                 let transaction = try checkVerified(result)
+                
+                Logger.statistics.info("Found purchased product: \(transaction.productID)")
                 
                 switch transaction.productType {
                 case .consumable:

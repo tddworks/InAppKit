@@ -261,6 +261,7 @@ private struct PurchaseOptionCardView: View {
                             .foregroundColor(.primary)
 
                         if let badge = badge {
+                            Spacer()
                             Text(badge)
                                 .font(.system(size: CardStyle.badgeFontSize, weight: .bold))
                                 .foregroundColor(.white)
@@ -271,8 +272,6 @@ private struct PurchaseOptionCardView: View {
                                         .fill(badgeColor ?? (badge.lowercased().contains("popular") ? Color.orange : Color.blue))
                                 )
                         }
-
-                        Spacer()
                     }
 
                     Text(description)

@@ -384,74 +384,101 @@ private struct PurchaseOptionCardView: View {
     let isSelected: Bool
     let onSelect: () -> Void
 
+    // MARK: - Subviews
+
+    private var selectionIndicator: some View {
+        ZStack {
+            Circle()
+                .stroke(isSelected ? Color.blue : Color.gray.opacity(0.3), lineWidth: CardStyle.selectionIndicatorStroke)
+                .frame(width: CardStyle.selectionIndicatorSize, height: CardStyle.selectionIndicatorSize)
+
+            if isSelected {
+                Circle()
+                    .fill(Color.blue)
+                    .frame(width: CardStyle.selectionIndicatorFillSize, height: CardStyle.selectionIndicatorFillSize)
+            }
+        }
+        .padding(.top, 2)
+    }
+
+    @ViewBuilder
+    private var titleSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.primary)
+                .lineLimit(1)
+                .truncationMode(.tail)
+
+            // Introductory offer badge
+            if let introOffer = introductoryOffer {
+                introOfferBadge(introOffer)
+            } else if description != nil {
+                lifetimeIcon
+            }
+
+            // Savings display
+            if let savingsText = savings {
+                savingsLabel(savingsText)
+            }
+        }
+    }
+
+    private func introOfferBadge(_ text: String) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: "gift.fill")
+                .font(.system(size: 9))
+                .foregroundColor(.green)
+            Text(text)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(.green)
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .background(
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color.green.opacity(0.15))
+        )
+    }
+
+    private var lifetimeIcon: some View {
+        Image(systemName: "infinity")
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundStyle(
+                LinearGradient(
+                    colors: [Color.yellow, Color.orange],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+    }
+
+    private func savingsLabel(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: CardStyle.savingsFontSize, weight: .medium))
+            .foregroundColor(.orange)
+    }
+
+    private var priceSection: some View {
+        VStack(alignment: .trailing, spacing: 2) {
+            Text(price)
+                .font(.system(size: 20, weight: .bold))
+                .foregroundColor(.primary)
+
+            Text(billingPeriod)
+                .font(.system(size: 13, weight: .regular))
+                .foregroundColor(.secondary)
+        }
+    }
+
     var body: some View {
         Button(action: onSelect) {
             VStack(spacing: 0) {
                 HStack(alignment: .top, spacing: CardStyle.contentSpacing) {
-                    // Selection indicator (radio button)
-                    ZStack {
-                        Circle()
-                            .stroke(isSelected ? Color.blue : Color.gray.opacity(0.3), lineWidth: CardStyle.selectionIndicatorStroke)
-                            .frame(width: CardStyle.selectionIndicatorSize, height: CardStyle.selectionIndicatorSize)
-                        
-                        if isSelected {
-                            Circle()
-                                .fill(Color.blue)
-                                .frame(width: CardStyle.selectionIndicatorFillSize, height: CardStyle.selectionIndicatorFillSize)
-                        }
-                    }
-                    .padding(.top, 2)
-                    
-                    // Left side: Title and intro offer or description
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(title)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.primary)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-
-                        // Introductory offer badge or description highlight
-                        if let introOffer = introductoryOffer {
-                            HStack(spacing: 4) {
-                                Image(systemName: "gift.fill")
-                                    .font(.system(size: 9))
-                                    .foregroundColor(.green)
-                                Text(introOffer)
-                                    .font(.system(size: 11, weight: .semibold))
-                                    .foregroundColor(.green)
-                            }
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 3)
-                            .background(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color.green.opacity(0.15))
-                            )
-                        } else if description != nil {
-                            // Show golden infinity icon when no intro offer (represents lifetime)
-                            Image(systemName: "infinity")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        colors: [Color.yellow, Color.orange],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                        }
-                    }
-                    
+                    selectionIndicator
+                    titleSection
                     Spacer()
-                    
-                    // Right side: Price and period
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text(price)
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundColor(.primary)
-                        
-                        Text(billingPeriod)
-                            .font(.system(size: 13, weight: .regular))
-                            .foregroundColor(.secondary)
-                    }
+                    priceSection
                 }
                 .padding(.horizontal, CardStyle.horizontalPadding)
                 .padding(.vertical, CardStyle.verticalPadding)

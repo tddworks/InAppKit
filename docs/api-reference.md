@@ -49,19 +49,61 @@ Product("com.app.custom", features: ["feature1", "feature2"])
 ```swift
 extension ProductConfig {
     func withBadge(_ badge: String) -> ProductConfig<T>
+    func withBadge(_ badge: String, color: Color) -> ProductConfig<T>
     func withMarketingFeatures(_ features: [String]) -> ProductConfig<T>
     func withSavings(_ savings: String) -> ProductConfig<T>
+    func withRelativeDiscount(
+        comparedTo baseProductId: String,
+        style: RelativeDiscountConfig.DiscountStyle = .percentage,
+        color: Color? = nil
+    ) -> ProductConfig<T>
 }
 ```
 
-#### Example
+#### Manual Savings Example
 
 ```swift
 Product("com.app.pro", features: [Feature.sync])
-    .withBadge("Most Popular")
+    .withBadge("Most Popular", color: .orange)
     .withMarketingFeatures(["Cloud sync", "Priority support"])
     .withSavings("Save 30%")
 ```
+
+#### Automatic Discount Calculation
+
+The `.withRelativeDiscount()` method automatically calculates savings by comparing prices:
+
+```swift
+// Automatic percentage discount (default)
+Product("com.app.yearly", features: features)
+    .withRelativeDiscount(comparedTo: "com.app.monthly")
+// Displays: "Save 31%" (calculated automatically from actual prices)
+
+// With custom color
+Product("com.app.yearly", features: features)
+    .withRelativeDiscount(comparedTo: "com.app.monthly", color: .green)
+// Displays: "Save 31%" in green
+
+// Different display styles
+Product("com.app.yearly", features: features)
+    .withRelativeDiscount(comparedTo: "com.app.monthly", style: .amount)
+// Displays: "Save $44" (based on actual price difference)
+
+Product("com.app.yearly", features: features)
+    .withRelativeDiscount(comparedTo: "com.app.monthly", style: .freeTime)
+// Displays: "2 months free" (calculated from savings)
+```
+
+**Discount Styles:**
+- `.percentage` - "Save 31%" (default)
+- `.amount` - "Save $44"
+- `.freeTime` - "2 months free"
+
+**Benefits:**
+- ✅ Automatic calculation - no manual math
+- ✅ Always accurate - updates with App Store price changes
+- ✅ Localized - currency formatting by locale
+- ✅ Customizable color - match your brand
 
 ## Configuration
 

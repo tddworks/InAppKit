@@ -195,7 +195,36 @@ ContentView()
     ])
 ```
 
-### Pattern 4: Freemium with Limits
+### Pattern 4: Automatic Discount Calculation
+
+```swift
+// Show calculated savings to encourage annual subscriptions
+ContentView()
+    .withPurchases(products: [
+        Product("com.app.monthly", features: features),
+        Product("com.app.yearly", features: features)
+            .withRelativeDiscount(comparedTo: "com.app.monthly")
+            // Automatically displays "Save 31%" (calculated from actual prices)
+            .withBadge("Best Value", color: .green)
+    ])
+```
+
+**Different Display Styles:**
+```swift
+// Show dollar amount saved
+.withRelativeDiscount(comparedTo: "monthly", style: .amount)
+// Displays: "Save $44"
+
+// Show free months
+.withRelativeDiscount(comparedTo: "monthly", style: .freeTime)
+// Displays: "2 months free"
+
+// Custom color
+.withRelativeDiscount(comparedTo: "monthly", color: .purple)
+// Displays in purple instead of default orange
+```
+
+### Pattern 5: Freemium with Limits
 
 ```swift
 struct ContentView: View {

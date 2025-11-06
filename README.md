@@ -23,7 +23,7 @@ ContentView()
 <em>Beautiful, localized paywalls that work out of the box</em>
 </td>
 <td width="50%" align="center">
-<img src="docs/screenshots/IMG_2514.PNG" width="250" alt="InAppKit Purchase Options"/>
+<img src="docs/screenshots/IMG_3675.PNG" width="250" alt="InAppKit Purchase Options"/>
 <br/>
 <strong>💳 Smart Purchase Options</strong>
 <br/>

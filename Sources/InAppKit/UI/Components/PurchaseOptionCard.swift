@@ -87,21 +87,7 @@ struct PurchaseOptionCard: View {
             return nil
         }
 
-        #if DEBUG
-        Logger.statistics.debug("✅ Found relativeDiscountConfig for \(self.product.id), comparing to \(discountConfig.baseProductId)")
-        #endif
-
-        let result = calculateRelativeDiscount(config: discountConfig)
-
-        #if DEBUG
-        if let result = result {
-            Logger.statistics.debug("✅ Calculated discount: \(result)")
-        } else {
-            Logger.statistics.debug("⚠️ Discount calculation returned nil for \(self.product.id)")
-        }
-        #endif
-
-        return result
+        return calculateRelativeDiscount(config: discountConfig)
     }
 
     /// Computed promo color - from relativeDiscountConfig or default orange

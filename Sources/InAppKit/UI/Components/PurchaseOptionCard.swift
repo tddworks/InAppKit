@@ -5,6 +5,7 @@
 //  Purchase option card component for paywall - displays pricing and billing info
 //
 
+import Foundation
 import SwiftUI
 import StoreKit
 
@@ -53,6 +54,7 @@ struct PurchaseOptionCard: View {
     let features: [String]?
     let savings: String?
 
+    @MainActor
     init(
         product: Product,
         isSelected: Bool,
@@ -69,6 +71,126 @@ struct PurchaseOptionCard: View {
         self.badgeColor = badgeColor
         self.features = features
         self.savings = savings
+    }
+
+    /// Computed savings text - uses manual savings if provided, otherwise calculates from relativeDiscountConfig
+    @MainActor
+    private var savingsText: String? {
+        // Manual savings takes priority
+        if let manualSavings = savings {
+            return manualSavings
+        }
+
+        // Calculate from relative discount config
+        guard let discountConfig = InAppKit.shared.relativeDiscountConfig(for: product.id) else {
+            return nil
+        }
+
+        return calculateRelativeDiscount(config: discountConfig)
+    }
+
+    /// Calculate the discount string based on comparison product
+    @MainActor
+    private func calculateRelativeDiscount(config: RelativeDiscountConfig) -> String? {
+        // Find the base product to compare against
+        guard let baseProduct = InAppKit.shared.availableProducts.first(where: { $0.id == config.baseProductId }) else {
+            return nil
+        }
+
+        // Get subscription periods for both products
+        guard let currentSubscription = product.subscription,
+              let baseSubscription = baseProduct.subscription else {
+            return nil
+        }
+
+        // Calculate prices normalized to the same period
+        let currentPrice = product.price
+        let basePrice = baseProduct.price
+
+        let currentPeriod = currentSubscription.subscriptionPeriod
+        let basePeriod = baseSubscription.subscriptionPeriod
+
+        // Convert both to monthly equivalent for comparison
+        let currentMonthlyPrice = normalizeToMonthly(price: currentPrice, period: currentPeriod)
+        let baseMonthlyPrice = normalizeToMonthly(price: basePrice, period: basePeriod)
+
+        // Calculate savings
+        let savingsAmount = baseMonthlyPrice - currentMonthlyPrice
+        guard savingsAmount > 0 else { return nil }
+
+        // Calculate based on actual billing period
+        let actualSavings = calculateActualSavings(
+            currentPrice: currentPrice,
+            basePrice: basePrice,
+            currentPeriod: currentPeriod,
+            basePeriod: basePeriod
+        )
+
+        switch config.style {
+        case .percentage:
+            let multiplier = NSDecimalNumber(integerLiteral: periodMultiplier(currentPeriod, comparedTo: basePeriod))
+            let basePriceNumber = basePrice as NSDecimalNumber
+            let actualSavingsNumber = actualSavings as NSDecimalNumber
+            let totalBase = basePriceNumber.multiplying(by: multiplier)
+            let percentageDecimal = actualSavingsNumber.dividing(by: totalBase).multiplying(by: NSDecimalNumber(integerLiteral: 100))
+            let percentage = Int(percentageDecimal.doubleValue.rounded())
+            return "discount.percentage".localized("\(percentage)", fallback: "Save \(percentage)%")
+
+        case .amount:
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .currency
+            formatter.locale = product.priceFormatStyle.locale
+            if let formattedAmount = formatter.string(from: actualSavings as NSDecimalNumber) {
+                return "discount.amount".localized(formattedAmount, fallback: "Save \(formattedAmount)")
+            }
+            return nil
+
+        case .freeTime:
+            // Calculate how many free periods you get
+            let actualSavingsNumber = actualSavings as NSDecimalNumber
+            let baseMonthlyNumber = baseMonthlyPrice as NSDecimalNumber
+            let freeMonthsDecimal = actualSavingsNumber.dividing(by: baseMonthlyNumber)
+            let freeMonths = Int(freeMonthsDecimal.doubleValue)
+            if freeMonths > 0 {
+                return "discount.free_time".localized("\(freeMonths)", fallback: "\(freeMonths) months free")
+            }
+            return nil
+        }
+    }
+
+    /// Normalize a price to monthly equivalent
+    private func normalizeToMonthly(price: Decimal, period: Product.SubscriptionPeriod) -> Decimal {
+        let monthsInPeriod = monthsInSubscriptionPeriod(period)
+        return price / Decimal(monthsInPeriod)
+    }
+
+    /// Calculate the actual savings for the billing period
+    private func calculateActualSavings(currentPrice: Decimal, basePrice: Decimal, currentPeriod: Product.SubscriptionPeriod, basePeriod: Product.SubscriptionPeriod) -> Decimal {
+        let baseMonthly = normalizeToMonthly(price: basePrice, period: basePeriod)
+        let monthsInCurrent = monthsInSubscriptionPeriod(currentPeriod)
+        return (baseMonthly * Decimal(monthsInCurrent)) - currentPrice
+    }
+
+    /// Get the multiplier between two periods
+    private func periodMultiplier(_ period: Product.SubscriptionPeriod, comparedTo base: Product.SubscriptionPeriod) -> Int {
+        return monthsInSubscriptionPeriod(period) / monthsInSubscriptionPeriod(base)
+    }
+
+    /// Convert subscription period to months
+    private func monthsInSubscriptionPeriod(_ period: Product.SubscriptionPeriod) -> Int {
+        let value = period.value
+        switch period.unit {
+        case .day:
+            return max(1, value / 30) // Approximate
+        case .week:
+            return max(1, value / 4) // Approximate (4 weeks = 1 month)
+        case .month:
+            return value
+        case .year:
+            return value * 12
+        @unknown default:
+            return value
+        }
     }
     
     private var productDescription: String {
@@ -238,7 +360,7 @@ struct PurchaseOptionCard: View {
             badge: badge,
             badgeColor: badgeColor,
             features: features,
-            savings: savings,
+            savings: savingsText,
             introductoryOffer: introductoryOfferDescription,
             description: productDescription,
             isSelected: isSelected,

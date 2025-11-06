@@ -339,4 +339,117 @@ struct InAppKitTests {
         #expect(premiumView.config.productConfigs.count == 1)
         #expect(premiumView.config.productConfigs.first?.features.count == 3)
     }
+
+    // MARK: - Relative Discount Tests
+
+    @Test @MainActor func testRelativeDiscountConfiguration() {
+        // Test Product with relative discount
+        let product = Product("com.test.yearly", features: [TestFeature.sync])
+            .withRelativeDiscount(comparedTo: "com.test.monthly")
+
+        #expect(product.id == "com.test.yearly")
+        #expect(product.relativeDiscountConfig != nil)
+        #expect(product.relativeDiscountConfig?.baseProductId == "com.test.monthly")
+        #expect(product.relativeDiscountConfig?.style == .percentage)
+    }
+
+    @Test @MainActor func testRelativeDiscountWithPercentageStyle() {
+        // Test relative discount with percentage style
+        let product = Product("com.test.yearly", features: [TestFeature.sync])
+            .withRelativeDiscount(comparedTo: "com.test.monthly", style: .percentage)
+
+        #expect(product.relativeDiscountConfig?.style == .percentage)
+    }
+
+    @Test @MainActor func testRelativeDiscountWithAmountStyle() {
+        // Test relative discount with amount style
+        let product = Product("com.test.yearly", features: [TestFeature.sync])
+            .withRelativeDiscount(comparedTo: "com.test.monthly", style: .amount)
+
+        #expect(product.relativeDiscountConfig?.style == .amount)
+    }
+
+    @Test @MainActor func testRelativeDiscountWithFreeTimeStyle() {
+        // Test relative discount with free time style
+        let product = Product("com.test.yearly", features: [TestFeature.sync])
+            .withRelativeDiscount(comparedTo: "com.test.monthly", style: .freeTime)
+
+        #expect(product.relativeDiscountConfig?.style == .freeTime)
+    }
+
+    @Test @MainActor func testRelativeDiscountInConfiguration() {
+        // Test relative discount in StoreKit configuration
+        let config = StoreKitConfiguration()
+            .withPurchases(products: [
+                Product("com.test.monthly", features: [TestFeature.sync]),
+                Product("com.test.yearly", features: [TestFeature.sync])
+                    .withRelativeDiscount(comparedTo: "com.test.monthly")
+            ])
+
+        #expect(config.productConfigs.count == 2)
+        #expect(config.productConfigs[0].relativeDiscountConfig == nil)
+        #expect(config.productConfigs[1].relativeDiscountConfig != nil)
+        #expect(config.productConfigs[1].relativeDiscountConfig?.baseProductId == "com.test.monthly")
+    }
+
+    @Test @MainActor func testRelativeDiscountPreservesOtherProperties() {
+        // Test that relative discount preserves other properties
+        let product = Product("com.test.yearly", features: [TestFeature.sync])
+            .withBadge("Best Value")
+            .withSavings("Save $44")
+            .withMarketingFeatures(["Cloud sync", "Premium support"])
+            .withRelativeDiscount(comparedTo: "com.test.monthly")
+
+        #expect(product.badge == "Best Value")
+        #expect(product.savings == "Save $44")
+        #expect(product.marketingFeatures?.count == 2)
+        #expect(product.relativeDiscountConfig != nil)
+    }
+
+    @Test @MainActor func testChainedViewWithRelativeDiscount() {
+        // Test chained view with relative discount
+        let baseView = Text("Premium Content")
+
+        let chainedView = baseView
+            .withPurchases(products: [
+                Product("com.test.monthly", features: [TestFeature.sync]),
+                Product("com.test.yearly", features: [TestFeature.sync])
+                    .withRelativeDiscount(comparedTo: "com.test.monthly", style: .percentage)
+            ])
+            .withPaywall { context in
+                Text("Upgrade Now")
+            }
+
+        #expect(chainedView.config.productConfigs.count == 2)
+        #expect(chainedView.config.productConfigs[1].relativeDiscountConfig?.style == .percentage)
+    }
+
+    @Test @MainActor func testTermsAndPrivacyWithURLConfiguration() {
+        // Test terms and privacy with URL configuration
+        let termsURL = URL(string: "https://example.com/terms")!
+        let privacyURL = URL(string: "https://example.com/privacy")!
+
+        let config = StoreKitConfiguration()
+            .withPurchases("com.test.pro")
+            .withTerms(url: termsURL)
+            .withPrivacy(url: privacyURL)
+
+        #expect(config.termsURL == termsURL)
+        #expect(config.privacyURL == privacyURL)
+    }
+
+    @Test @MainActor func testTermsAndPrivacyURLsInChainedView() {
+        // Test terms and privacy URLs in chained view
+        let baseView = Text("Test Content")
+        let termsURL = URL(string: "https://example.com/terms")!
+        let privacyURL = URL(string: "https://example.com/privacy")!
+
+        let chainedView = baseView
+            .withPurchases(products: [Product("com.test.pro")])
+            .withTerms(url: termsURL)
+            .withPrivacy(url: privacyURL)
+
+        #expect(chainedView.config.termsURL == termsURL)
+        #expect(chainedView.config.privacyURL == privacyURL)
+    }
 }

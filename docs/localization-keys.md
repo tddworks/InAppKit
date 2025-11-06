@@ -142,6 +142,16 @@ Used for introductory offer descriptions to show specific durations (e.g., "7 da
 | `purchase.duration.year_multiple` | "%@ years" (formatted with count) |
 | `purchase.duration.unknown` | "%@ periods" (formatted with count) |
 
+## Relative Discounts
+
+Automatically calculated discounts when using `.withRelativeDiscount(comparedTo:)` API.
+
+| Key | Default Value |
+|-----|---------------|
+| `discount.percentage` | "Save %@%" (formatted with percentage, e.g., "Save 31%") |
+| `discount.amount` | "Save %@" (formatted with currency amount, e.g., "Save $44") |
+| `discount.free_time` | "%@ months free" (formatted with month count, e.g., "2 months free") |
+
 ## Common
 
 | Key | Default Value |
@@ -169,6 +179,11 @@ Create a `Localizable.strings` file in your app bundle:
 "purchase.duration.week_single" = "1 week";
 "purchase.duration.month_single" = "1 month";
 
+// Relative discounts
+"discount.percentage" = "Save %@%";
+"discount.amount" = "Save %@";
+"discount.free_time" = "%@ months free";
+
 // Introductory offers
 "purchase.intro.free_trial" = "%@ free trial";
 "purchase.intro.pay_as_you_go_multiple" = "%@ for %@ %@s";
@@ -189,6 +204,11 @@ Create a `Localizable.strings` file in your app bundle:
 "purchase.duration.day_multiple" = "%@ días";
 "purchase.duration.week_single" = "1 semana";
 "purchase.duration.month_single" = "1 mes";
+
+// Descuentos relativos
+"discount.percentage" = "Ahorra %@%";
+"discount.amount" = "Ahorra %@";
+"discount.free_time" = "%@ meses gratis";
 
 // Ofertas introductorias
 "purchase.intro.free_trial" = "%@ de prueba gratis";

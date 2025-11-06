@@ -9,6 +9,25 @@ import Foundation
 import SwiftUI
 import StoreKit
 
+// MARK: - Relative Discount Configuration
+
+/// Configuration for automatic relative discount calculation
+public struct RelativeDiscountConfig: Sendable {
+    public let baseProductId: String
+    public let style: DiscountStyle
+
+    public init(baseProductId: String, style: DiscountStyle = .percentage) {
+        self.baseProductId = baseProductId
+        self.style = style
+    }
+
+    public enum DiscountStyle: Sendable {
+        case percentage  // "31% off"
+        case amount      // "Save $44"
+        case freeTime    // "2 months free"
+    }
+}
+
 // MARK: - Product Configuration Support
 
 public protocol AnyProductConfig {
@@ -17,6 +36,7 @@ public protocol AnyProductConfig {
     var badgeColor: Color? { get }
     var marketingFeatures: [String]? { get }
     var savings: String? { get }
+    var relativeDiscountConfig: RelativeDiscountConfig? { get }
     func toInternal() -> InternalProductConfig
 }
 
@@ -27,6 +47,7 @@ public struct ProductConfig<T: Hashable>: AnyProductConfig {
     public let badgeColor: Color?
     public let marketingFeatures: [String]?
     public let savings: String?
+    public let relativeDiscountConfig: RelativeDiscountConfig?
 
     public init(
         _ id: String,
@@ -34,7 +55,8 @@ public struct ProductConfig<T: Hashable>: AnyProductConfig {
         badge: String? = nil,
         badgeColor: Color? = nil,
         marketingFeatures: [String]? = nil,
-        savings: String? = nil
+        savings: String? = nil,
+        relativeDiscountConfig: RelativeDiscountConfig? = nil
     ) {
         self.id = id
         self.features = features
@@ -42,6 +64,7 @@ public struct ProductConfig<T: Hashable>: AnyProductConfig {
         self.badgeColor = badgeColor
         self.marketingFeatures = marketingFeatures
         self.savings = savings
+        self.relativeDiscountConfig = relativeDiscountConfig
     }
 
     public func toInternal() -> InternalProductConfig {
@@ -51,7 +74,8 @@ public struct ProductConfig<T: Hashable>: AnyProductConfig {
             badge: badge,
             badgeColor: badgeColor,
             marketingFeatures: marketingFeatures,
-            savings: savings
+            savings: savings,
+            relativeDiscountConfig: relativeDiscountConfig
         )
     }
 }
@@ -64,6 +88,7 @@ public struct InternalProductConfig: @unchecked Sendable {
     public let badgeColor: Color?
     public let marketingFeatures: [String]?
     public let savings: String?
+    public let relativeDiscountConfig: RelativeDiscountConfig?
 
     public init(
         id: String,
@@ -71,7 +96,8 @@ public struct InternalProductConfig: @unchecked Sendable {
         badge: String? = nil,
         badgeColor: Color? = nil,
         marketingFeatures: [String]? = nil,
-        savings: String? = nil
+        savings: String? = nil,
+        relativeDiscountConfig: RelativeDiscountConfig? = nil
     ) {
         self.id = id
         self.features = features
@@ -79,6 +105,7 @@ public struct InternalProductConfig: @unchecked Sendable {
         self.badgeColor = badgeColor
         self.marketingFeatures = marketingFeatures
         self.savings = savings
+        self.relativeDiscountConfig = relativeDiscountConfig
     }
 }
 
@@ -110,7 +137,8 @@ public extension ProductConfig {
             badge: badge,
             badgeColor: badgeColor,
             marketingFeatures: marketingFeatures,
-            savings: savings
+            savings: savings,
+            relativeDiscountConfig: relativeDiscountConfig
         )
     }
 
@@ -122,7 +150,8 @@ public extension ProductConfig {
             badge: badge,
             badgeColor: color,
             marketingFeatures: marketingFeatures,
-            savings: savings
+            savings: savings,
+            relativeDiscountConfig: relativeDiscountConfig
         )
     }
 
@@ -134,11 +163,12 @@ public extension ProductConfig {
             badge: badge,
             badgeColor: badgeColor,
             marketingFeatures: features,
-            savings: savings
+            savings: savings,
+            relativeDiscountConfig: relativeDiscountConfig
         )
     }
 
-    /// Add savings information
+    /// Add savings information (manual override)
     func withSavings(_ savings: String) -> ProductConfig<T> {
         ProductConfig(
             id,
@@ -146,7 +176,32 @@ public extension ProductConfig {
             badge: badge,
             badgeColor: badgeColor,
             marketingFeatures: marketingFeatures,
-            savings: savings
+            savings: savings,
+            relativeDiscountConfig: relativeDiscountConfig
+        )
+    }
+
+    /// Add automatic relative discount calculation
+    /// - Parameters:
+    ///   - baseProductId: The product ID to compare against (e.g., monthly when this is yearly)
+    ///   - style: How to display the discount (percentage, amount, or free time)
+    /// - Returns: Updated product configuration
+    ///
+    /// Example:
+    /// ```swift
+    /// Product("yearly", features: features)
+    ///     .withRelativeDiscount(comparedTo: "monthly", style: .percentage)
+    /// // Displays: "Save 31%" (calculated automatically)
+    /// ```
+    func withRelativeDiscount(comparedTo baseProductId: String, style: RelativeDiscountConfig.DiscountStyle = .percentage) -> ProductConfig<T> {
+        ProductConfig(
+            id,
+            features: features,
+            badge: badge,
+            badgeColor: badgeColor,
+            marketingFeatures: marketingFeatures,
+            savings: savings,
+            relativeDiscountConfig: RelativeDiscountConfig(baseProductId: baseProductId, style: style)
         )
     }
 }

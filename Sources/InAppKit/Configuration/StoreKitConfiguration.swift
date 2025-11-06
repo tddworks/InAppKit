@@ -42,31 +42,13 @@ public class StoreKitConfiguration {
     
     /// Configure purchases with features (supports mixed types)
     public func withPurchases<T: Hashable>(products: [ProductConfig<T>]) -> StoreKitConfiguration {
-        productConfigs.append(contentsOf: products.map {
-            InternalProductConfig(
-                id: $0.id,
-                features: $0.features.map(AnyHashable.init),
-                badge: $0.badge,
-                badgeColor: $0.badgeColor,
-                marketingFeatures: $0.marketingFeatures,
-                savings: $0.savings
-            )
-        })
+        productConfigs.append(contentsOf: products.map { $0.toInternal() })
         return self
     }
 
     /// Configure purchases with simple products (no features)
     public func withPurchases(products: [ProductConfig<String>]) -> StoreKitConfiguration {
-        productConfigs.append(contentsOf: products.map {
-            InternalProductConfig(
-                id: $0.id,
-                features: [],
-                badge: $0.badge,
-                badgeColor: $0.badgeColor,
-                marketingFeatures: $0.marketingFeatures,
-                savings: $0.savings
-            )
-        })
+        productConfigs.append(contentsOf: products.map { $0.toInternal() })
         return self
     }
 

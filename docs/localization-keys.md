@@ -146,9 +146,11 @@ Used for introductory offer descriptions to show specific durations (e.g., "7 da
 
 Automatically calculated discounts when using `.withRelativeDiscount(comparedTo:)` API.
 
+**Note:** Use `%%` to display a literal `%` sign in format strings.
+
 | Key | Default Value |
 |-----|---------------|
-| `discount.percentage` | "Save %@%" (formatted with percentage, e.g., "Save 31%") |
+| `discount.percentage` | "Save %@%%" (formatted with percentage, e.g., "Save 31%") |
 | `discount.amount` | "Save %@" (formatted with currency amount, e.g., "Save $44") |
 | `discount.free_time` | "%@ months free" (formatted with month count, e.g., "2 months free") |
 
@@ -179,8 +181,8 @@ Create a `Localizable.strings` file in your app bundle:
 "purchase.duration.week_single" = "1 week";
 "purchase.duration.month_single" = "1 month";
 
-// Relative discounts
-"discount.percentage" = "Save %@%";
+// Relative discounts (use %% for literal % sign)
+"discount.percentage" = "Save %@%%";
 "discount.amount" = "Save %@";
 "discount.free_time" = "%@ months free";
 
@@ -205,8 +207,8 @@ Create a `Localizable.strings` file in your app bundle:
 "purchase.duration.week_single" = "1 semana";
 "purchase.duration.month_single" = "1 mes";
 
-// Descuentos relativos
-"discount.percentage" = "Ahorra %@%";
+// Descuentos relativos (usa %% para el signo % literal)
+"discount.percentage" = "Ahorra %@%%";
 "discount.amount" = "Ahorra %@";
 "discount.free_time" = "%@ meses gratis";
 

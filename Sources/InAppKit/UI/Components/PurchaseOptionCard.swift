@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import StoreKit
+import OSLog
 
 // MARK: - Styling Constants
 
@@ -86,7 +87,21 @@ struct PurchaseOptionCard: View {
             return nil
         }
 
-        return calculateRelativeDiscount(config: discountConfig)
+        #if DEBUG
+        Logger.statistics.debug("✅ Found relativeDiscountConfig for \(self.product.id), comparing to \(discountConfig.baseProductId)")
+        #endif
+
+        let result = calculateRelativeDiscount(config: discountConfig)
+
+        #if DEBUG
+        if let result = result {
+            Logger.statistics.debug("✅ Calculated discount: \(result)")
+        } else {
+            Logger.statistics.debug("⚠️ Discount calculation returned nil for \(self.product.id)")
+        }
+        #endif
+
+        return result
     }
 
     /// Calculate the discount string based on comparison product
@@ -134,7 +149,7 @@ struct PurchaseOptionCard: View {
             let totalBase = basePriceNumber.multiplying(by: multiplier)
             let percentageDecimal = actualSavingsNumber.dividing(by: totalBase).multiplying(by: NSDecimalNumber(integerLiteral: 100))
             let percentage = Int(percentageDecimal.doubleValue.rounded())
-            return "discount.percentage".localized("\(percentage)", fallback: "Save \(percentage)%")
+            return "discount.percentage".localized("\(percentage)", fallback: "Save \(percentage)%%")
 
         case .amount:
             let formatter = NumberFormatter()

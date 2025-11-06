@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import StoreKit
+import OSLog
 
 // MARK: - Relative Discount Configuration
 
@@ -68,7 +69,13 @@ public struct ProductConfig<T: Hashable>: AnyProductConfig {
     }
 
     public func toInternal() -> InternalProductConfig {
-        InternalProductConfig(
+        #if DEBUG
+        if let config = relativeDiscountConfig {
+            Logger.statistics.debug("🟢 toInternal() preserving relativeDiscountConfig for \(self.id): \(config.baseProductId)")
+        }
+        #endif
+
+        return InternalProductConfig(
             id: id,
             features: features.map { AnyHashable($0) },
             badge: badge,
@@ -194,14 +201,20 @@ public extension ProductConfig {
     /// // Displays: "Save 31%" (calculated automatically)
     /// ```
     func withRelativeDiscount(comparedTo baseProductId: String, style: RelativeDiscountConfig.DiscountStyle = .percentage) -> ProductConfig<T> {
-        ProductConfig(
+        let config = RelativeDiscountConfig(baseProductId: baseProductId, style: style)
+
+        #if DEBUG
+        Logger.statistics.debug("🔵 Creating ProductConfig with relativeDiscount: \(self.id) -> \(baseProductId)")
+        #endif
+
+        return ProductConfig(
             id,
             features: features,
             badge: badge,
             badgeColor: badgeColor,
             marketingFeatures: marketingFeatures,
             savings: savings,
-            relativeDiscountConfig: RelativeDiscountConfig(baseProductId: baseProductId, style: style)
+            relativeDiscountConfig: config
         )
     }
 }

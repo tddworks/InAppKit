@@ -11,8 +11,8 @@ public extension Logger {
     private static let subsystem = Bundle.main.bundleIdentifier ?? "com.inappkit.default"
 
     /// Logs the view cycles like a view that appeared.
-    static let viewCycle = Logger(subsystem: subsystem, category: "viewCycle")
+    public static let viewCycle = Logger(subsystem: subsystem, category: "viewCycle")
 
     /// All logs related to tracking and analytics.
-    static let statistics = Logger(subsystem: subsystem, category: "statistics")
+    public static let statistics = Logger(subsystem: subsystem, category: "statistics")
 }

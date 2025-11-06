@@ -209,7 +209,7 @@ public struct PaywallView: View {
                     badge: inAppKit.badge(for: product.id),
                     badgeColor: inAppKit.badgeColor(for: product.id),
                     features: inAppKit.marketingFeatures(for: product.id),
-                    savings: inAppKit.savings(for: product.id)
+                    promoText: inAppKit.promoText(for: product.id)
                 )
             }
             .onAppear {

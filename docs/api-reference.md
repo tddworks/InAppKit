@@ -51,7 +51,7 @@ extension ProductConfig {
     func withBadge(_ badge: String) -> ProductConfig<T>
     func withBadge(_ badge: String, color: Color) -> ProductConfig<T>
     func withMarketingFeatures(_ features: [String]) -> ProductConfig<T>
-    func withSavings(_ savings: String) -> ProductConfig<T>
+    func withPromoText(_ text: String) -> ProductConfig<T>
     func withRelativeDiscount(
         comparedTo baseProductId: String,
         style: RelativeDiscountConfig.DiscountStyle = .percentage,
@@ -60,13 +60,13 @@ extension ProductConfig {
 }
 ```
 
-#### Manual Savings Example
+#### Manual Promotional Text Example
 
 ```swift
 Product("com.app.pro", features: [Feature.sync])
     .withBadge("Most Popular", color: .orange)
     .withMarketingFeatures(["Cloud sync", "Priority support"])
-    .withSavings("Save 30%")
+    .withPromoText("Save 30%")
 ```
 
 #### Automatic Discount Calculation

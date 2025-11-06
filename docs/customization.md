@@ -32,7 +32,7 @@ ContentView()
                 "Cloud sync across devices",
                 "Priority support"
             ])
-            .withSavings("Save 30%"),
+            .withPromoText("Save 30%"),
 
         Product("com.app.premium", features: Feature.allCases)
             .withBadge("Professional", color: .purple)
@@ -42,7 +42,7 @@ ContentView()
                 "Team collaboration",
                 "API access"
             ])
-            .withSavings("Save 50%")
+            .withPromoText("Save 50%")
     ])
 ```
 

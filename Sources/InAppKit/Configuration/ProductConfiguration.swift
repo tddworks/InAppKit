@@ -38,7 +38,7 @@ public protocol AnyProductConfig {
     var badge: String? { get }
     var badgeColor: Color? { get }
     var marketingFeatures: [String]? { get }
-    var savings: String? { get }
+    var promoText: String? { get }
     var relativeDiscountConfig: RelativeDiscountConfig? { get }
     func toInternal() -> InternalProductConfig
 }
@@ -49,7 +49,7 @@ public struct ProductConfig<T: Hashable>: AnyProductConfig {
     public let badge: String?
     public let badgeColor: Color?
     public let marketingFeatures: [String]?
-    public let savings: String?
+    public let promoText: String?
     public let relativeDiscountConfig: RelativeDiscountConfig?
 
     public init(
@@ -58,7 +58,7 @@ public struct ProductConfig<T: Hashable>: AnyProductConfig {
         badge: String? = nil,
         badgeColor: Color? = nil,
         marketingFeatures: [String]? = nil,
-        savings: String? = nil,
+        promoText: String? = nil,
         relativeDiscountConfig: RelativeDiscountConfig? = nil
     ) {
         self.id = id
@@ -66,7 +66,7 @@ public struct ProductConfig<T: Hashable>: AnyProductConfig {
         self.badge = badge
         self.badgeColor = badgeColor
         self.marketingFeatures = marketingFeatures
-        self.savings = savings
+        self.promoText = promoText
         self.relativeDiscountConfig = relativeDiscountConfig
     }
 
@@ -83,7 +83,7 @@ public struct ProductConfig<T: Hashable>: AnyProductConfig {
             badge: badge,
             badgeColor: badgeColor,
             marketingFeatures: marketingFeatures,
-            savings: savings,
+            promoText: promoText,
             relativeDiscountConfig: relativeDiscountConfig
         )
     }
@@ -96,7 +96,7 @@ public struct InternalProductConfig: @unchecked Sendable {
     public let badge: String?
     public let badgeColor: Color?
     public let marketingFeatures: [String]?
-    public let savings: String?
+    public let promoText: String?
     public let relativeDiscountConfig: RelativeDiscountConfig?
 
     public init(
@@ -105,7 +105,7 @@ public struct InternalProductConfig: @unchecked Sendable {
         badge: String? = nil,
         badgeColor: Color? = nil,
         marketingFeatures: [String]? = nil,
-        savings: String? = nil,
+        promoText: String? = nil,
         relativeDiscountConfig: RelativeDiscountConfig? = nil
     ) {
         self.id = id
@@ -113,7 +113,7 @@ public struct InternalProductConfig: @unchecked Sendable {
         self.badge = badge
         self.badgeColor = badgeColor
         self.marketingFeatures = marketingFeatures
-        self.savings = savings
+        self.promoText = promoText
         self.relativeDiscountConfig = relativeDiscountConfig
     }
 }
@@ -146,7 +146,7 @@ public extension ProductConfig {
             badge: badge,
             badgeColor: badgeColor,
             marketingFeatures: marketingFeatures,
-            savings: savings,
+            promoText: promoText,
             relativeDiscountConfig: relativeDiscountConfig
         )
     }
@@ -159,7 +159,7 @@ public extension ProductConfig {
             badge: badge,
             badgeColor: color,
             marketingFeatures: marketingFeatures,
-            savings: savings,
+            promoText: promoText,
             relativeDiscountConfig: relativeDiscountConfig
         )
     }
@@ -172,20 +172,28 @@ public extension ProductConfig {
             badge: badge,
             badgeColor: badgeColor,
             marketingFeatures: features,
-            savings: savings,
+            promoText: promoText,
             relativeDiscountConfig: relativeDiscountConfig
         )
     }
 
-    /// Add savings information (manual override)
-    func withSavings(_ savings: String) -> ProductConfig<T> {
+    /// Add promotional text to highlight the product
+    /// - Parameter text: Custom promotional message (e.g., "Save $44", "Limited Time", "Best Value!")
+    /// - Returns: Updated product configuration
+    ///
+    /// Example:
+    /// ```swift
+    /// Product("yearly", features: features)
+    ///     .withPromoText("Save $44")
+    /// ```
+    func withPromoText(_ text: String) -> ProductConfig<T> {
         ProductConfig(
             id,
             features: features,
             badge: badge,
             badgeColor: badgeColor,
             marketingFeatures: marketingFeatures,
-            savings: savings,
+            promoText: text,
             relativeDiscountConfig: relativeDiscountConfig
         )
     }
@@ -216,7 +224,7 @@ public extension ProductConfig {
             badge: badge,
             badgeColor: badgeColor,
             marketingFeatures: marketingFeatures,
-            savings: savings,
+            promoText: promoText,
             relativeDiscountConfig: config
         )
     }
@@ -250,28 +258,28 @@ public struct PaywallContext {
         return InAppKit.shared.marketingFeatures(for: product.id)
     }
 
-    /// Get savings information for a product
+    /// Get promotional text for a product
     @MainActor
-    public func savings(for product: StoreKit.Product) -> String? {
-        return InAppKit.shared.savings(for: product.id)
+    public func promoText(for product: StoreKit.Product) -> String? {
+        return InAppKit.shared.promoText(for: product.id)
     }
 
     /// Get all marketing information for a product
     @MainActor
-    public func marketingInfo(for product: StoreKit.Product) -> (badge: String?, features: [String]?, savings: String?) {
+    public func marketingInfo(for product: StoreKit.Product) -> (badge: String?, features: [String]?, promoText: String?) {
         return (
             badge: badge(for: product),
             features: marketingFeatures(for: product),
-            savings: savings(for: product)
+            promoText: promoText(for: product)
         )
     }
 
     /// Get products with their marketing information
     @MainActor
-    public var productsWithMarketing: [(product: StoreKit.Product, badge: String?, features: [String]?, savings: String?)] {
+    public var productsWithMarketing: [(product: StoreKit.Product, badge: String?, features: [String]?, promoText: String?)] {
         return availableProducts.map { product in
             let info = marketingInfo(for: product)
-            return (product: product, badge: info.badge, features: info.features, savings: info.savings)
+            return (product: product, badge: info.badge, features: info.features, promoText: info.promoText)
         }
     }
 }

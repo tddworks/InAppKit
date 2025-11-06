@@ -396,12 +396,12 @@ struct InAppKitTests {
         // Test that relative discount preserves other properties
         let product = Product("com.test.yearly", features: [TestFeature.sync])
             .withBadge("Best Value")
-            .withSavings("Save $44")
+            .withPromoText("Save $44")
             .withMarketingFeatures(["Cloud sync", "Premium support"])
             .withRelativeDiscount(comparedTo: "com.test.monthly")
 
         #expect(product.badge == "Best Value")
-        #expect(product.savings == "Save $44")
+        #expect(product.promoText == "Save $44")
         #expect(product.marketingFeatures?.count == 2)
         #expect(product.relativeDiscountConfig != nil)
     }

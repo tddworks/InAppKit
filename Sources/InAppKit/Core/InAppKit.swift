@@ -11,8 +11,8 @@ import SwiftUI
 import OSLog
 
 @Observable
-@MainActor
-public class InAppKit: Sendable {
+//@MainActor
+public class InAppKit {
     public static let shared = InAppKit()
     
     public var purchasedProductIDs: Set<String> = []
@@ -24,7 +24,7 @@ public class InAppKit: Sendable {
     // Feature-based configuration storage
     private var featureToProductMapping: [AnyHashable: [String]] = [:]
     private var productToFeatureMapping: [String: [AnyHashable]] = [:]
-    private var productMarketingInfo: [String: (badge: String?, badgeColor: Color?, features: [String]?, savings: String?)] = [:]
+    private var productMarketingInfo: [String: (badge: String?, badgeColor: Color?, features: [String]?, promoText: String?, relativeDiscountConfig: RelativeDiscountConfig?)] = [:]
     
     private var updateListenerTask: Task<Void, Error>?
     
@@ -57,8 +57,15 @@ public class InAppKit: Sendable {
                 badge: config.badge,
                 badgeColor: config.badgeColor,
                 features: config.marketingFeatures,
-                savings: config.savings
+                promoText: config.promoText,
+                relativeDiscountConfig: config.relativeDiscountConfig
             )
+
+            #if DEBUG
+            if let discountConfig = config.relativeDiscountConfig {
+                Logger.statistics.info("📊 Stored relativeDiscountConfig for \(config.id): comparing to \(discountConfig.baseProductId), style: \(String(describing: discountConfig.style))")
+            }
+            #endif
         }
 
         await loadProducts(productIds: productIDs)
@@ -185,9 +192,14 @@ public class InAppKit: Sendable {
         return productMarketingInfo[productId]?.features
     }
 
-    /// Get savings information for a product
-    public func savings(for productId: String) -> String? {
-        return productMarketingInfo[productId]?.savings
+    /// Get promotional text for a product
+    public func promoText(for productId: String) -> String? {
+        return productMarketingInfo[productId]?.promoText
+    }
+
+    /// Get relative discount configuration for a product
+    public func relativeDiscountConfig(for productId: String) -> RelativeDiscountConfig? {
+        return productMarketingInfo[productId]?.relativeDiscountConfig
     }
     
     // MARK: - Development Helpers

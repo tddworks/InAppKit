@@ -104,6 +104,18 @@ struct PurchaseOptionCard: View {
         return result
     }
 
+    /// Computed savings color - from relativeDiscountConfig or default orange
+    @MainActor
+    private var savingsColor: Color {
+        // Get color from relative discount config
+        if let discountConfig = InAppKit.shared.relativeDiscountConfig(for: product.id),
+           let customColor = discountConfig.color {
+            return customColor
+        }
+        // Default to orange
+        return .orange
+    }
+
     /// Calculate the discount string based on comparison product
     @MainActor
     private func calculateRelativeDiscount(config: RelativeDiscountConfig) -> String? {
@@ -376,6 +388,7 @@ struct PurchaseOptionCard: View {
             badgeColor: badgeColor,
             features: features,
             savings: savingsText,
+            savingsColor: savingsColor,
             introductoryOffer: introductoryOfferDescription,
             description: productDescription,
             isSelected: isSelected,
@@ -394,6 +407,7 @@ private struct PurchaseOptionCardView: View {
     let badgeColor: Color?
     let features: [String]?
     let savings: String?
+    let savingsColor: Color
     let introductoryOffer: String?
     let description: String?
     let isSelected: Bool
@@ -471,7 +485,7 @@ private struct PurchaseOptionCardView: View {
     private func savingsLabel(_ text: String) -> some View {
         Text(text)
             .font(.system(size: CardStyle.savingsFontSize, weight: .medium))
-            .foregroundColor(.orange)
+            .foregroundColor(savingsColor)
     }
 
     private var priceSection: some View {
@@ -570,12 +584,13 @@ private struct PurchaseOptionCardView: View {
                 badgeColor: nil,
                 features: ["Cloud sync", "Premium filters"],
                 savings: nil,
+                savingsColor: .orange,
                 introductoryOffer: "7 days free trial",
                 description: "Monthly subscription",
                 isSelected: false,
                 onSelect: { print("Selected: Pro Monthly") }
             )
-            
+
             // Popular annual plan with savings and pay-as-you-go intro
             PurchaseOptionCardView(
                 title: "This is Pro Annual package",
@@ -585,12 +600,13 @@ private struct PurchaseOptionCardView: View {
                 badgeColor: .orange,
                 features: ["Cloud sync", "Premium filters", "Priority support"],
                 savings: "Save 30%",
+                savingsColor: .green,
                 introductoryOffer: "$0.99 for first 3 months",
                 description: "Annual subscription",
                 isSelected: true,
                 onSelect: { print("Selected: Pro Annual") }
             )
-            
+
             // Lifetime purchase option (no intro offer)
             PurchaseOptionCardView(
                 title: "This is Pro LifeTime package",
@@ -600,6 +616,7 @@ private struct PurchaseOptionCardView: View {
                 badgeColor: .green,
                 features: ["All features included", "Lifetime updates"],
                 savings: nil,
+                savingsColor: .orange,
                 introductoryOffer: nil,
                 description: "One-time purchase • Lifetime access",
                 isSelected: false,

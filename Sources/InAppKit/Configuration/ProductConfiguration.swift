@@ -16,10 +16,12 @@ import OSLog
 public struct RelativeDiscountConfig: Sendable {
     public let baseProductId: String
     public let style: DiscountStyle
+    public let color: Color?
 
-    public init(baseProductId: String, style: DiscountStyle = .percentage) {
+    public init(baseProductId: String, style: DiscountStyle = .percentage, color: Color? = nil) {
         self.baseProductId = baseProductId
         self.style = style
+        self.color = color
     }
 
     public enum DiscountStyle: Sendable {
@@ -192,16 +194,17 @@ public extension ProductConfig {
     /// - Parameters:
     ///   - baseProductId: The product ID to compare against (e.g., monthly when this is yearly)
     ///   - style: How to display the discount (percentage, amount, or free time)
+    ///   - color: Custom color for the discount text (defaults to orange if not specified)
     /// - Returns: Updated product configuration
     ///
     /// Example:
     /// ```swift
     /// Product("yearly", features: features)
-    ///     .withRelativeDiscount(comparedTo: "monthly", style: .percentage)
-    /// // Displays: "Save 31%" (calculated automatically)
+    ///     .withRelativeDiscount(comparedTo: "monthly", style: .percentage, color: .green)
+    /// // Displays: "Save 31%" in green (calculated automatically)
     /// ```
-    func withRelativeDiscount(comparedTo baseProductId: String, style: RelativeDiscountConfig.DiscountStyle = .percentage) -> ProductConfig<T> {
-        let config = RelativeDiscountConfig(baseProductId: baseProductId, style: style)
+    func withRelativeDiscount(comparedTo baseProductId: String, style: RelativeDiscountConfig.DiscountStyle = .percentage, color: Color? = nil) -> ProductConfig<T> {
+        let config = RelativeDiscountConfig(baseProductId: baseProductId, style: style, color: color)
 
         #if DEBUG
         Logger.statistics.debug("🔵 Creating ProductConfig with relativeDiscount: \(self.id) -> \(baseProductId)")

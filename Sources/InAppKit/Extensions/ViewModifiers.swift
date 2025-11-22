@@ -22,10 +22,7 @@ public extension View {
         self.sheet(isPresented: isPresented) {
             content()
                 .frame(
-                    minWidth: 400,
-                    idealWidth: 500,
-                    minHeight: 300,
-                    idealHeight: 600
+                    maxHeight: 900
                 )
         }
         #else

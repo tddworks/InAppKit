@@ -87,7 +87,7 @@ public struct UniversalPurchaseModifier: ViewModifier {
                 .onTapGesture {
                     showUpgrade = true
                 }
-                .sheet(isPresented: $showUpgrade) {
+                .platformSheet(isPresented: $showUpgrade) {
                     showPaywall()
                 }
         } else {

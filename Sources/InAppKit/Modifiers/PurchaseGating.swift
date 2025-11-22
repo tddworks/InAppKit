@@ -23,7 +23,7 @@ struct PurchaseGateModifier: ViewModifier {
                 .onTapGesture {
                     showUpgrade = true
                 }
-                .sheet(isPresented: $showUpgrade) {
+                .platformSheet(isPresented: $showUpgrade) {
                     if let customPaywall = paywallBuilder {
                         let context = PaywallContext(
                             triggeredBy: "usage_condition",

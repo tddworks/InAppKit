@@ -22,7 +22,7 @@ public extension View {
         self.sheet(isPresented: isPresented) {
             content()
                 .frame(
-                    maxHeight: 900
+                    maxHeight: 800
                 )
         }
         #else

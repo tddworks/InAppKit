@@ -11,7 +11,7 @@ import SwiftUI
 import OSLog
 
 @Observable
-//@MainActor
+@MainActor
 public class InAppKit {
     public static let shared = InAppKit()
     

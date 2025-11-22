@@ -44,7 +44,7 @@ private enum CardStyle {
     static let badgeVerticalPadding: CGFloat = 2
 }
 
-struct PurchaseOptionCard: View {
+public struct PurchaseOptionCard: View {
     let product: Product
     let isSelected: Bool
     let onSelect: () -> Void
@@ -56,7 +56,7 @@ struct PurchaseOptionCard: View {
     let promoText: String?
 
     @MainActor
-    init(
+    public init(
         product: Product,
         isSelected: Bool,
         onSelect: @escaping () -> Void,
@@ -365,7 +365,7 @@ struct PurchaseOptionCard: View {
         case descriptive // "Every month", "Every year"
     }
 
-    var body: some View {
+    public var body: some View {
         PurchaseOptionCardView(
             title: product.displayName,
             price: product.displayPrice,

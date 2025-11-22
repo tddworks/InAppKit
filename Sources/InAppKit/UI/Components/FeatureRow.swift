@@ -4,15 +4,20 @@
 //
 //  Feature list row component
 //
-
 import SwiftUI
 
-struct FeatureRow: View {
+public struct FeatureRow: View {
     let icon: String
     let title: String
     let subtitle: String
     
-    var body: some View {
+    public init(icon: String, title: String, subtitle: String) {
+        self.icon = icon
+        self.title = title
+        self.subtitle = subtitle
+    }
+    
+    public var body: some View {
         HStack(spacing: 16) {
             ZStack {
                 RoundedRectangle(cornerRadius: 12)

@@ -1,0 +1,43 @@
+name: Build and Test
+
+# Swift 6.2 Required
+# Uses swift-actions/setup-swift to install Swift 6.2.0 regardless of runner's default version
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: macos-26
+
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Swift 6.2
+      uses: SwiftyLab/setup-swift@latest
+      with:
+        swift-version: "6.2.0"
+
+    - name: Get Swift version
+      run: swift --version
+
+    - name: Resolve dependencies
+      run: swift package resolve
+
+    - name: Build
+      run: swift build
+
+    - name: Run tests
+      run: swift test --parallel
+
+    - name: Build for release
+      run: swift build -c release

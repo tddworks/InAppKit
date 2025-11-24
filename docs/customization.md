@@ -18,6 +18,10 @@ Boost conversion rates with badges, feature highlights, and savings displays.
 
 ### Adding Marketing Information
 
+#### Manual Promotional Text
+
+You can manually specify promotional text using `.withPromoText()`:
+
 ```swift
 ContentView()
     .withPurchases(products: [
@@ -43,6 +47,94 @@ ContentView()
                 "API access"
             ])
             .withPromoText("Save 50%")
+    ])
+```
+
+#### Automatic Discount Calculation
+
+The `.withRelativeDiscount()` method automatically calculates savings by comparing product prices:
+
+```swift
+ContentView()
+    .withPurchases(products: [
+        Product("com.app.monthly", features: Feature.allCases)
+            .withBadge("Monthly"),
+
+        Product("com.app.yearly", features: Feature.allCases)
+            .withBadge("Best Value", color: .green)
+            .withRelativeDiscount(comparedTo: "com.app.monthly")
+            // Automatically displays: "Save 31%" (calculated from actual prices)
+    ])
+```
+
+**Available Discount Styles:**
+
+```swift
+// Percentage discount (default)
+Product("com.app.yearly", features: features)
+    .withRelativeDiscount(comparedTo: "com.app.monthly")
+// Displays: "Save 31%"
+
+// Amount discount
+Product("com.app.yearly", features: features)
+    .withRelativeDiscount(comparedTo: "com.app.monthly", style: .amount)
+// Displays: "Save $44"
+
+// Free time calculation
+Product("com.app.yearly", features: features)
+    .withRelativeDiscount(comparedTo: "com.app.monthly", style: .freeTime)
+// Displays: "2 months free"
+
+// With custom color
+Product("com.app.yearly", features: features)
+    .withRelativeDiscount(comparedTo: "com.app.monthly", color: .green)
+// Displays: "Save 31%" in green
+```
+
+**Discount Styles:**
+- `.percentage` - "Save 31%" (default)
+- `.amount` - "Save $44"
+- `.freeTime` - "2 months free"
+
+**Benefits:**
+- ✅ Automatic calculation - no manual math
+- ✅ Always accurate - updates with App Store price changes
+- ✅ Localized - currency formatting by locale
+- ✅ Customizable color - match your brand
+
+#### When to Use Each Approach
+
+**Use `.withRelativeDiscount()` when:**
+- Comparing subscription tiers (monthly vs yearly)
+- Showing savings on bundle products
+- Prices change frequently or vary by region
+- You want accurate, localized discount displays
+
+**Use `.withPromoText()` when:**
+- Running time-limited promotions ("50% off this week!")
+- Displaying non-price benefits ("Includes 3 months free trial")
+- Showing custom marketing messages ("Most popular choice")
+
+#### Combining Both Approaches
+
+You can use both methods together for rich marketing displays:
+
+```swift
+ContentView()
+    .withPurchases(products: [
+        Product("com.app.monthly", features: Feature.allCases)
+            .withBadge("Flexible")
+            .withMarketingFeatures(["Pay as you go", "Cancel anytime"]),
+
+        Product("com.app.yearly", features: Feature.allCases)
+            .withBadge("Best Value", color: .green)
+            .withRelativeDiscount(comparedTo: "com.app.monthly", style: .freeTime)
+            .withPromoText("Limited time offer!")
+            .withMarketingFeatures([
+                "All premium features",
+                "Priority support",
+                "Exclusive updates"
+            ])
     ])
 ```
 

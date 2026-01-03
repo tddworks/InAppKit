@@ -100,7 +100,7 @@ public class InAppKit {
         #if DEBUG
         for config in productConfigs {
             if let discountConfig = config.relativeDiscountConfig {
-                Logger.statistics.info("📊 Stored relativeDiscountConfig for \(config.id): comparing to \(discountConfig.baseProductId), style: \(String(describing: discountConfig.style))")
+                Logger.statistics.info("📊 Stored relativeDiscountConfig for \(config.id): comparing to \(discountConfig.comparedTo), style: \(String(describing: discountConfig.style))")
             }
         }
         #endif

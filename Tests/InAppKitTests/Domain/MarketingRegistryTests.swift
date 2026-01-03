@@ -44,7 +44,7 @@ struct MarketingRegistryTests {
         // Given
         let registry = MarketingRegistry()
         let discountConfig = RelativeDiscountConfig(
-            baseProductId: "com.app.monthly",
+            comparedTo: "com.app.monthly",
             style: .percentage,
             color: .green
         )
@@ -164,7 +164,7 @@ struct MarketingRegistryTests {
         // Given
         let marketing = ProductMarketing(
             relativeDiscountConfig: RelativeDiscountConfig(
-                baseProductId: "com.app.monthly",
+                comparedTo: "com.app.monthly",
                 style: .percentage
             )
         )

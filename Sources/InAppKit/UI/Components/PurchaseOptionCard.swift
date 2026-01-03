@@ -365,6 +365,31 @@ public struct PurchaseOptionCard: View {
         case descriptive // "Every month", "Every year"
     }
 
+    private var productIconType: ProductIconType {
+        switch product.type {
+        case .nonConsumable:
+            return .lifetime
+        case .autoRenewable:
+            if let subscription = product.subscription {
+                switch subscription.subscriptionPeriod.unit {
+                case .day:
+                    return .daily
+                case .week:
+                    return .weekly
+                case .month:
+                    return .monthly
+                case .year:
+                    return .yearly
+                @unknown default:
+                    return .subscription
+                }
+            }
+            return .subscription
+        default:
+            return .other
+        }
+    }
+
     public var body: some View {
         PurchaseOptionCardView(
             title: product.displayName,
@@ -377,10 +402,23 @@ public struct PurchaseOptionCard: View {
             promoColor: displayPromoColor,
             introductoryOffer: introductoryOfferDescription,
             description: productDescription,
+            productIconType: productIconType,
             isSelected: isSelected,
             onSelect: onSelect
         )
     }
+}
+
+// MARK: - Product Icon Type
+
+private enum ProductIconType {
+    case daily
+    case weekly
+    case monthly
+    case yearly
+    case lifetime
+    case subscription
+    case other
 }
 
 // MARK: - Shared UI Component
@@ -396,6 +434,7 @@ private struct PurchaseOptionCardView: View {
     let promoColor: Color
     let introductoryOffer: String?
     let description: String?
+    let productIconType: ProductIconType
     let isSelected: Bool
     let onSelect: () -> Void
 
@@ -429,7 +468,7 @@ private struct PurchaseOptionCardView: View {
             if let introOffer = introductoryOffer {
                 introOfferBadge(introOffer)
             } else if description != nil {
-                lifetimeIcon
+                productIcon
             }
 
             // Promo text display
@@ -456,12 +495,32 @@ private struct PurchaseOptionCardView: View {
         )
     }
 
-    private var lifetimeIcon: some View {
-        Image(systemName: "infinity")
+    @ViewBuilder
+    private var productIcon: some View {
+        switch productIconType {
+        case .daily:
+            subscriptionIcon(systemName: "sun.max.fill", colors: [.orange, .yellow])
+        case .weekly:
+            subscriptionIcon(systemName: "calendar.badge.clock", colors: [.blue, .cyan])
+        case .monthly:
+            subscriptionIcon(systemName: "calendar", colors: [.purple, .indigo])
+        case .yearly:
+            subscriptionIcon(systemName: "calendar.badge.checkmark", colors: [.green, .mint])
+        case .lifetime:
+            subscriptionIcon(systemName: "infinity", colors: [.yellow, .orange])
+        case .subscription:
+            subscriptionIcon(systemName: "arrow.triangle.2.circlepath", colors: [.blue, .purple])
+        case .other:
+            subscriptionIcon(systemName: "bag.fill", colors: [.gray, .secondary])
+        }
+    }
+
+    private func subscriptionIcon(systemName: String, colors: [Color]) -> some View {
+        Image(systemName: systemName)
             .font(.system(size: 16, weight: .semibold))
             .foregroundStyle(
                 LinearGradient(
-                    colors: [Color.yellow, Color.orange],
+                    colors: colors,
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -561,10 +620,27 @@ private struct PurchaseOptionCardView: View {
         }
         
         VStack(spacing: 12) {
+            // Weekly subscription
+            PurchaseOptionCardView(
+                title: "Pro Weekly",
+                price: "$0.99",
+                billingPeriod: "Weekly",
+                badge: nil,
+                badgeColor: nil,
+                features: nil,
+                promoText: nil,
+                promoColor: .orange,
+                introductoryOffer: nil,
+                description: "Weekly subscription",
+                productIconType: .weekly,
+                isSelected: false,
+                onSelect: { print("Selected: Pro Weekly") }
+            )
+
             // Standard monthly subscription with trial
             PurchaseOptionCardView(
-                title: "This is Pro Monthly package",
-                price: "$9.99",
+                title: "Pro Monthly",
+                price: "$2.99",
                 billingPeriod: "Monthly",
                 badge: nil,
                 badgeColor: nil,
@@ -573,38 +649,41 @@ private struct PurchaseOptionCardView: View {
                 promoColor: .orange,
                 introductoryOffer: "7 days free trial",
                 description: "Monthly subscription",
+                productIconType: .monthly,
                 isSelected: false,
                 onSelect: { print("Selected: Pro Monthly") }
             )
 
             // Popular annual plan with promo and pay-as-you-go intro
             PurchaseOptionCardView(
-                title: "This is Pro Annual package",
-                price: "$99.99",
+                title: "Pro Annual",
+                price: "$19.99",
                 billingPeriod: "Yearly",
-                badge: "Most Popular",
+                badge: "Popular",
                 badgeColor: .orange,
                 features: ["Cloud sync", "Premium filters", "Priority support"],
-                promoText: "Save 30%",
-                promoColor: .green,
-                introductoryOffer: "$0.99 for first 3 months",
+                promoText: "Save 44%",
+                promoColor: .orange,
+                introductoryOffer: nil,
                 description: "Annual subscription",
+                productIconType: .yearly,
                 isSelected: true,
                 onSelect: { print("Selected: Pro Annual") }
             )
 
             // Lifetime purchase option (no intro offer)
             PurchaseOptionCardView(
-                title: "This is Pro LifeTime package",
-                price: "$199.99",
+                title: "Pro Lifetime",
+                price: "$29.99",
                 billingPeriod: "Lifetime",
                 badge: "Best Value",
-                badgeColor: .green,
+                badgeColor: .blue,
                 features: ["All features included", "Lifetime updates"],
                 promoText: nil,
                 promoColor: .orange,
                 introductoryOffer: nil,
                 description: "One-time purchase • Lifetime access",
+                productIconType: .lifetime,
                 isSelected: false,
                 onSelect: { print("Selected: Pro Lifetime") }
             )

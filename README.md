@@ -1,5 +1,10 @@
 # InAppKit
 
+[![Tests](https://github.com/tddworks/InAppKit/actions/workflows/tests.yml/badge.svg)](https://github.com/tddworks/InAppKit/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/gh/tddworks/InAppKit/graph/badge.svg?token=ISl9WYnHNw)](https://codecov.io/gh/tddworks/InAppKit)
+[![Swift 6.2](https://img.shields.io/badge/Swift-6.2-orange.svg)](https://swift.org)
+[![Platform](https://img.shields.io/badge/Platform-iOS%2017%2B%20%7C%20macOS%2015%2B-blue.svg)](https://developer.apple.com)
+
 > **The simplest way to add premium features to your Swift app**
 
 Transform any SwiftUI view into a premium feature with just one line of code. InAppKit handles StoreKit complexity so you can focus on building great features.

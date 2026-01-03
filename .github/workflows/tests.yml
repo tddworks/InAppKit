@@ -1,0 +1,81 @@
+name: Tests
+
+# Swift 6.2 Required
+# Unit tests run automatically on push/PR
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Swift 6.2
+        uses: SwiftyLab/setup-swift@latest
+        with:
+          swift-version: "6.2.0"
+
+      - name: Get Swift version
+        run: swift --version
+
+      - name: Resolve dependencies
+        run: swift package resolve
+
+      - name: Run Tests with Coverage
+        run: swift test --parallel --enable-code-coverage
+
+      - name: Generate Coverage Report
+        run: |
+          # Find the test binary dynamically
+          TEST_BINARY=$(find .build -type f -path "*PackageTests.xctest/Contents/MacOS/*PackageTests" ! -path "*.dSYM/*" | head -n 1)
+          PROFDATA=$(find .build -name "default.profdata" -type f | head -n 1)
+
+          if [ -z "$TEST_BINARY" ] || [ -z "$PROFDATA" ]; then
+            echo "Error: Could not find test binary or profdata file"
+            echo "Searching for test binaries:"
+            find .build -type f -path "*PackageTests.xctest/Contents/MacOS/*PackageTests" ! -path "*.dSYM/*"
+            echo "Searching for profdata:"
+            find .build -name "*.profdata" -type f
+            exit 1
+          fi
+
+          echo "Using test binary: $TEST_BINARY"
+          echo "Using profdata: $PROFDATA"
+
+          xcrun llvm-cov export -format="lcov" \
+            "$TEST_BINARY" \
+            -instr-profile "$PROFDATA" > coverage.lcov
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage.lcov
+          flags: domain,ui
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  build:
+    name: Build
+    runs-on: macos-26
+    needs: unit-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Swift 6.2
+        uses: SwiftyLab/setup-swift@latest
+        with:
+          swift-version: "6.2.0"
+
+      - name: Build
+        run: swift build -c release

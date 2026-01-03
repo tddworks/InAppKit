@@ -351,7 +351,8 @@ struct InAppKitFeatureTests {
     @Test @MainActor func `unregistered feature returns false`() {
         let manager = InAppKit.shared
 
-        #expect(!manager.isFeatureRegistered(TestFeature.export))
+        // Use a unique string feature that is never registered elsewhere
+        #expect(!manager.isFeatureRegistered("never_registered_feature_xyz"))
     }
 
     @Test @MainActor func `hasAccess returns false without purchase`() {
@@ -407,6 +408,115 @@ struct InAppKitFeatureTests {
         manager.simulatePurchase("com.test.pro")
 
         #expect(manager.hasAccess(to: TestFeature.sync))
+
+        manager.clearPurchases()
+    }
+    #endif
+}
+
+// MARK: - InAppKit Feature Access Scenarios
+
+struct InAppKitFeatureAccessTests {
+
+    #if DEBUG
+    @Test @MainActor func `hasAccess falls back to hasAnyPurchase when feature not registered`() {
+        let manager = InAppKit.shared
+        manager.clearPurchases()
+
+        // Feature "unknown_feature" is not registered
+        // With no purchases, should return false
+        #expect(!manager.hasAccess(to: "unknown_feature"))
+
+        // With any purchase, should return true (fallback behavior)
+        manager.simulatePurchase("com.test.any_product")
+        #expect(manager.hasAccess(to: "unknown_feature"))
+
+        manager.clearPurchases()
+    }
+
+    @Test @MainActor func `hasAccess returns false when user has wrong product`() {
+        let manager = InAppKit.shared
+        manager.clearPurchases()
+
+        // Register feature to specific product
+        manager.registerFeature(TestFeature.export, productIds: ["com.test.export_product"])
+
+        // User purchased different product
+        manager.simulatePurchase("com.test.different_product")
+
+        // Should NOT have access (wrong product)
+        #expect(!manager.hasAccess(to: TestFeature.export))
+
+        manager.clearPurchases()
+    }
+
+    @Test @MainActor func `hasAccess returns true when feature has multiple products and user owns one`() {
+        let manager = InAppKit.shared
+        manager.clearPurchases()
+
+        // Feature available in multiple products (e.g., sync in both pro and premium)
+        manager.registerFeature(TestFeature.sync, productIds: ["com.test.pro", "com.test.premium"])
+
+        // User only purchased one of them
+        manager.simulatePurchase("com.test.premium")
+
+        // Should have access
+        #expect(manager.hasAccess(to: TestFeature.sync))
+
+        manager.clearPurchases()
+    }
+
+    @Test @MainActor func `register multiple features to same product`() {
+        let manager = InAppKit.shared
+        manager.clearPurchases()
+
+        // One product provides multiple features
+        manager.registerFeature(TestFeature.sync, productIds: ["com.test.pro"])
+        manager.registerFeature(TestFeature.export, productIds: ["com.test.pro"])
+        manager.registerFeature(TestFeature.premium, productIds: ["com.test.pro"])
+
+        manager.simulatePurchase("com.test.pro")
+
+        // Should have access to all features
+        #expect(manager.hasAccess(to: TestFeature.sync))
+        #expect(manager.hasAccess(to: TestFeature.export))
+        #expect(manager.hasAccess(to: TestFeature.premium))
+
+        manager.clearPurchases()
+    }
+
+    @Test @MainActor func `isFeatureRegistered with AnyHashable`() {
+        let manager = InAppKit.shared
+
+        manager.registerFeature(AnyHashable("string_feature"), productIds: ["com.test.pro"])
+
+        #expect(manager.isFeatureRegistered(AnyHashable("string_feature")))
+        #expect(!manager.isFeatureRegistered(AnyHashable("unregistered")))
+    }
+
+    @Test @MainActor func `hasAccess with generic hashable type`() {
+        let manager = InAppKit.shared
+        manager.clearPurchases()
+
+        manager.registerFeature("string_feature", productIds: ["com.test.string"])
+        manager.simulatePurchase("com.test.string")
+
+        #expect(manager.hasAccess(to: "string_feature"))
+
+        manager.clearPurchases()
+    }
+
+    @Test @MainActor func `isPremium deprecated property returns same as hasAnyPurchase`() {
+        let manager = InAppKit.shared
+        manager.clearPurchases()
+
+        #expect(manager.isPremium == manager.hasAnyPurchase)
+        #expect(!manager.isPremium)
+
+        manager.simulatePurchase("com.test.any")
+
+        #expect(manager.isPremium == manager.hasAnyPurchase)
+        #expect(manager.isPremium)
 
         manager.clearPurchases()
     }
@@ -474,6 +584,82 @@ struct StoreErrorTests {
         let error = StoreError.userCancelled
 
         #expect(error.localizedDescription.contains("cancelled"))
+    }
+
+    @Test func `networkError has correct message`() {
+        let underlyingError = NSError(domain: "test", code: -1009, userInfo: [NSLocalizedDescriptionKey: "No internet"])
+        let error = StoreError.networkError(underlyingError)
+
+        #expect(error.localizedDescription.contains("Network error"))
+        #expect(error.localizedDescription.contains("connection"))
+    }
+
+    @Test func `unknownError wraps underlying error`() {
+        let underlyingError = NSError(domain: "test", code: 500, userInfo: [NSLocalizedDescriptionKey: "Server error"])
+        let error = StoreError.unknownError(underlyingError)
+
+        #expect(error.localizedDescription.contains("unexpected error"))
+        #expect(error.localizedDescription.contains("Server error"))
+    }
+}
+
+// MARK: - InternalProductConfig Tests
+
+struct InternalProductConfigTests {
+
+    @Test func `toInternal converts ProductConfig with all properties`() {
+        let product = Product("com.test.yearly", features: [TestFeature.sync, TestFeature.export])
+            .withBadge("Best Value", color: .blue)
+            .withPromoText("Save 44%")
+            .withMarketingFeatures(["Cloud sync", "Premium support"])
+            .withRelativeDiscount(comparedTo: "com.test.monthly", style: .percentage, color: .green)
+
+        let config = product.toInternal()
+
+        #expect(config.id == "com.test.yearly")
+        #expect(config.features.count == 2)
+        #expect(config.badge == "Best Value")
+        #expect(config.badgeColor == .blue)
+        #expect(config.promoText == "Save 44%")
+        #expect(config.marketingFeatures?.count == 2)
+        #expect(config.relativeDiscountConfig?.baseProductId == "com.test.monthly")
+        #expect(config.relativeDiscountConfig?.style == .percentage)
+        #expect(config.relativeDiscountConfig?.color == .green)
+    }
+
+    @Test func `toInternal converts ProductConfig with minimal properties`() {
+        let product = Product("com.test.basic")
+
+        let config = product.toInternal()
+
+        #expect(config.id == "com.test.basic")
+        #expect(config.features.isEmpty)
+        #expect(config.badge == nil)
+        #expect(config.badgeColor == nil)
+        #expect(config.promoText == nil)
+        #expect(config.marketingFeatures == nil)
+        #expect(config.relativeDiscountConfig == nil)
+    }
+
+    @Test func `toInternal converts features to AnyHashable`() {
+        let product = Product("com.test.pro", features: [TestFeature.sync, TestFeature.premium])
+
+        let config = product.toInternal()
+
+        // Features should be converted to AnyHashable
+        #expect(config.features.count == 2)
+        #expect(config.features.contains(AnyHashable(TestFeature.sync)))
+        #expect(config.features.contains(AnyHashable(TestFeature.premium)))
+    }
+
+    @Test func `toInternal with string features`() {
+        let product = Product("com.test.string", features: ["feature_a", "feature_b"])
+
+        let config = product.toInternal()
+
+        #expect(config.features.count == 2)
+        #expect(config.features.contains(AnyHashable("feature_a")))
+        #expect(config.features.contains(AnyHashable("feature_b")))
     }
 }
 

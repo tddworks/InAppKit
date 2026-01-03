@@ -19,7 +19,7 @@ struct ProductDefinitionTests {
 
         #expect(product.id == "com.test.simple")
         #expect(product.features.isEmpty)
-        #expect(type(of: product) == ProductDefinition<String>.self)
+        #expect(type(of: product) == ProductDefinition.self)
     }
 
     @Test func `product with single enum feature`() {
@@ -27,8 +27,8 @@ struct ProductDefinitionTests {
 
         #expect(product.id == "com.test.basic")
         #expect(product.features.count == 1)
-        #expect(product.features.contains(TestFeature.sync))
-        #expect(type(of: product) == ProductDefinition<TestFeature>.self)
+        #expect(product.features.contains(AnyHashable(TestFeature.sync)))
+        #expect(type(of: product) == ProductDefinition.self)
     }
 
     @Test func `product with multiple enum features`() {
@@ -36,19 +36,19 @@ struct ProductDefinitionTests {
 
         #expect(product.id == "com.test.pro")
         #expect(product.features.count == 3)
-        #expect(product.features.contains(TestFeature.sync))
-        #expect(product.features.contains(TestFeature.export))
-        #expect(product.features.contains(TestFeature.premium))
+        #expect(product.features.contains(AnyHashable(TestFeature.sync)))
+        #expect(product.features.contains(AnyHashable(TestFeature.export)))
+        #expect(product.features.contains(AnyHashable(TestFeature.premium)))
     }
 
     @Test func `product with allCases includes all features`() {
-        let product = Product("com.test.premium", features: TestFeature.allCases)
+        let product = Product("com.test.premium", features: TestFeature.self)
 
         #expect(product.id == "com.test.premium")
         #expect(product.features.count == TestFeature.allCases.count)
 
         for feature in TestFeature.allCases {
-            #expect(product.features.contains(feature))
+            #expect(product.features.contains(AnyHashable(feature)))
         }
     }
 
@@ -57,9 +57,9 @@ struct ProductDefinitionTests {
 
         #expect(product.id == "com.test.string")
         #expect(product.features.count == 2)
-        #expect(product.features.contains("feature1"))
-        #expect(product.features.contains("feature2"))
-        #expect(type(of: product) == ProductDefinition<String>.self)
+        #expect(product.features.contains(AnyHashable("feature1")))
+        #expect(product.features.contains(AnyHashable("feature2")))
+        #expect(type(of: product) == ProductDefinition.self)
     }
 }
 
@@ -168,18 +168,18 @@ struct PurchaseSetupTests {
         let config = PurchaseSetup()
             .withPurchases("com.test.pro")
 
-        #expect(config.productConfigs.count == 1)
-        #expect(config.productConfigs.first?.id == "com.test.pro")
+        #expect(config.products.count == 1)
+        #expect(config.products.first?.id == "com.test.pro")
     }
 
     @Test @MainActor func `configuration with variadic product ids`() {
         let config = PurchaseSetup()
             .withPurchases("com.test.pro1", "com.test.pro2", "com.test.pro3")
 
-        #expect(config.productConfigs.count == 3)
-        #expect(config.productConfigs[0].id == "com.test.pro1")
-        #expect(config.productConfigs[1].id == "com.test.pro2")
-        #expect(config.productConfigs[2].id == "com.test.pro3")
+        #expect(config.products.count == 3)
+        #expect(config.products[0].id == "com.test.pro1")
+        #expect(config.products[1].id == "com.test.pro2")
+        #expect(config.products[2].id == "com.test.pro3")
     }
 
     @Test @MainActor func `configuration with product array`() {
@@ -189,25 +189,25 @@ struct PurchaseSetupTests {
                 Product("com.test.premium", features: [TestFeature.premium])
             ])
 
-        #expect(config.productConfigs.count == 2)
-        #expect(config.productConfigs[0].id == "com.test.pro")
-        #expect(config.productConfigs[1].id == "com.test.premium")
+        #expect(config.products.count == 2)
+        #expect(config.products[0].id == "com.test.pro")
+        #expect(config.products[1].id == "com.test.premium")
     }
 
     @Test @MainActor func `configuration with mixed product types`() {
         let config = PurchaseSetup()
             .withPurchases(products: [
                 Product("com.test.basic", features: [TestFeature.sync, TestFeature.export, TestFeature.premium]),
-                Product("com.test.premium", features: TestFeature.allCases),
+                Product("com.test.premium", features: TestFeature.self),
                 Product("com.test.premium1", features: ["some-feature"]),
                 Product("com.test.basic1")
             ])
 
-        #expect(config.productConfigs.count == 4)
-        #expect(config.productConfigs[0].features.count == 3)
-        #expect(config.productConfigs[1].features.count == 3)
-        #expect(config.productConfigs[2].features.count == 1)
-        #expect(config.productConfigs[3].features.isEmpty)
+        #expect(config.products.count == 4)
+        #expect(config.products[0].features.count == 3)
+        #expect(config.products[1].features.count == 3)
+        #expect(config.products[2].features.count == 1)
+        #expect(config.products[3].features.isEmpty)
     }
 
     @Test @MainActor func `configuration with relative discount`() {
@@ -218,10 +218,10 @@ struct PurchaseSetupTests {
                     .withRelativeDiscount(comparedTo: "com.test.monthly")
             ])
 
-        #expect(config.productConfigs.count == 2)
-        #expect(config.productConfigs[0].discountRule == nil)
-        #expect(config.productConfigs[1].discountRule != nil)
-        #expect(config.productConfigs[1].discountRule?.comparedTo == "com.test.monthly")
+        #expect(config.products.count == 2)
+        #expect(config.products[0].discountRule == nil)
+        #expect(config.products[1].discountRule != nil)
+        #expect(config.products[1].discountRule?.comparedTo == "com.test.monthly")
     }
 }
 
@@ -603,63 +603,54 @@ struct StoreErrorTests {
     }
 }
 
-// MARK: - InternalProductConfig Tests
+// MARK: - ProductDefinition Feature Tests
 
-struct InternalProductDefinitionTests {
+struct ProductDefinitionFeatureTests {
 
-    @Test func `toInternal converts ProductDefinition with all properties`() {
+    @Test func `ProductDefinition with all properties`() {
         let product = Product("com.test.yearly", features: [TestFeature.sync, TestFeature.export])
             .withBadge("Best Value", color: .blue)
             .withPromoText("Save 44%")
             .withMarketingFeatures(["Cloud sync", "Premium support"])
             .withRelativeDiscount(comparedTo: "com.test.monthly", style: .percentage, color: .green)
 
-        let config = product.toInternal()
-
-        #expect(config.id == "com.test.yearly")
-        #expect(config.features.count == 2)
-        #expect(config.badge == "Best Value")
-        #expect(config.badgeColor == .blue)
-        #expect(config.promoText == "Save 44%")
-        #expect(config.marketingFeatures?.count == 2)
-        #expect(config.discountRule?.comparedTo == "com.test.monthly")
-        #expect(config.discountRule?.style == .percentage)
-        #expect(config.discountRule?.color == .green)
+        #expect(product.id == "com.test.yearly")
+        #expect(product.features.count == 2)
+        #expect(product.badge == "Best Value")
+        #expect(product.badgeColor == .blue)
+        #expect(product.promoText == "Save 44%")
+        #expect(product.marketingFeatures?.count == 2)
+        #expect(product.discountRule?.comparedTo == "com.test.monthly")
+        #expect(product.discountRule?.style == .percentage)
+        #expect(product.discountRule?.color == .green)
     }
 
-    @Test func `toInternal converts ProductDefinition with minimal properties`() {
+    @Test func `ProductDefinition with minimal properties`() {
         let product = Product("com.test.basic")
 
-        let config = product.toInternal()
-
-        #expect(config.id == "com.test.basic")
-        #expect(config.features.isEmpty)
-        #expect(config.badge == nil)
-        #expect(config.badgeColor == nil)
-        #expect(config.promoText == nil)
-        #expect(config.marketingFeatures == nil)
-        #expect(config.discountRule == nil)
+        #expect(product.id == "com.test.basic")
+        #expect(product.features.isEmpty)
+        #expect(product.badge == nil)
+        #expect(product.badgeColor == nil)
+        #expect(product.promoText == nil)
+        #expect(product.marketingFeatures == nil)
+        #expect(product.discountRule == nil)
     }
 
-    @Test func `toInternal converts features to AnyHashable`() {
+    @Test func `ProductDefinition stores features as AnyHashable`() {
         let product = Product("com.test.pro", features: [TestFeature.sync, TestFeature.premium])
 
-        let config = product.toInternal()
-
-        // Features should be converted to AnyHashable
-        #expect(config.features.count == 2)
-        #expect(config.features.contains(AnyHashable(TestFeature.sync)))
-        #expect(config.features.contains(AnyHashable(TestFeature.premium)))
+        #expect(product.features.count == 2)
+        #expect(product.features.contains(AnyHashable(TestFeature.sync)))
+        #expect(product.features.contains(AnyHashable(TestFeature.premium)))
     }
 
-    @Test func `toInternal with string features`() {
+    @Test func `ProductDefinition with string features`() {
         let product = Product("com.test.string", features: ["feature_a", "feature_b"])
 
-        let config = product.toInternal()
-
-        #expect(config.features.count == 2)
-        #expect(config.features.contains(AnyHashable("feature_a")))
-        #expect(config.features.contains(AnyHashable("feature_b")))
+        #expect(product.features.count == 2)
+        #expect(product.features.contains(AnyHashable("feature_a")))
+        #expect(product.features.contains(AnyHashable("feature_b")))
     }
 }
 
@@ -732,8 +723,8 @@ struct PurchaseEnabledViewTests {
             .withTerms { Text("Terms") }
             .withPrivacy { Text("Privacy") }
 
-        #expect(chainedView.config.productConfigs.count == 1)
-        #expect(chainedView.config.productConfigs.first?.id == "com.test.pro")
+        #expect(chainedView.config.products.count == 1)
+        #expect(chainedView.config.products.first?.id == "com.test.pro")
         #expect(chainedView.config.paywallBuilder != nil)
         #expect(chainedView.config.termsBuilder != nil)
         #expect(chainedView.config.privacyBuilder != nil)
@@ -749,7 +740,7 @@ struct PurchaseEnabledViewTests {
             .withTerms { Text("Custom Terms") }
             .withPrivacy { Text("Custom Privacy") }
 
-        #expect(chainedView.config.productConfigs.count == 1)
+        #expect(chainedView.config.products.count == 1)
         #expect(chainedView.config.paywallBuilder == nil)
         #expect(chainedView.config.termsBuilder != nil)
         #expect(chainedView.config.privacyBuilder != nil)
@@ -763,8 +754,8 @@ struct PurchaseEnabledViewTests {
             .withPaywall { _ in Text("Simple Paywall") }
 
         #expect(type(of: chainedView) == PurchaseEnabledView<Text>.self)
-        #expect(chainedView.config.productConfigs.count == 1)
-        #expect(chainedView.config.productConfigs.first?.id == "com.test.pro")
+        #expect(chainedView.config.products.count == 1)
+        #expect(chainedView.config.products.first?.id == "com.test.pro")
     }
 
     @Test @MainActor func `chained view with relative discount`() {
@@ -778,8 +769,8 @@ struct PurchaseEnabledViewTests {
             ])
             .withPaywall { _ in Text("Upgrade Now") }
 
-        #expect(chainedView.config.productConfigs.count == 2)
-        #expect(chainedView.config.productConfigs[1].discountRule?.style == .percentage)
+        #expect(chainedView.config.products.count == 2)
+        #expect(chainedView.config.products[1].discountRule?.style == .percentage)
     }
 
     @Test @MainActor func `chained view with URL-based terms and privacy`() {

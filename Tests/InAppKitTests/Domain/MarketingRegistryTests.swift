@@ -221,21 +221,16 @@ struct MarketingRegistryTests {
     // MARK: - Bulk Registration from Config
 
     @Test
-    func `withMarketing from InternalProductConfig`() {
+    func `withMarketing from ProductDefinition`() {
         // Given
         let registry = MarketingRegistry()
-        let config = InternalProductConfig(
-            id: "com.app.yearly",
-            features: [],
-            badge: "Best Value",
-            badgeColor: .blue,
-            marketingFeatures: ["Cloud sync", "Premium support"],
-            promoText: "Save 44%",
-            discountRule: nil
-        )
+        let product = Product("com.app.yearly")
+            .withBadge("Best Value", color: .blue)
+            .withMarketingFeatures(["Cloud sync", "Premium support"])
+            .withPromoText("Save 44%")
 
         // When
-        let newRegistry = registry.withMarketing(from: config)
+        let newRegistry = registry.withMarketing(from: product)
 
         // Then
         #expect(newRegistry.badge(for: "com.app.yearly") == "Best Value")
@@ -245,32 +240,18 @@ struct MarketingRegistryTests {
     }
 
     @Test
-    func `withMarketing from multiple configs`() {
+    func `withMarketing from multiple products`() {
         // Given
         let registry = MarketingRegistry()
-        let configs = [
-            InternalProductConfig(
-                id: "com.app.monthly",
-                features: [],
-                badge: nil,
-                badgeColor: nil,
-                marketingFeatures: nil,
-                promoText: nil,
-                discountRule: nil
-            ),
-            InternalProductConfig(
-                id: "com.app.yearly",
-                features: [],
-                badge: "Best Value",
-                badgeColor: .blue,
-                marketingFeatures: nil,
-                promoText: "Save 44%",
-                discountRule: nil
-            )
+        let products = [
+            Product("com.app.monthly"),
+            Product("com.app.yearly")
+                .withBadge("Best Value", color: .blue)
+                .withPromoText("Save 44%")
         ]
 
         // When
-        let newRegistry = registry.withMarketing(from: configs)
+        let newRegistry = registry.withMarketing(from: products)
 
         // Then
         #expect(newRegistry.allProductIds.count == 2)

@@ -84,23 +84,23 @@ public class InAppKit {
 
     // MARK: - Configuration
 
-    internal func initialize(with productConfigs: [InternalProductConfig]) async {
-        let productIDs = productConfigs.map { $0.id }
+    internal func initialize(with products: [ProductDefinition]) async {
+        let productIDs = products.map { $0.id }
 
         // Register features using domain model
-        for config in productConfigs {
-            for feature in config.features {
-                featureRegistry = featureRegistry.withFeature(feature, productIds: [config.id])
+        for product in products {
+            for feature in product.features {
+                featureRegistry = featureRegistry.withFeature(feature, productIds: [product.id])
             }
         }
 
         // Register marketing info using domain model
-        marketingRegistry = marketingRegistry.withMarketing(from: productConfigs)
+        marketingRegistry = marketingRegistry.withMarketing(from: products)
 
         #if DEBUG
-        for config in productConfigs {
-            if let discountConfig = config.discountRule {
-                Logger.statistics.info("📊 Stored discountRule for \(config.id): comparing to \(discountConfig.comparedTo), style: \(String(describing: discountConfig.style))")
+        for product in products {
+            if let discountRule = product.discountRule {
+                Logger.statistics.info("📊 Stored discountRule for \(product.id): comparing to \(discountRule.comparedTo), style: \(String(describing: discountRule.style))")
             }
         }
         #endif

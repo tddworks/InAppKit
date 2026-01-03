@@ -16,7 +16,7 @@ import StoreKit
 /// Internal implementation - users interact via .withPurchases() modifier.
 @MainActor
 public class PurchaseSetup {
-    internal var productConfigs: [InternalProductConfig] = []
+    internal var products: [ProductDefinition] = []
     internal var paywallBuilder: ((PaywallContext) -> AnyView)?
     internal var paywallHeaderBuilder: (() -> AnyView)?
     internal var paywallFeaturesBuilder: (() -> AnyView)?
@@ -30,27 +30,17 @@ public class PurchaseSetup {
     // MARK: - Product Configuration
 
     public func withPurchases(_ productId: String) -> PurchaseSetup {
-        productConfigs.append(InternalProductConfig(id: productId, features: []))
+        products.append(ProductDefinition(productId))
         return self
     }
 
     public func withPurchases(_ productIds: String...) -> PurchaseSetup {
-        productConfigs.append(contentsOf: productIds.map { InternalProductConfig(id: $0, features: []) })
+        products.append(contentsOf: productIds.map { ProductDefinition($0) })
         return self
     }
 
-    public func withPurchases<T: Hashable>(products: [ProductDefinition<T>]) -> PurchaseSetup {
-        productConfigs.append(contentsOf: products.map { $0.toInternal() })
-        return self
-    }
-
-    public func withPurchases(products: [ProductDefinition<String>]) -> PurchaseSetup {
-        productConfigs.append(contentsOf: products.map { $0.toInternal() })
-        return self
-    }
-
-    public func withPurchases(products: [AnyProductDefinition]) -> PurchaseSetup {
-        productConfigs.append(contentsOf: products.map { $0.toInternal() })
+    public func withPurchases(products: [ProductDefinition]) -> PurchaseSetup {
+        self.products.append(contentsOf: products)
         return self
     }
 
@@ -96,7 +86,7 @@ public class PurchaseSetup {
     // MARK: - Internal
 
     internal func setup() async {
-        await InAppKit.shared.initialize(with: productConfigs)
+        await InAppKit.shared.initialize(with: products)
     }
 }
 
@@ -238,15 +228,7 @@ private struct PurchaseSetupModifier: ViewModifier {
 
 public extension View {
     /// Set up purchases with products
-    func withPurchases<T: Hashable>(products: [ProductDefinition<T>]) -> PurchaseEnabledView<Self> {
-        PurchaseEnabledView(content: self, config: PurchaseSetup().withPurchases(products: products))
-    }
-
-    func withPurchases(products: [ProductDefinition<String>]) -> PurchaseEnabledView<Self> {
-        PurchaseEnabledView(content: self, config: PurchaseSetup().withPurchases(products: products))
-    }
-
-    func withPurchases(products: [AnyProductDefinition]) -> PurchaseEnabledView<Self> {
+    func withPurchases(products: [ProductDefinition]) -> PurchaseEnabledView<Self> {
         PurchaseEnabledView(content: self, config: PurchaseSetup().withPurchases(products: products))
     }
 
@@ -256,7 +238,7 @@ public extension View {
 
     func withPurchases(_ productIds: String...) -> PurchaseEnabledView<Self> {
         let config = PurchaseSetup()
-        config.productConfigs.append(contentsOf: productIds.map { InternalProductConfig(id: $0, features: []) })
+        config.products.append(contentsOf: productIds.map { ProductDefinition($0) })
         return PurchaseEnabledView(content: self, config: config)
     }
 }

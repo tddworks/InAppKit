@@ -108,22 +108,22 @@ public struct MarketingRegistry {
     }
 
     /// Register marketing info from ProductDefinition
-    public func withMarketing(from config: InternalProductConfig) -> MarketingRegistry {
+    public func withMarketing(from product: ProductDefinition) -> MarketingRegistry {
         let marketing = ProductMarketing(
-            badge: config.badge,
-            badgeColor: config.badgeColor,
-            features: config.marketingFeatures,
-            promoText: config.promoText,
-            discountRule: config.discountRule
+            badge: product.badge,
+            badgeColor: product.badgeColor,
+            features: product.marketingFeatures,
+            promoText: product.promoText,
+            discountRule: product.discountRule
         )
-        return withMarketing(config.id, marketing: marketing)
+        return withMarketing(product.id, marketing: marketing)
     }
 
     /// Register marketing info from multiple ProductDefinitions
-    public func withMarketing(from configs: [InternalProductConfig]) -> MarketingRegistry {
+    public func withMarketing(from products: [ProductDefinition]) -> MarketingRegistry {
         var registry = self
-        for config in configs {
-            registry = registry.withMarketing(from: config)
+        for product in products {
+            registry = registry.withMarketing(from: product)
         }
         return registry
     }

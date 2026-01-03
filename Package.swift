@@ -12,19 +12,32 @@ let package = Package(
         .tvOS(.v17)
     ],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "InAppKit",
             targets: ["InAppKit"]),
     ],
+    dependencies: [
+        .package(url: "https://github.com/Kolos65/Mockable.git", from: "0.5.0"),
+    ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "InAppKit"),
+            name: "InAppKit",
+            dependencies: [
+                .product(name: "Mockable", package: "Mockable"),
+            ],
+            swiftSettings: [
+                .define("MOCKING", .when(configuration: .debug)),
+            ]
+        ),
         .testTarget(
             name: "InAppKitTests",
-            dependencies: ["InAppKit"]
+            dependencies: [
+                "InAppKit",
+                .product(name: "Mockable", package: "Mockable"),
+            ],
+            swiftSettings: [
+                .define("MOCKING", .when(configuration: .debug)),
+            ]
         ),
     ]
 )

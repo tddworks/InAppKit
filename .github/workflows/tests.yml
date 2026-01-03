@@ -51,15 +51,17 @@ jobs:
           echo "Using test binary: $TEST_BINARY"
           echo "Using profdata: $PROFDATA"
 
+          # Generate coverage report for domain code only (Core + Configuration)
           xcrun llvm-cov export -format="lcov" \
             "$TEST_BINARY" \
-            -instr-profile "$PROFDATA" > coverage.lcov
+            -instr-profile "$PROFDATA" \
+            Sources/InAppKit/Core/ \
+            Sources/InAppKit/Configuration/ > coverage.lcov
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           files: ./coverage.lcov
-          flags: domain,ui
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
 

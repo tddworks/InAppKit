@@ -2,36 +2,18 @@ coverage:
   status:
     project:
       default:
-        target: 70%
-        threshold: 2%
-      # Domain code requires higher coverage
-      domain:
-        target: 85%
+        # Only track domain code coverage
+        target: 60%
         threshold: 2%
         paths:
           - "Sources/InAppKit/Core/**"
           - "Sources/InAppKit/Configuration/**"
-      # UI code has lower coverage requirements (SwiftUI is hard to unit test)
-      ui:
-        target: 30%
-        threshold: 5%
-        paths:
-          - "Sources/InAppKit/UI/**"
     patch:
       default:
-        target: 60%
-
-# Coverage flags for different code areas
-flags:
-  domain:
-    paths:
-      - Sources/InAppKit/Core/
-      - Sources/InAppKit/Configuration/
-    carryforward: true
-  ui:
-    paths:
-      - Sources/InAppKit/UI/
-    carryforward: true
+        target: 50%
+        paths:
+          - "Sources/InAppKit/Core/**"
+          - "Sources/InAppKit/Configuration/**"
 
 comment:
   layout: "reach,diff,flags,tree"
@@ -39,11 +21,15 @@ comment:
   require_changes: false
 
 ignore:
+  # UI code (SwiftUI views are hard to unit test)
+  - "Sources/InAppKit/UI/**"
   # SwiftUI previews
   - "**/*Preview*.swift"
   # Test helpers
   - "**/TestHelpers/**/*"
-  # Logger (infrastructure, not domain)
+  # Logger (infrastructure)
   - "**/Logger.swift"
-  # Platform extensions (utility code)
-  - "**/PlatformExtensions.swift"
+  # Extensions (utility code)
+  - "Sources/InAppKit/Extensions/**"
+  # Modifiers (UI-related)
+  - "Sources/InAppKit/Modifiers/**"

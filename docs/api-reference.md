@@ -4,12 +4,44 @@
 
 ## 📖 Table of Contents
 
+- [Architecture Overview](#architecture-overview)
 - [Product Functions](#product-functions)
 - [Configuration](#configuration)
 - [View Modifiers](#view-modifiers)
 - [InAppKit Core](#inappkit-core)
+- [Domain Models](#domain-models)
 - [Types & Protocols](#types--protocols)
+- [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
+
+## Architecture Overview
+
+InAppKit follows **Domain-Driven Design** with clear separation between domain logic and infrastructure.
+
+```
+Sources/InAppKit/
+├── Core/
+│   ├── Domain/           ← Pure business logic (100% testable)
+│   │   ├── ProductDefinition.swift
+│   │   ├── DiscountRule.swift
+│   │   ├── PurchaseState.swift
+│   │   ├── FeatureRegistry.swift
+│   │   ├── AccessControl.swift
+│   │   ├── MarketingRegistry.swift
+│   │   └── Store.swift (protocol)
+│   └── InAppKit.swift    ← Main coordinator
+├── Infrastructure/       ← StoreKit integration
+│   ├── AppStore.swift
+│   └── StoreKitProvider.swift
+├── Modifiers/           ← SwiftUI integration
+│   └── PurchaseSetup.swift
+└── UI/                  ← UI components
+```
+
+**Key Principles:**
+- Domain models are pure, with no StoreKit dependencies
+- Infrastructure implements domain protocols
+- InAppKit delegates to domain models for business logic
 
 ## Product Functions
 
@@ -19,14 +51,16 @@ All Product functions follow a consistent pattern: *Need features? Use `features
 
 ```swift
 // No features
-public func Product(_ id: String) -> ProductConfig<String>
+public func Product(_ id: String) -> ProductDefinition<String>
 
 // With features array
-public func Product<T: Hashable & Sendable>(_ id: String, features: [T]) -> ProductConfig<T>
+public func Product<T: Hashable>(_ id: String, features: [T]) -> ProductDefinition<T>
 
 // With allCases (for CaseIterable enums)
-public func Product<T: CaseIterable & Hashable & Sendable>(_ id: String, features: T.AllCases) -> ProductConfig<T>
+public func Product<T: CaseIterable & Hashable>(_ id: String, features: T.AllCases) -> ProductDefinition<T>
 ```
+
+> **Note:** `ProductConfig` is a type alias for `ProductDefinition` for backwards compatibility.
 
 #### Examples
 
@@ -47,18 +81,20 @@ Product("com.app.custom", features: ["feature1", "feature2"])
 ### Marketing Extensions
 
 ```swift
-extension ProductConfig {
-    func withBadge(_ badge: String) -> ProductConfig<T>
-    func withBadge(_ badge: String, color: Color) -> ProductConfig<T>
-    func withMarketingFeatures(_ features: [String]) -> ProductConfig<T>
-    func withPromoText(_ text: String) -> ProductConfig<T>
+extension ProductDefinition {
+    func withBadge(_ badge: String) -> ProductDefinition<Feature>
+    func withBadge(_ badge: String, color: Color) -> ProductDefinition<Feature>
+    func withMarketingFeatures(_ features: [String]) -> ProductDefinition<Feature>
+    func withPromoText(_ text: String) -> ProductDefinition<Feature>
     func withRelativeDiscount(
         comparedTo baseProductId: String,
-        style: RelativeDiscountConfig.DiscountStyle = .percentage,
+        style: DiscountRule.Style = .percentage,
         color: Color? = nil
-    ) -> ProductConfig<T>
+    ) -> ProductDefinition<Feature>
 }
 ```
+
+> **Note:** `RelativeDiscountConfig` is a type alias for `DiscountRule` for backwards compatibility.
 
 #### Manual Promotional Text Example
 
@@ -107,28 +143,34 @@ Product("com.app.yearly", features: features)
 
 ## Configuration
 
-### StoreKitConfiguration
+### PurchaseSetup
 
 ```swift
-public class StoreKitConfiguration {
+public class PurchaseSetup {
     public init()
 
     // Product configuration
-    public func withPurchases(_ productId: String) -> StoreKitConfiguration
-    public func withPurchases(_ productIds: String...) -> StoreKitConfiguration
-    public func withPurchases<T: Hashable & Sendable>(products: [ProductConfig<T>]) -> StoreKitConfiguration
+    public func withPurchases(_ productId: String) -> PurchaseSetup
+    public func withPurchases(_ productIds: String...) -> PurchaseSetup
+    public func withPurchases<T: Hashable>(products: [ProductDefinition<T>]) -> PurchaseSetup
 
     // UI configuration
-    public func withPaywall<Content: View>(@ViewBuilder _ builder: @escaping (PaywallContext) -> Content) -> StoreKitConfiguration
-    public func withTerms<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> StoreKitConfiguration
-    public func withPrivacy<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> StoreKitConfiguration
+    public func withPaywall<Content: View>(@ViewBuilder _ builder: @escaping (PaywallContext) -> Content) -> PurchaseSetup
+    public func withPaywallHeader<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseSetup
+    public func withPaywallFeatures<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseSetup
+    public func withTerms<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseSetup
+    public func withTerms(url: URL) -> PurchaseSetup
+    public func withPrivacy<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseSetup
+    public func withPrivacy(url: URL) -> PurchaseSetup
 }
 ```
+
+> **Note:** `StoreKitConfiguration` is a type alias for `PurchaseSetup` for backwards compatibility.
 
 #### Example
 
 ```swift
-let config = StoreKitConfiguration()
+let config = PurchaseSetup()
     .withPurchases(products: [
         Product("com.app.basic", features: [Feature.removeAds]),
         Product("com.app.pro", features: Feature.allCases)
@@ -175,22 +217,25 @@ extension View {
 ```swift
 extension View {
     // Direct configuration
-    func withPurchases(_ productId: String) -> ChainableStoreKitView<Self>
-    func withPurchases(_ productIds: String...) -> ChainableStoreKitView<Self>
-    func withPurchases<T: Hashable & Sendable>(products: [ProductConfig<T>]) -> ChainableStoreKitView<Self>
-
-    // Full configuration
-    func withConfiguration(_ config: StoreKitConfiguration) -> some View
+    func withPurchases(_ productId: String) -> PurchaseEnabledView<Self>
+    func withPurchases(_ productIds: String...) -> PurchaseEnabledView<Self>
+    func withPurchases<T: Hashable>(products: [ProductDefinition<T>]) -> PurchaseEnabledView<Self>
 }
 ```
+
+> **Note:** `ChainableStoreKitView` is a type alias for `PurchaseEnabledView` for backwards compatibility.
 
 ### Chained Configuration
 
 ```swift
-extension ChainableStoreKitView {
-    func withPaywall<Content: View>(@ViewBuilder _ builder: @escaping (PaywallContext) -> Content) -> ChainableStoreKitView<WrappedView>
-    func withTerms<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> ChainableStoreKitView<WrappedView>
-    func withPrivacy<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> ChainableStoreKitView<WrappedView>
+extension PurchaseEnabledView {
+    func withPaywall<Content: View>(@ViewBuilder _ builder: @escaping (PaywallContext) -> Content) -> PurchaseEnabledView<Content>
+    func withPaywallHeader<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseEnabledView<Content>
+    func withPaywallFeatures<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseEnabledView<Content>
+    func withTerms<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseEnabledView<Content>
+    func withTerms(url: URL) -> PurchaseEnabledView<Content>
+    func withPrivacy<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseEnabledView<Content>
+    func withPrivacy(url: URL) -> PurchaseEnabledView<Content>
 }
 ```
 
@@ -288,52 +333,235 @@ enum MyAppFeature: String, AppFeature {
 }
 ```
 
-### ProductConfig
+### ProductDefinition
 
 ```swift
-public struct ProductConfig<T: Hashable & Sendable>: Sendable {
+public struct ProductDefinition<Feature: Hashable>: AnyProductDefinition {
     public let id: String
-    public let features: [T]
+    public let features: [Feature]
     public let badge: String?
+    public let badgeColor: Color?
     public let marketingFeatures: [String]?
-    public let savings: String?
+    public let promoText: String?
+    public let discountRule: DiscountRule?
 
     public init(
         _ id: String,
-        features: [T],
+        features: [Feature],
         badge: String? = nil,
+        badgeColor: Color? = nil,
         marketingFeatures: [String]? = nil,
-        savings: String? = nil
+        promoText: String? = nil,
+        discountRule: DiscountRule? = nil
     )
 }
 ```
+
+> **Note:** `ProductConfig` is a type alias for `ProductDefinition` for backwards compatibility.
+
+### DiscountRule
+
+```swift
+public struct DiscountRule: Sendable {
+    public let comparedTo: String  // base product ID
+    public let style: Style
+    public let color: Color?
+
+    public init(comparedTo baseProductId: String, style: Style = .percentage, color: Color? = nil)
+
+    public enum Style: Sendable {
+        case percentage  // "31% off"
+        case amount      // "Save $44"
+        case freeTime    // "2 months free"
+    }
+}
+```
+
+> **Note:** `RelativeDiscountConfig` is a type alias for `DiscountRule` for backwards compatibility.
 
 ### PaywallContext
 
 ```swift
 public struct PaywallContext {
     public let triggeredBy: String?
-    public let availableProducts: [StoreKit.Product]
-    public let recommendedProduct: StoreKit.Product?
+    public let availableProducts: [Product]
+    public let recommendedProduct: Product?
 
     // Marketing helpers
-    @MainActor public func badge(for product: StoreKit.Product) -> String?
-    @MainActor public func marketingFeatures(for product: StoreKit.Product) -> [String]?
-    @MainActor public func savings(for product: StoreKit.Product) -> String?
-    @MainActor public func marketingInfo(for product: StoreKit.Product) -> (badge: String?, features: [String]?, savings: String?)
-    @MainActor public var productsWithMarketing: [(product: StoreKit.Product, badge: String?, features: [String]?, savings: String?)]
+    @MainActor public func badge(for product: Product) -> String?
+    @MainActor public func marketingFeatures(for product: Product) -> [String]?
+    @MainActor public func promoText(for product: Product) -> String?
+    @MainActor public func marketingInfo(for product: Product) -> (badge: String?, features: [String]?, promoText: String?)
+    @MainActor public var productsWithMarketing: [(product: Product, badge: String?, features: [String]?, promoText: String?)]
 }
 ```
 
-### ChainableStoreKitView
+### PurchaseEnabledView
 
 ```swift
-public struct ChainableStoreKitView<WrappedView: View>: View {
-    public let wrappedView: WrappedView
-    public let config: StoreKitConfiguration
+public struct PurchaseEnabledView<Content: View>: View {
+    let content: Content
+    let config: PurchaseSetup
 
     public var body: some View
 }
+```
+
+> **Note:** `ChainableStoreKitView` is a type alias for `PurchaseEnabledView` for backwards compatibility.
+
+## Domain Models
+
+Pure domain models with no StoreKit dependencies. 100% testable without mocks.
+
+### PurchaseState
+
+Immutable value type tracking what the user has purchased.
+
+```swift
+public struct PurchaseState: Equatable, Sendable {
+    public private(set) var purchasedProductIDs: Set<String>
+
+    public var hasAnyPurchase: Bool
+    public func isPurchased(_ productId: String) -> Bool
+
+    // Immutable updates
+    public func withPurchase(_ productId: String) -> PurchaseState
+    public func withoutPurchase(_ productId: String) -> PurchaseState
+    public func cleared() -> PurchaseState
+}
+```
+
+### FeatureRegistry
+
+Maps features to products that unlock them.
+
+```swift
+public struct FeatureRegistry: Equatable {
+    public func isRegistered(_ feature: AnyHashable) -> Bool
+    public func productIds(for feature: AnyHashable) -> Set<String>
+    public func features(unlockedBy productId: String) -> Set<AnyHashable>
+
+    // Immutable updates
+    public func withFeature(_ feature: AnyHashable, productIds: [String]) -> FeatureRegistry
+    public func withoutFeature(_ feature: AnyHashable) -> FeatureRegistry
+}
+```
+
+### AccessControl
+
+Pure functions for access control decisions.
+
+```swift
+public enum AccessControl {
+    public static func hasAccess(
+        to feature: AnyHashable,
+        purchaseState: PurchaseState,
+        featureRegistry: FeatureRegistry
+    ) -> Bool
+
+    public static func accessibleFeatures(
+        purchaseState: PurchaseState,
+        featureRegistry: FeatureRegistry
+    ) -> Set<AnyHashable>
+}
+```
+
+### MarketingRegistry
+
+Stores marketing information for products.
+
+```swift
+public struct MarketingRegistry {
+    public func badge(for productId: String) -> String?
+    public func badgeColor(for productId: String) -> Color?
+    public func features(for productId: String) -> [String]?
+    public func promoText(for productId: String) -> String?
+    public func relativeDiscountConfig(for productId: String) -> DiscountRule?
+
+    // Immutable updates
+    public func withMarketing(_ productId: String, marketing: ProductMarketing) -> MarketingRegistry
+    public func withMarketing(from config: InternalProductConfig) -> MarketingRegistry
+}
+```
+
+### Store Protocol
+
+Protocol for store operations (implements `@Mockable` for testing).
+
+```swift
+@Mockable
+public protocol Store: Sendable {
+    func products(for ids: Set<String>) async throws -> [Product]
+    func purchase(_ product: Product) async throws -> PurchaseOutcome
+    func purchases() async throws -> Set<String>
+    func restore() async throws -> Set<String>
+}
+
+public enum PurchaseOutcome: Sendable {
+    case success
+    case cancelled
+    case pending
+}
+```
+
+## Testing
+
+### Domain Tests (Pure, No Mocks)
+
+Domain models are fully testable without mocks:
+
+```swift
+@Test func `user with correct purchase has access to feature`() {
+    // Given
+    let purchaseState = PurchaseState(purchasedProductIDs: ["com.app.pro"])
+    let registry = FeatureRegistry().withFeature("sync", productIds: ["com.app.pro"])
+
+    // When
+    let hasAccess = AccessControl.hasAccess(
+        to: "sync",
+        purchaseState: purchaseState,
+        featureRegistry: registry
+    )
+
+    // Then
+    #expect(hasAccess)
+}
+```
+
+### Infrastructure Tests (With Mockable)
+
+Infrastructure tests use auto-generated mocks:
+
+```swift
+@Test func `loadProducts calls store`() async {
+    // Given
+    let mockStore = MockStore()
+    given(mockStore).products(for: .any).willReturn([])
+
+    let inAppKit = InAppKit.configure(with: mockStore)
+
+    // When
+    await inAppKit.loadProducts(productIds: ["com.app.pro"])
+
+    // Then
+    await verify(mockStore).products(for: .value(Set(["com.app.pro"]))).called(.once)
+}
+```
+
+### Debug Helpers
+
+```swift
+#if DEBUG
+// Simulate purchases for testing
+InAppKit.shared.simulatePurchase("com.app.pro")
+
+// Clear purchases
+InAppKit.shared.clearPurchases()
+
+// Clear registries
+InAppKit.shared.clearFeatures()
+InAppKit.shared.clearMarketing()
+#endif
 ```
 
 ## Troubleshooting

@@ -151,7 +151,7 @@ struct PaywallView: View {
                     product: product,
                     badge: context.badge(for: product),
                     features: context.marketingFeatures(for: product),
-                    savings: context.savings(for: product)
+                    promoText: context.promoText(for: product)
                 )
             }
         }
@@ -162,7 +162,7 @@ struct ProductCard: View {
     let product: Product
     let badge: String?
     let features: [String]?
-    let savings: String?
+    let promoText: String?
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -196,8 +196,8 @@ struct ProductCard: View {
                     .font(.title2)
                     .fontWeight(.bold)
 
-                if let savings = savings {
-                    Text(savings)
+                if let promoText = promoText {
+                    Text(promoText)
                         .font(.caption)
                         .foregroundColor(.orange)
                 }
@@ -309,10 +309,10 @@ struct FeatureGateView: View {
 
 ## Product Configuration
 
-### Configuration with StoreKitConfiguration
+### Configuration with PurchaseSetup
 
 ```swift
-let config = StoreKitConfiguration()
+let config = PurchaseSetup()
     .withPurchases(products: [
         Product("com.app.basic", features: [Feature.removeAds]),
         Product("com.app.pro", features: [Feature.removeAds, Feature.cloudSync])
@@ -331,6 +331,8 @@ ContentView()
     .withConfiguration(config)
 ```
 
+> **Note:** `StoreKitConfiguration` is a type alias for `PurchaseSetup` for backwards compatibility.
+
 ### Environment-Based Configuration
 
 ```swift
@@ -347,7 +349,7 @@ struct ContentView: View {
             }
     }
 
-    private var products: [ProductConfig<AppFeature>] {
+    private var products: [ProductDefinition<AppFeature>] {
         #if DEBUG
         return [
             Product("com.app.test", features: AppFeature.allCases)
@@ -646,7 +648,7 @@ struct AdvancedView: View {
 
 ```swift
 struct DynamicConfigView: View {
-    @State private var products: [ProductConfig<AppFeature>] = []
+    @State private var products: [ProductDefinition<AppFeature>] = []
 
     var body: some View {
         ContentView()

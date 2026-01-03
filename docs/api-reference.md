@@ -60,8 +60,6 @@ public func Product<T: Hashable>(_ id: String, features: [T]) -> ProductDefiniti
 public func Product<T: CaseIterable & Hashable>(_ id: String, features: T.AllCases) -> ProductDefinition<T>
 ```
 
-> **Note:** `ProductConfig` is a type alias for `ProductDefinition` for backwards compatibility.
-
 #### Examples
 
 ```swift
@@ -93,8 +91,6 @@ extension ProductDefinition {
     ) -> ProductDefinition<Feature>
 }
 ```
-
-> **Note:** `RelativeDiscountConfig` is a type alias for `DiscountRule` for backwards compatibility.
 
 #### Manual Promotional Text Example
 
@@ -165,8 +161,6 @@ public class PurchaseSetup {
 }
 ```
 
-> **Note:** `StoreKitConfiguration` is a type alias for `PurchaseSetup` for backwards compatibility.
-
 #### Example
 
 ```swift
@@ -222,8 +216,6 @@ extension View {
     func withPurchases<T: Hashable>(products: [ProductDefinition<T>]) -> PurchaseEnabledView<Self>
 }
 ```
-
-> **Note:** `ChainableStoreKitView` is a type alias for `PurchaseEnabledView` for backwards compatibility.
 
 ### Chained Configuration
 
@@ -357,8 +349,6 @@ public struct ProductDefinition<Feature: Hashable>: AnyProductDefinition {
 }
 ```
 
-> **Note:** `ProductConfig` is a type alias for `ProductDefinition` for backwards compatibility.
-
 ### DiscountRule
 
 ```swift
@@ -376,8 +366,6 @@ public struct DiscountRule: Sendable {
     }
 }
 ```
-
-> **Note:** `RelativeDiscountConfig` is a type alias for `DiscountRule` for backwards compatibility.
 
 ### PaywallContext
 
@@ -406,8 +394,6 @@ public struct PurchaseEnabledView<Content: View>: View {
     public var body: some View
 }
 ```
-
-> **Note:** `ChainableStoreKitView` is a type alias for `PurchaseEnabledView` for backwards compatibility.
 
 ## Domain Models
 

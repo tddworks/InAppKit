@@ -14,20 +14,20 @@ public struct ProductMarketing: Sendable {
     public let badgeColor: Color?
     public let features: [String]?
     public let promoText: String?
-    public let relativeDiscountConfig: RelativeDiscountConfig?
+    public let discountRule: DiscountRule?
 
     public init(
         badge: String? = nil,
         badgeColor: Color? = nil,
         features: [String]? = nil,
         promoText: String? = nil,
-        relativeDiscountConfig: RelativeDiscountConfig? = nil
+        discountRule: DiscountRule? = nil
     ) {
         self.badge = badge
         self.badgeColor = badgeColor
         self.features = features
         self.promoText = promoText
-        self.relativeDiscountConfig = relativeDiscountConfig
+        self.discountRule = discountRule
     }
 
     // MARK: - Domain Behavior
@@ -42,9 +42,9 @@ public struct ProductMarketing: Sendable {
         badge != nil
     }
 
-    /// Whether this product has relative discount configured
-    public var hasRelativeDiscount: Bool {
-        relativeDiscountConfig != nil
+    /// Whether this product has discount rule configured
+    public var hasDiscountRule: Bool {
+        discountRule != nil
     }
 }
 
@@ -83,9 +83,9 @@ public struct MarketingRegistry {
         marketingInfo[productId]?.promoText
     }
 
-    /// Get relative discount config for a product
-    public func relativeDiscountConfig(for productId: String) -> RelativeDiscountConfig? {
-        marketingInfo[productId]?.relativeDiscountConfig
+    /// Get discount rule for a product
+    public func discountRule(for productId: String) -> DiscountRule? {
+        marketingInfo[productId]?.discountRule
     }
 
     /// Get all product IDs with marketing info
@@ -107,19 +107,19 @@ public struct MarketingRegistry {
         return newRegistry
     }
 
-    /// Register marketing info from ProductConfig
+    /// Register marketing info from ProductDefinition
     public func withMarketing(from config: InternalProductConfig) -> MarketingRegistry {
         let marketing = ProductMarketing(
             badge: config.badge,
             badgeColor: config.badgeColor,
             features: config.marketingFeatures,
             promoText: config.promoText,
-            relativeDiscountConfig: config.relativeDiscountConfig
+            discountRule: config.discountRule
         )
         return withMarketing(config.id, marketing: marketing)
     }
 
-    /// Register marketing info from multiple ProductConfigs
+    /// Register marketing info from multiple ProductDefinitions
     public func withMarketing(from configs: [InternalProductConfig]) -> MarketingRegistry {
         var registry = self
         for config in configs {

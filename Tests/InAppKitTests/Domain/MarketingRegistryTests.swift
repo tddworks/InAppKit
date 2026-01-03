@@ -40,25 +40,25 @@ struct MarketingRegistryTests {
     }
 
     @Test
-    func `register marketing with relative discount`() {
+    func `register marketing with discount rule`() {
         // Given
         let registry = MarketingRegistry()
-        let discountConfig = RelativeDiscountConfig(
+        let discountConfig = DiscountRule(
             comparedTo: "com.app.monthly",
             style: .percentage,
             color: .green
         )
         let marketing = ProductMarketing(
             badge: "Popular",
-            relativeDiscountConfig: discountConfig
+            discountRule: discountConfig
         )
 
         // When
         let newRegistry = registry.withMarketing("com.app.yearly", marketing: marketing)
 
         // Then
-        let config = newRegistry.relativeDiscountConfig(for: "com.app.yearly")
-        #expect(config?.baseProductId == "com.app.monthly")
+        let config = newRegistry.discountRule(for: "com.app.yearly")
+        #expect(config?.comparedTo == "com.app.monthly")
         #expect(config?.style == .percentage)
         #expect(config?.color == .green)
     }
@@ -160,17 +160,17 @@ struct MarketingRegistryTests {
     }
 
     @Test
-    func `hasRelativeDiscount is true when config is set`() {
+    func `hasDiscountRule is true when rule is set`() {
         // Given
         let marketing = ProductMarketing(
-            relativeDiscountConfig: RelativeDiscountConfig(
+            discountRule: DiscountRule(
                 comparedTo: "com.app.monthly",
                 style: .percentage
             )
         )
 
         // Then
-        #expect(marketing.hasRelativeDiscount)
+        #expect(marketing.hasDiscountRule)
     }
 
     // MARK: - Removing Marketing
@@ -231,7 +231,7 @@ struct MarketingRegistryTests {
             badgeColor: .blue,
             marketingFeatures: ["Cloud sync", "Premium support"],
             promoText: "Save 44%",
-            relativeDiscountConfig: nil
+            discountRule: nil
         )
 
         // When
@@ -256,7 +256,7 @@ struct MarketingRegistryTests {
                 badgeColor: nil,
                 marketingFeatures: nil,
                 promoText: nil,
-                relativeDiscountConfig: nil
+                discountRule: nil
             ),
             InternalProductConfig(
                 id: "com.app.yearly",
@@ -265,7 +265,7 @@ struct MarketingRegistryTests {
                 badgeColor: .blue,
                 marketingFeatures: nil,
                 promoText: "Save 44%",
-                relativeDiscountConfig: nil
+                discountRule: nil
             )
         ]
 

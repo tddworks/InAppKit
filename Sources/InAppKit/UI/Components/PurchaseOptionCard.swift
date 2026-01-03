@@ -74,7 +74,7 @@ public struct PurchaseOptionCard: View {
         self.promoText = promoText
     }
 
-    /// Computed promo text - uses manual promoText if provided, otherwise calculates from relativeDiscountConfig
+    /// Computed promo text - uses manual promoText if provided, otherwise calculates from discountRule
     @MainActor
     private var displayPromoText: String? {
         // Manual promo text takes priority
@@ -82,20 +82,20 @@ public struct PurchaseOptionCard: View {
             return manualPromo
         }
 
-        // Calculate from relative discount config
-        guard let discountConfig = InAppKit.shared.relativeDiscountConfig(for: product.id) else {
+        // Calculate from discount rule
+        guard let discountRule = InAppKit.shared.discountRule(for: product.id) else {
             return nil
         }
 
-        return calculateRelativeDiscount(config: discountConfig)
+        return calculateRelativeDiscount(rule: discountRule)
     }
 
-    /// Computed promo color - from relativeDiscountConfig or default orange
+    /// Computed promo color - from discountRule or default orange
     @MainActor
     private var displayPromoColor: Color {
-        // Get color from relative discount config
-        if let discountConfig = InAppKit.shared.relativeDiscountConfig(for: product.id),
-           let customColor = discountConfig.color {
+        // Get color from discount rule
+        if let discountRule = InAppKit.shared.discountRule(for: product.id),
+           let customColor = discountRule.color {
             return customColor
         }
         // Default to orange
@@ -104,9 +104,9 @@ public struct PurchaseOptionCard: View {
 
     /// Calculate the discount string based on comparison product
     @MainActor
-    private func calculateRelativeDiscount(config: RelativeDiscountConfig) -> String? {
+    private func calculateRelativeDiscount(rule: DiscountRule) -> String? {
         // Find the base product to compare against
-        guard let baseProduct = InAppKit.shared.availableProducts.first(where: { $0.id == config.baseProductId }) else {
+        guard let baseProduct = InAppKit.shared.availableProducts.first(where: { $0.id == rule.comparedTo }) else {
             return nil
         }
 
@@ -139,7 +139,7 @@ public struct PurchaseOptionCard: View {
             basePeriod: basePeriod
         )
 
-        switch config.style {
+        switch rule.style {
         case .percentage:
             let multiplier = NSDecimalNumber(integerLiteral: periodMultiplier(currentPeriod, comparedTo: basePeriod))
             let basePriceNumber = basePrice as NSDecimalNumber

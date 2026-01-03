@@ -331,8 +331,8 @@ public extension View {
         subtitle: String = "paywall.header.subtitle".localized(fallback: "Unlock advanced features and premium support"),
         iconColor: Color = .blue,
         backgroundColor: Color = Color.blue.opacity(0.2)
-    ) -> ChainableStoreKitView<Self> {
-        let config = StoreKitConfiguration()
+    ) -> PurchaseEnabledView<Self> {
+        let config = PurchaseSetup()
         let newConfig = config.withPaywallHeader {
             PaywallHeader(
                 icon: .system(systemIcon),
@@ -342,7 +342,7 @@ public extension View {
                 backgroundColor: backgroundColor
             )
         }
-        return ChainableStoreKitView(content: self, config: newConfig)
+        return PurchaseEnabledView(content: self, config: newConfig)
     }
 
     /// Add a custom paywall header to the chain with asset icon
@@ -352,8 +352,8 @@ public extension View {
         subtitle: String = "paywall.header.subtitle".localized(fallback: "Unlock advanced features and premium support"),
         iconColor: Color = .blue,
         backgroundColor: Color = Color.blue.opacity(0.2)
-    ) -> ChainableStoreKitView<Self> {
-        let config = StoreKitConfiguration()
+    ) -> PurchaseEnabledView<Self> {
+        let config = PurchaseSetup()
         let newConfig = config.withPaywallHeader {
             PaywallHeader(
                 icon: .asset(assetIcon),
@@ -363,7 +363,7 @@ public extension View {
                 backgroundColor: backgroundColor
             )
         }
-        return ChainableStoreKitView(content: self, config: newConfig)
+        return PurchaseEnabledView(content: self, config: newConfig)
     }
 
     /// Add a custom paywall header to the chain with PaywallIcon
@@ -373,8 +373,8 @@ public extension View {
         subtitle: String = "paywall.header.subtitle".localized(fallback: "Unlock advanced features and premium support"),
         iconColor: Color = .blue,
         backgroundColor: Color = Color.blue.opacity(0.2)
-    ) -> ChainableStoreKitView<Self> {
-        let config = StoreKitConfiguration()
+    ) -> PurchaseEnabledView<Self> {
+        let config = PurchaseSetup()
         let newConfig = config.withPaywallHeader {
             PaywallHeader(
                 icon: icon,
@@ -384,18 +384,18 @@ public extension View {
                 backgroundColor: backgroundColor
             )
         }
-        return ChainableStoreKitView(content: self, config: newConfig)
+        return PurchaseEnabledView(content: self, config: newConfig)
     }
 
     /// Add custom paywall features to the chain
     func withPaywallFeatures(
         title: String = "paywall.features.title".localized(fallback: "What's Included"),
         features: [PaywallFeature]
-    ) -> ChainableStoreKitView<Self> {
-        let config = StoreKitConfiguration()
+    ) -> PurchaseEnabledView<Self> {
+        let config = PurchaseSetup()
         let newConfig = config.withPaywallFeatures {
             PaywallFeatures(title: title, features: features)
         }
-        return ChainableStoreKitView(content: self, config: newConfig)
+        return PurchaseEnabledView(content: self, config: newConfig)
     }
 }

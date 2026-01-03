@@ -99,8 +99,8 @@ public class InAppKit {
 
         #if DEBUG
         for config in productConfigs {
-            if let discountConfig = config.relativeDiscountConfig {
-                Logger.statistics.info("📊 Stored relativeDiscountConfig for \(config.id): comparing to \(discountConfig.comparedTo), style: \(String(describing: discountConfig.style))")
+            if let discountConfig = config.discountRule {
+                Logger.statistics.info("📊 Stored discountRule for \(config.id): comparing to \(discountConfig.comparedTo), style: \(String(describing: discountConfig.style))")
             }
         }
         #endif
@@ -210,8 +210,8 @@ public class InAppKit {
         marketingRegistry.promoText(for: productId)
     }
 
-    public func relativeDiscountConfig(for productId: String) -> RelativeDiscountConfig? {
-        marketingRegistry.relativeDiscountConfig(for: productId)
+    public func discountRule(for productId: String) -> DiscountRule? {
+        marketingRegistry.discountRule(for: productId)
     }
 
     // MARK: - Development Helpers

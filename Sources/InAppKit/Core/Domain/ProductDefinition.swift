@@ -26,18 +26,12 @@ public struct DiscountRule: Sendable {
         self.color = color
     }
 
-    /// Legacy alias for comparedTo
-    public var baseProductId: String { comparedTo }
-
     public enum Style: Sendable {
         case percentage  // "31% off"
         case amount      // "Save $44"
         case freeTime    // "2 months free"
     }
 }
-
-/// Legacy alias for backwards compatibility
-public typealias RelativeDiscountConfig = DiscountRule
 
 // MARK: - Product Definition Protocol
 
@@ -52,9 +46,6 @@ public protocol AnyProductDefinition {
     func toInternal() -> InternalProductConfig
 }
 
-/// Legacy alias
-public typealias AnyProductConfig = AnyProductDefinition
-
 // MARK: - Product Definition
 
 /// Defines a product I want to sell.
@@ -67,9 +58,6 @@ public struct ProductDefinition<Feature: Hashable>: AnyProductDefinition {
     public let marketingFeatures: [String]?
     public let promoText: String?
     public let discountRule: DiscountRule?
-
-    /// Legacy alias for discountRule
-    public var relativeDiscountConfig: DiscountRule? { discountRule }
 
     public init(
         _ id: String,
@@ -103,13 +91,10 @@ public struct ProductDefinition<Feature: Hashable>: AnyProductDefinition {
             badgeColor: badgeColor,
             marketingFeatures: marketingFeatures,
             promoText: promoText,
-            relativeDiscountConfig: discountRule
+            discountRule: discountRule
         )
     }
 }
-
-/// Legacy alias for backwards compatibility
-public typealias ProductConfig<T: Hashable> = ProductDefinition<T>
 
 // MARK: - Internal Product Config (Type-erased)
 
@@ -121,7 +106,7 @@ public struct InternalProductConfig: @unchecked Sendable {
     public let badgeColor: Color?
     public let marketingFeatures: [String]?
     public let promoText: String?
-    public let relativeDiscountConfig: DiscountRule?
+    public let discountRule: DiscountRule?
 
     public init(
         id: String,
@@ -130,7 +115,7 @@ public struct InternalProductConfig: @unchecked Sendable {
         badgeColor: Color? = nil,
         marketingFeatures: [String]? = nil,
         promoText: String? = nil,
-        relativeDiscountConfig: DiscountRule? = nil
+        discountRule: DiscountRule? = nil
     ) {
         self.id = id
         self.features = features
@@ -138,7 +123,7 @@ public struct InternalProductConfig: @unchecked Sendable {
         self.badgeColor = badgeColor
         self.marketingFeatures = marketingFeatures
         self.promoText = promoText
-        self.relativeDiscountConfig = relativeDiscountConfig
+        self.discountRule = discountRule
     }
 }
 

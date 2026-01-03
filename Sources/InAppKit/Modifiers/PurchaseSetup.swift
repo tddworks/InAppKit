@@ -100,9 +100,6 @@ public class PurchaseSetup {
     }
 }
 
-/// Legacy alias for backwards compatibility
-public typealias StoreKitConfiguration = PurchaseSetup
-
 // MARK: - Environment Keys
 
 private struct PaywallBuilderKey: EnvironmentKey {
@@ -216,9 +213,6 @@ public struct PurchaseEnabledView<Content: View>: View {
         PurchaseEnabledView(content: content, config: config.withPaywallFeatures(builder))
     }
 }
-
-/// Legacy alias for backwards compatibility
-public typealias ChainableStoreKitView<Content: View> = PurchaseEnabledView<Content>
 
 // MARK: - Purchase Setup Modifier
 

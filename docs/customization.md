@@ -331,8 +331,6 @@ ContentView()
     .withConfiguration(config)
 ```
 
-> **Note:** `StoreKitConfiguration` is a type alias for `PurchaseSetup` for backwards compatibility.
-
 ### Environment-Based Configuration
 
 ```swift

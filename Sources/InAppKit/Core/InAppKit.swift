@@ -2,7 +2,8 @@
 //  InAppKit.swift
 //  InAppKit
 //
-//  User-Centric InAppKit with Auto-Configuration
+//  User-Centric InAppKit with Auto-Configuration.
+//  Delegates to pure domain models and uses Store for infrastructure.
 //
 
 import Foundation
@@ -14,210 +15,250 @@ import OSLog
 @MainActor
 public class InAppKit {
     public static let shared = InAppKit()
-    
-    public var purchasedProductIDs: Set<String> = []
+
+    // MARK: - Domain Models (Pure, Testable)
+
+    private var purchaseState: PurchaseState = PurchaseState()
+    private var featureRegistry: FeatureRegistry = FeatureRegistry()
+    private var marketingRegistry: MarketingRegistry = MarketingRegistry()
+
+    // MARK: - Infrastructure (Store)
+
+    /// The store - where products are purchased
+    private let store: any Store
+
+    // MARK: - StoreKit State
+
     public var availableProducts: [Product] = []
     public var isPurchasing = false
     public var purchaseError: Error?
     public var isInitialized = false
-    
-    // Feature-based configuration storage
-    private var featureToProductMapping: [AnyHashable: [String]] = [:]
-    private var productToFeatureMapping: [String: [AnyHashable]] = [:]
-    private var productMarketingInfo: [String: (badge: String?, badgeColor: Color?, features: [String]?, promoText: String?, relativeDiscountConfig: RelativeDiscountConfig?)] = [:]
-    
+
     private var updateListenerTask: Task<Void, Error>?
-    
+
+    // MARK: - Public Accessors (Delegates to Domain Models)
+
+    public var purchasedProductIDs: Set<String> {
+        purchaseState.purchasedProductIDs
+    }
+
+    public var hasAnyPurchase: Bool {
+        purchaseState.hasAnyPurchase
+    }
+
+    @available(*, deprecated, message: "Use hasAnyPurchase for clearer semantics")
+    public var isPremium: Bool {
+        hasAnyPurchase
+    }
+
+    // MARK: - Initialization
+
+    /// Creates InAppKit with the real AppStore
     private init() {
+        self.store = AppStore()
         updateListenerTask = listenForTransactions()
         Task {
-            await updatePurchasedProducts()
+            await refreshPurchases()
         }
     }
-    
+
+    /// Creates InAppKit with a custom Store (for testing)
+    internal init(store: any Store) {
+        self.store = store
+        updateListenerTask = listenForTransactions()
+        Task {
+            await refreshPurchases()
+        }
+    }
+
+    #if DEBUG
+    /// Reset shared instance with a mock store (for testing)
+    public static func configure(with store: any Store) -> InAppKit {
+        return InAppKit(store: store)
+    }
+    #endif
+
     deinit {
         // Task cleanup happens automatically
     }
-    
-    
-    
-    /// Initialize with product configurations (for fluent API)
-    internal func initialize(with productConfigs: [InternalProductConfig]) async {
-        let productIDs = productConfigs.map { $0.id }
 
-        // Register features and marketing info
-        for config in productConfigs {
-            // Register features
-            for feature in config.features {
-                registerFeature(feature, productIds: [config.id])
+    // MARK: - Configuration
+
+    internal func initialize(with products: [ProductDefinition]) async {
+        let productIDs = products.map { $0.id }
+
+        // Register features using domain model
+        for product in products {
+            for feature in product.features {
+                featureRegistry = featureRegistry.withFeature(feature, productIds: [product.id])
             }
-
-            // Store marketing information
-            productMarketingInfo[config.id] = (
-                badge: config.badge,
-                badgeColor: config.badgeColor,
-                features: config.marketingFeatures,
-                promoText: config.promoText,
-                relativeDiscountConfig: config.relativeDiscountConfig
-            )
-
-            #if DEBUG
-            if let discountConfig = config.relativeDiscountConfig {
-                Logger.statistics.info("📊 Stored relativeDiscountConfig for \(config.id): comparing to \(discountConfig.baseProductId), style: \(String(describing: discountConfig.style))")
-            }
-            #endif
         }
+
+        // Register marketing info using domain model
+        marketingRegistry = marketingRegistry.withMarketing(from: products)
+
+        #if DEBUG
+        for product in products {
+            if let discountRule = product.discountRule {
+                Logger.statistics.info("📊 Stored discountRule for \(product.id): comparing to \(discountRule.comparedTo), style: \(String(describing: discountRule.style))")
+            }
+        }
+        #endif
 
         await loadProducts(productIds: productIDs)
         isInitialized = true
     }
-    
-    
+
+    // MARK: - Store Operations (Delegates to Store)
+
     public func loadProducts(productIds: [String]) async {
         do {
-            let products = try await Product.products(for: productIds)
+            let products = try await store.products(for: Set(productIds))
             self.availableProducts = products
-            Logger.statistics.info("Loaded \(products.count) products")
         } catch {
             Logger.statistics.error("Failed to load products: \(error.localizedDescription)")
             purchaseError = error
         }
     }
-    
+
     public func purchase(_ product: Product) async throws {
         isPurchasing = true
         purchaseError = nil
-        
+
         defer {
             isPurchasing = false
         }
-        
-        let result = try await product.purchase()
-        
-        switch result {
-        case .success(let verification):
-            let transaction = try checkVerified(verification)
-            await updatePurchasedProducts()
-            await transaction.finish()
-        case .userCancelled:
-            break
-        case .pending:
-            break
-        @unknown default:
+
+        let outcome = try await store.purchase(product)
+
+        switch outcome {
+        case .success:
+            await refreshPurchases()
+        case .cancelled, .pending:
             break
         }
     }
-    
+
     public func restorePurchases() async {
-        await updatePurchasedProducts()
+        do {
+            let restored = try await store.restore()
+            purchaseState = PurchaseState(purchasedProductIDs: restored)
+        } catch {
+            Logger.statistics.error("Failed to restore: \(error.localizedDescription)")
+            purchaseError = error
+        }
     }
-    
+
+    // MARK: - Purchase State (Delegates to PurchaseState)
+
     public func isPurchased(_ productId: String) -> Bool {
-        return purchasedProductIDs.contains(productId)
+        purchaseState.isPurchased(productId)
     }
-    
-    /// Check if user has any active purchases
-    public var hasAnyPurchase: Bool {
-        return !purchasedProductIDs.isEmpty
-    }
-    
-    /// Legacy compatibility - use hasAnyPurchase instead
-    @available(*, deprecated, message: "Use hasAnyPurchase for clearer semantics")
-    public var isPremium: Bool {
-        return hasAnyPurchase
-    }
-    
-    
-    /// Check if user has access to a specific feature
+
+    // MARK: - Feature Access (Delegates to AccessControl)
+
     public func hasAccess<F: Hashable>(to feature: F) -> Bool {
-        return hasAccess(to: AnyHashable(feature))
+        hasAccess(to: AnyHashable(feature))
     }
 
-    /// Check if user has access to a feature (AnyHashable version)
     public func hasAccess(to feature: AnyHashable) -> Bool {
-        let requiredProducts = featureToProductMapping[feature] ?? []
-
-        // If no products mapped to this feature, fall back to any purchase check
-        if requiredProducts.isEmpty {
-            return hasAnyPurchase
-        }
-
-        return requiredProducts.contains { productId in
-            purchasedProductIDs.contains(productId)
-        }
+        AccessControl.hasAccess(
+            to: feature,
+            purchaseState: purchaseState,
+            featureRegistry: featureRegistry
+        )
     }
-    
-    /// Get products that provide a specific feature
+
     public func products<F: Hashable>(for feature: F) -> [Product] {
         let featureKey = AnyHashable(feature)
-        let productIds = featureToProductMapping[featureKey] ?? []
-        
+        let productIds = featureRegistry.productIds(for: featureKey)
+
         return availableProducts.filter { product in
             productIds.contains(product.id)
         }
     }
-    
-    /// Register a feature with its product IDs (used by configuration builder)
+
+    // MARK: - Feature Registration (Delegates to FeatureRegistry)
+
     public func registerFeature(_ feature: AnyHashable, productIds: [String]) {
-        featureToProductMapping[feature] = productIds
-        for productId in productIds {
-            productToFeatureMapping[productId, default: []].append(feature)
-        }
+        featureRegistry = featureRegistry.withFeature(feature, productIds: productIds)
     }
-    
-    /// Check if a feature is registered (for validation)
+
     public func isFeatureRegistered<F: Hashable>(_ feature: F) -> Bool {
-        return isFeatureRegistered(AnyHashable(feature))
+        isFeatureRegistered(AnyHashable(feature))
     }
 
-    /// Check if a feature is registered (AnyHashable version)
     public func isFeatureRegistered(_ feature: AnyHashable) -> Bool {
-        return featureToProductMapping[feature] != nil
+        featureRegistry.isRegistered(feature)
     }
 
-    // MARK: - Marketing Information
+    // MARK: - Marketing Information (Delegates to MarketingRegistry)
 
-    /// Get marketing badge for a product
     public func badge(for productId: String) -> String? {
-        return productMarketingInfo[productId]?.badge
+        marketingRegistry.badge(for: productId)
     }
 
-    /// Get badge color for a product
     public func badgeColor(for productId: String) -> Color? {
-        return productMarketingInfo[productId]?.badgeColor
+        marketingRegistry.badgeColor(for: productId)
     }
 
-    /// Get marketing features for a product
     public func marketingFeatures(for productId: String) -> [String]? {
-        return productMarketingInfo[productId]?.features
+        marketingRegistry.features(for: productId)
     }
 
-    /// Get promotional text for a product
     public func promoText(for productId: String) -> String? {
-        return productMarketingInfo[productId]?.promoText
+        marketingRegistry.promoText(for: productId)
     }
 
-    /// Get relative discount configuration for a product
-    public func relativeDiscountConfig(for productId: String) -> RelativeDiscountConfig? {
-        return productMarketingInfo[productId]?.relativeDiscountConfig
+    public func discountRule(for productId: String) -> DiscountRule? {
+        marketingRegistry.discountRule(for: productId)
     }
-    
+
     // MARK: - Development Helpers
-    
+
     #if DEBUG
-    /// Development helper to simulate purchases
     public func simulatePurchase(_ productId: String) {
-        purchasedProductIDs.insert(productId)
+        purchaseState = purchaseState.withPurchase(productId)
     }
-    
-    /// Development helper to clear purchases
+
     public func clearPurchases() {
-        purchasedProductIDs.removeAll()
+        purchaseState = purchaseState.cleared()
+    }
+
+    public func clearFeatures() {
+        featureRegistry = FeatureRegistry()
+    }
+
+    public func clearMarketing() {
+        marketingRegistry = MarketingRegistry()
     }
     #endif
-    
+
     // MARK: - Private Methods
-    
+
+    private func refreshPurchases() async {
+        do {
+            let purchased = try await store.purchases()
+            purchaseState = PurchaseState(purchasedProductIDs: purchased)
+        } catch {
+            Logger.statistics.error("Failed to refresh purchases: \(error.localizedDescription)")
+        }
+    }
+
+    private func listenForTransactions() -> Task<Void, Error> {
+        return Task {
+            for await result in Transaction.updates {
+                do {
+                    let transaction = try checkVerified(result)
+                    await refreshPurchases()
+                    await transaction.finish()
+                } catch {
+                    Logger.statistics.error("Failed to verify transaction: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+
     private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
         switch result {
         case .unverified:
@@ -226,50 +267,9 @@ public class InAppKit {
             return safe
         }
     }
-    
-    private func updatePurchasedProducts() async {
-        var purchasedProductIDs: Set<String> = []
-        
-        for await result in Transaction.currentEntitlements {
-            do {
-                let transaction = try checkVerified(result)
-                
-                Logger.statistics.info("Found purchased product: \(transaction.productID)")
-                
-                switch transaction.productType {
-                case .consumable:
-                    break
-                case .nonConsumable:
-                    purchasedProductIDs.insert(transaction.productID)
-                case .autoRenewable:
-                    purchasedProductIDs.insert(transaction.productID)
-                case .nonRenewable:
-                    purchasedProductIDs.insert(transaction.productID)
-                default:
-                    break
-                }
-            } catch {
-                Logger.statistics.error("Failed to verify transaction: \(error.localizedDescription)")
-            }
-        }
-        
-        self.purchasedProductIDs = purchasedProductIDs
-    }
-    
-    private func listenForTransactions() -> Task<Void, Error> {
-        return Task {
-            for await result in Transaction.updates {
-                do {
-                    let transaction = try checkVerified(result)
-                    await updatePurchasedProducts()
-                    await transaction.finish()
-                } catch {
-                    Logger.statistics.error("Failed to verify transaction: \(error.localizedDescription)")
-                }
-            }
-        }
-    }
 }
+
+// MARK: - Store Error
 
 public enum StoreError: Error {
     case failedVerification

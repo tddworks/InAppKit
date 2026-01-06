@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Build**: `swift build`
 - **Test**: `swift test`
 - **Single test**: Use test explorer in Xcode or target specific test methods in Swift Testing
-- **Swift version**: `swift --version` (requires Swift 6.1+)
+- **Swift version**: `swift --version` (requires Swift 6.2+)
 
 ### Xcode Development
 - Open `InAppKit.xcodeproj` or `Workspace.xcworkspace` for full IDE experience
@@ -16,64 +16,127 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture Overview
 
-InAppKit is a SwiftUI library that simplifies in-app purchases through a declarative API. The architecture follows these key patterns:
+InAppKit is a SwiftUI library that simplifies in-app purchases through a declarative API. The architecture follows **Domain-Driven Design** with clear separation between domain logic and infrastructure.
 
-### Core Components
+### Domain Layer (`Sources/InAppKit/Core/Domain/`)
 
-1. **InAppKit (Singleton)** (`Sources/InAppKit/Core/InAppKit.swift`)
-   - `@MainActor @Observable` singleton managing all purchase state
-   - Handles StoreKit integration, transaction validation, and feature access
-   - Maps features to products and maintains purchase entitlements
+Pure business logic with 100% test coverage. No StoreKit dependencies.
 
-2. **Product Configuration System** (`Sources/InAppKit/Configuration/`)
-   - `ProductConfig<T>` - Type-safe product definitions with features
-   - `StoreKitConfiguration` - Fluent API for app setup
-   - `PaywallContext` - Context object for paywall presentations
+| Model | Purpose |
+|-------|---------|
+| `ProductDefinition` | Define products to sell with features and marketing |
+| `DiscountRule` | Configure relative discounts between products |
+| `PaywallContext` | Context data for paywall presentation |
+| `PurchaseState` | Immutable purchase state (what user owns) |
+| `FeatureRegistry` | Feature-to-product mappings |
+| `AccessControl` | Pure functions for access control decisions |
+| `MarketingRegistry` | Product marketing information storage |
+| `Store` | Protocol for store operations (@Mockable) |
 
-3. **Feature System** (`Sources/InAppKit/Core/Feature.swift`)
-   - `AppFeature` protocol for type-safe feature definitions
-   - Features map to product IDs through configuration
-   - Supports both enum-based and string-based feature definitions
+### Infrastructure Layer (`Sources/InAppKit/Infrastructure/`)
 
-### Key Patterns
+StoreKit integration. Implements domain protocols.
 
-**Fluent Configuration API**: The library uses method chaining for setup:
+| Class | Purpose |
+|-------|---------|
+| `AppStore` | Real Store implementation using StoreKit |
+| `StoreKitProvider` | Protocol wrapping StoreKit static methods (@Mockable) |
+| `DefaultStoreKitProvider` | Real StoreKit API calls |
+
+### Core Layer (`Sources/InAppKit/Core/`)
+
+| Class | Purpose |
+|-------|---------|
+| `InAppKit` | Main coordinator, delegates to domain models |
+| `Feature` | AppFeature protocol for type-safe features |
+
+### UI Layer (`Sources/InAppKit/UI/`, `Sources/InAppKit/Modifiers/`)
+
+SwiftUI views and modifiers for purchase integration.
+
+## Key Design Patterns
+
+### 1. Domain-Driven Design
+- Pure domain models with no external dependencies
+- Immutable value types with functional updates
+- Business logic encapsulated in domain layer
+
+### 2. Dependency Injection with Mockable
+```swift
+// Domain protocol
+@Mockable
+public protocol Store: Sendable {
+    func products(for ids: Set<String>) async throws -> [Product]
+    func purchase(_ product: Product) async throws -> PurchaseOutcome
+    func purchases() async throws -> Set<String>
+}
+
+// Production uses real AppStore
+let inAppKit = InAppKit.shared  // uses AppStore internally
+
+// Testing uses MockStore (auto-generated)
+let mockStore = MockStore()
+given(mockStore).purchases().willReturn(["com.app.pro"])
+let inAppKit = InAppKit.configure(with: mockStore)
+```
+
+### 3. Fluent Configuration API
 ```swift
 ContentView()
     .withPurchases(products: [
         Product("com.app.pro", features: AppFeature.allCases)
+            .withBadge("Best Value")
+            .withRelativeDiscount(comparedTo: "monthly")
     ])
     .withPaywall { context in PaywallView(products: context.availableProducts) }
 ```
 
-**View Modifiers**: Main integration points are SwiftUI view modifiers:
-- `.withPurchases()` - Initializes purchase system
-- `.requiresPurchase()` - Gates content behind purchases
+### 4. View Modifiers
+- `.withPurchases()` - Initialize purchase system
+- `.requiresPurchase()` - Gate content behind purchases
 - `.withPaywall()` - Custom paywall presentation
-
-**Type Safety**: Features are defined as enums conforming to `AppFeature` protocol for compile-time safety.
-
-### UI Architecture
-
-- **Component-based**: Reusable UI components in `Sources/InAppKit/UI/Components/`
-- **Modifier-driven**: Purchase gating through view modifiers in `Sources/InAppKit/Modifiers/`
-- **Localization**: Full i18n support with fallback strings in `Sources/InAppKit/Extensions/Localization.swift`
-
-### StoreKit Integration
-
-- **Observable Pattern**: Uses Swift's `@Observable` for state management
-- **Transaction Handling**: Automatic verification and entitlement updates
-- **Background Listening**: Persistent transaction listener for receipt updates
 
 ## Testing Approach
 
-Uses Swift Testing framework with `@testable import InAppKit`:
-- Feature configuration testing
-- Product mapping validation
-- Fluent API chain testing
-- Mock purchase simulation in DEBUG builds
+### Domain Tests (100% coverage)
+Pure domain models are fully testable without mocks:
+```swift
+@Test func `user with correct purchase has access to feature`() {
+    let purchaseState = PurchaseState(purchasedProductIDs: ["com.app.pro"])
+    let registry = FeatureRegistry().withFeature("sync", productIds: ["com.app.pro"])
 
-The test suite focuses on configuration validation and API usability rather than StoreKit integration (which requires App Store Connect setup).
+    let hasAccess = AccessControl.hasAccess(to: "sync", purchaseState: purchaseState, featureRegistry: registry)
+
+    #expect(hasAccess)
+}
+```
+
+### Infrastructure Tests (with Mockable)
+```swift
+@Test func `loadProducts calls store products`() async {
+    let mockStore = MockStore()
+    given(mockStore).products(for: .any).willReturn([])
+
+    let inAppKit = InAppKit.configure(with: mockStore)
+    await inAppKit.loadProducts(productIds: ["com.app.pro"])
+
+    await verify(mockStore).products(for: .value(Set(["com.app.pro"]))).called(.once)
+}
+```
+
+### Test Organization
+```
+Tests/InAppKitTests/
+├── Domain/                    ← Pure domain model tests
+│   ├── PurchaseStateTests.swift
+│   ├── FeatureRegistryTests.swift
+│   ├── AccessControlTests.swift
+│   └── MarketingRegistryTests.swift
+├── Infrastructure/            ← Tests with MockStore/MockStoreKitProvider
+│   ├── StoreTests.swift
+│   └── AppStoreTests.swift
+└── InAppKitTests.swift        ← Integration tests
+```
 
 ## Documentation Structure
 

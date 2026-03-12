@@ -35,6 +35,20 @@ public enum AccessControl {
         }
     }
 
+    /// Check if user has access to a feature, with subscription memory fallback.
+    /// StoreKit (purchaseState) is checked first; remembered state is the fallback.
+    public static func hasAccess(
+        to feature: AnyHashable,
+        purchaseState: PurchaseState,
+        rememberedState: PurchaseState,
+        featureRegistry: FeatureRegistry
+    ) -> Bool {
+        if hasAccess(to: feature, purchaseState: purchaseState, featureRegistry: featureRegistry) {
+            return true
+        }
+        return hasAccess(to: feature, purchaseState: rememberedState, featureRegistry: featureRegistry)
+    }
+
     /// Check if user has access to an AppFeature
     public static func hasAccess<T: AppFeature>(
         to feature: T,

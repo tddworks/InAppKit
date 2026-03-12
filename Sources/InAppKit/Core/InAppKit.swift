@@ -27,6 +27,16 @@ public class InAppKit {
     /// The store - where products are purchased
     private let store: any Store
 
+    // MARK: - Subscription Memory
+
+    private var memoryStore: (any SubscriptionMemoryStore)?
+    private var subscriptionMemory: SubscriptionMemory = SubscriptionMemory()
+    private var gracePeriod: GracePeriod = .none
+
+    private var rememberedPurchaseState: PurchaseState {
+        PurchaseState(purchasedProductIDs: subscriptionMemory.validProductIDs(at: Date()))
+    }
+
     // MARK: - StoreKit State
 
     public var availableProducts: [Product] = []
@@ -43,7 +53,7 @@ public class InAppKit {
     }
 
     public var hasAnyPurchase: Bool {
-        purchaseState.hasAnyPurchase
+        purchaseState.hasAnyPurchase || rememberedPurchaseState.hasAnyPurchase
     }
 
     @available(*, deprecated, message: "Use hasAnyPurchase for clearer semantics")
@@ -109,6 +119,35 @@ public class InAppKit {
         isInitialized = true
     }
 
+    // MARK: - Subscription Memory Configuration
+
+    public func configureMemory(backend: MemoryBackend, gracePeriod: GracePeriod) async {
+        self.gracePeriod = gracePeriod
+
+        switch backend {
+        case .keychain:
+            self.memoryStore = KeychainMemoryStore()
+        case .iCloud:
+            self.memoryStore = CloudMemoryStore()
+        }
+
+        // Load existing memory
+        if let memoryStore {
+            if let memory = try? await memoryStore.load() {
+                self.subscriptionMemory = memory
+            }
+        }
+    }
+
+    internal func configureMemory(store: any SubscriptionMemoryStore, gracePeriod: GracePeriod) async {
+        self.gracePeriod = gracePeriod
+        self.memoryStore = store
+
+        if let memory = try? await store.load() {
+            self.subscriptionMemory = memory
+        }
+    }
+
     // MARK: - Store Operations (Delegates to Store)
 
     public func loadProducts(productIds: [String]) async {
@@ -152,7 +191,7 @@ public class InAppKit {
     // MARK: - Purchase State (Delegates to PurchaseState)
 
     public func isPurchased(_ productId: String) -> Bool {
-        purchaseState.isPurchased(productId)
+        purchaseState.isPurchased(productId) || rememberedPurchaseState.isPurchased(productId)
     }
 
     // MARK: - Feature Access (Delegates to AccessControl)
@@ -165,6 +204,7 @@ public class InAppKit {
         AccessControl.hasAccess(
             to: feature,
             purchaseState: purchaseState,
+            rememberedState: rememberedPurchaseState,
             featureRegistry: featureRegistry
         )
     }
@@ -240,8 +280,21 @@ public class InAppKit {
         do {
             let purchased = try await store.purchases()
             purchaseState = PurchaseState(purchasedProductIDs: purchased)
+
+            // Update subscription memory with active purchases
+            if let memoryStore, gracePeriod.duration > 0, !purchased.isEmpty {
+                subscriptionMemory = subscriptionMemory
+                    .withRemembered(purchased, at: Date(), gracePeriod: gracePeriod.duration)
+                try? await memoryStore.save(subscriptionMemory)
+            }
         } catch {
+            // On StoreKit failure, load from memory as fallback
             Logger.statistics.error("Failed to refresh purchases: \(error.localizedDescription)")
+            if let memoryStore {
+                if let memory = try? await memoryStore.load() {
+                    subscriptionMemory = memory
+                }
+            }
         }
     }
 

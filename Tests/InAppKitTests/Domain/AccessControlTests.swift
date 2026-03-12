@@ -230,4 +230,85 @@ struct AccessControlTests {
         // Then
         #expect(missing.isEmpty)
     }
+
+    // MARK: - Remembered State (Subscription Memory Fallback)
+
+    @Test
+    func `access granted via remembered state when live state is empty`() {
+        // Given
+        let liveState = PurchaseState()
+        let rememberedState = PurchaseState(purchasedProductIDs: ["com.app.pro"])
+        let registry = FeatureRegistry()
+            .withFeature(AnyHashable("sync"), productIds: ["com.app.pro"])
+
+        // When
+        let hasAccess = AccessControl.hasAccess(
+            to: AnyHashable("sync"),
+            purchaseState: liveState,
+            rememberedState: rememberedState,
+            featureRegistry: registry
+        )
+
+        // Then
+        #expect(hasAccess)
+    }
+
+    @Test
+    func `live state takes precedence over remembered state`() {
+        // Given - live state has access, remembered is irrelevant
+        let liveState = PurchaseState(purchasedProductIDs: ["com.app.pro"])
+        let rememberedState = PurchaseState()
+        let registry = FeatureRegistry()
+            .withFeature(AnyHashable("sync"), productIds: ["com.app.pro"])
+
+        // When
+        let hasAccess = AccessControl.hasAccess(
+            to: AnyHashable("sync"),
+            purchaseState: liveState,
+            rememberedState: rememberedState,
+            featureRegistry: registry
+        )
+
+        // Then
+        #expect(hasAccess)
+    }
+
+    @Test
+    func `no access when neither live nor remembered state has purchase`() {
+        // Given
+        let liveState = PurchaseState()
+        let rememberedState = PurchaseState()
+        let registry = FeatureRegistry()
+            .withFeature(AnyHashable("sync"), productIds: ["com.app.pro"])
+
+        // When
+        let hasAccess = AccessControl.hasAccess(
+            to: AnyHashable("sync"),
+            purchaseState: liveState,
+            rememberedState: rememberedState,
+            featureRegistry: registry
+        )
+
+        // Then
+        #expect(!hasAccess)
+    }
+
+    @Test
+    func `remembered state works with unregistered feature fallback`() {
+        // Given
+        let liveState = PurchaseState()
+        let rememberedState = PurchaseState(purchasedProductIDs: ["com.app.pro"])
+        let registry = FeatureRegistry() // Empty - feature not registered
+
+        // When
+        let hasAccess = AccessControl.hasAccess(
+            to: AnyHashable("unregistered"),
+            purchaseState: liveState,
+            rememberedState: rememberedState,
+            featureRegistry: registry
+        )
+
+        // Then
+        #expect(hasAccess) // Falls back to hasAnyPurchase on remembered state
+    }
 }

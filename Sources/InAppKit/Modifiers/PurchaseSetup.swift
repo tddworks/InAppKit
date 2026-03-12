@@ -24,6 +24,8 @@ public class PurchaseSetup {
     internal var privacyBuilder: (() -> AnyView)?
     internal var termsURL: URL?
     internal var privacyURL: URL?
+    internal var memoryBackend: MemoryBackend?
+    internal var gracePeriod: GracePeriod?
 
     public init() {}
 
@@ -41,6 +43,14 @@ public class PurchaseSetup {
 
     public func withPurchases(products: [ProductDefinition]) -> PurchaseSetup {
         self.products.append(contentsOf: products)
+        return self
+    }
+
+    // MARK: - Subscription Memory Configuration
+
+    public func withSubscriptionMemory(_ backend: MemoryBackend, gracePeriod: GracePeriod) -> PurchaseSetup {
+        self.memoryBackend = backend
+        self.gracePeriod = gracePeriod
         return self
     }
 
@@ -86,6 +96,9 @@ public class PurchaseSetup {
     // MARK: - Internal
 
     internal func setup() async {
+        if let memoryBackend, let gracePeriod {
+            await InAppKit.shared.configureMemory(backend: memoryBackend, gracePeriod: gracePeriod)
+        }
         await InAppKit.shared.initialize(with: products)
     }
 }
@@ -173,6 +186,10 @@ public struct PurchaseEnabledView<Content: View>: View {
 
     public var body: some View {
         content.modifier(PurchaseSetupModifier(config: config))
+    }
+
+    public func withSubscriptionMemory(_ backend: MemoryBackend, gracePeriod: GracePeriod) -> PurchaseEnabledView<Content> {
+        PurchaseEnabledView(content: content, config: config.withSubscriptionMemory(backend, gracePeriod: gracePeriod))
     }
 
     public func withPaywall<PaywallContent: View>(@ViewBuilder _ builder: @escaping (PaywallContext) -> PaywallContent) -> PurchaseEnabledView<Content> {

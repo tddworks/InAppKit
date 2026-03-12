@@ -29,7 +29,7 @@ public class InAppKit {
 
     // MARK: - Subscription Memory
 
-    private var memoryStore: (any SubscriptionMemoryStore)?
+    private var memoryRepository: (any SubscriptionMemoryRepository)?
     private var subscriptionMemory: SubscriptionMemory = SubscriptionMemory()
     private var gracePeriod: GracePeriod = .none
 
@@ -126,24 +126,24 @@ public class InAppKit {
 
         switch backend {
         case .keychain:
-            self.memoryStore = KeychainMemoryStore()
+            self.memoryRepository = KeychainSubscriptionMemoryRepository()
         case .iCloud:
-            self.memoryStore = CloudMemoryStore()
+            self.memoryRepository = CloudSubscriptionMemoryRepository()
         }
 
         // Load existing memory
-        if let memoryStore {
-            if let memory = try? await memoryStore.load() {
+        if let memoryRepository {
+            if let memory = try? await memoryRepository.load() {
                 self.subscriptionMemory = memory
             }
         }
     }
 
-    internal func configureMemory(store: any SubscriptionMemoryStore, gracePeriod: GracePeriod) async {
+    internal func configureMemory(repository: any SubscriptionMemoryRepository, gracePeriod: GracePeriod) async {
         self.gracePeriod = gracePeriod
-        self.memoryStore = store
+        self.memoryRepository = repository
 
-        if let memory = try? await store.load() {
+        if let memory = try? await repository.load() {
             self.subscriptionMemory = memory
         }
     }
@@ -282,16 +282,16 @@ public class InAppKit {
             purchaseState = PurchaseState(purchasedProductIDs: purchased)
 
             // Update subscription memory with active purchases
-            if let memoryStore, gracePeriod.duration > 0, !purchased.isEmpty {
+            if let memoryRepository, gracePeriod.duration > 0, !purchased.isEmpty {
                 subscriptionMemory = subscriptionMemory
                     .withRemembered(purchased, at: Date(), gracePeriod: gracePeriod.duration)
-                try? await memoryStore.save(subscriptionMemory)
+                try? await memoryRepository.save(subscriptionMemory)
             }
         } catch {
             // On StoreKit failure, load from memory as fallback
             Logger.statistics.error("Failed to refresh purchases: \(error.localizedDescription)")
-            if let memoryStore {
-                if let memory = try? await memoryStore.load() {
+            if let memoryRepository {
+                if let memory = try? await memoryRepository.load() {
                     subscriptionMemory = memory
                 }
             }

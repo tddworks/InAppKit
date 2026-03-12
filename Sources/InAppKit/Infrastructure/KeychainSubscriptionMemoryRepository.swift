@@ -1,15 +1,15 @@
 //
-//  KeychainMemoryStore.swift
+//  KeychainSubscriptionMemoryRepository.swift
 //  InAppKit
 //
-//  Keychain-backed subscription memory store.
+//  Keychain-backed subscription memory repository.
 //  Survives app reinstalls, device-only (not synced).
 //
 
 import Foundation
 import Security
 
-public final class KeychainMemoryStore: SubscriptionMemoryStore, @unchecked Sendable {
+public final class KeychainSubscriptionMemoryRepository: SubscriptionMemoryRepository, @unchecked Sendable {
 
     private let service = "com.inappkit.subscription-memory"
     private let account = "subscription-memory"

@@ -1,14 +1,14 @@
 //
-//  CloudMemoryStore.swift
+//  CloudSubscriptionMemoryRepository.swift
 //  InAppKit
 //
-//  iCloud KVS-backed subscription memory store.
+//  iCloud KVS-backed subscription memory repository.
 //  Syncs across devices via NSUbiquitousKeyValueStore.
 //
 
 import Foundation
 
-public final class CloudMemoryStore: SubscriptionMemoryStore, @unchecked Sendable {
+public final class CloudSubscriptionMemoryRepository: SubscriptionMemoryRepository, @unchecked Sendable {
 
     private let key = "com.inappkit.subscription-memory"
     private let kvStore: NSUbiquitousKeyValueStore

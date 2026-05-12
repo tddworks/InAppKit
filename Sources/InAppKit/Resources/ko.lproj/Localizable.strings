@@ -1,0 +1,106 @@
+/* InAppKit – 한국어 */
+
+/* Paywall – Header */
+"paywall.header.title" = "Pro로 업그레이드";
+"paywall.header.subtitle" = "고급 기능과 프리미엄 지원을 잠금 해제하세요";
+
+/* Paywall – Features */
+"paywall.features.title" = "포함된 항목";
+"paywall.feature.premium.title" = "프리미엄 기능";
+"paywall.feature.premium.subtitle" = "모든 고급 기능에 액세스";
+"paywall.feature.support.title" = "우선 지원";
+"paywall.feature.support.subtitle" = "필요할 때 도움을 받으세요";
+"paywall.feature.updates.title" = "정기적인 업데이트";
+"paywall.feature.updates.subtitle" = "새로운 기능과 개선 사항";
+"paywall.feature.lifetime.title" = "평생 액세스";
+"paywall.feature.lifetime.subtitle" = "한 번 구매하면 평생 사용";
+
+/* Paywall – Actions */
+"paywall.loading" = "제품 로드 중...";
+"paywall.purchase.button" = "%@ 구매";
+"paywall.purchase.processing" = "처리 중...";
+"paywall.purchase.purchased" = "구매됨";
+"paywall.purchase.subscribe" = "구독";
+"paywall.purchase.change_plan" = "플랜 변경";
+"paywall.purchase.buy" = "구매";
+"paywall.purchase.purchase" = "구매";
+"paywall.restore.button" = "구매 복원";
+"paywall.restore.restoring" = "복원 중...";
+"paywall.restore.title" = "복원 상태";
+"paywall.restore.ok" = "확인";
+"paywall.restore.success" = "구매가 성공적으로 복원되었습니다!";
+"paywall.restore.none" = "이전 구매 내역이 없습니다.";
+
+/* Terms & Privacy footer */
+"paywall.terms" = "이용 약관";
+"paywall.privacy" = "개인정보";
+
+/* Terms */
+"terms.title" = "서비스 이용약관";
+"terms.content" = "이 앱을 사용함으로써 서비스 이용약관에 동의합니다.";
+"terms.default.note" = "기본 약관 화면입니다. StoreKit 사용자 정의 API로 약관을 설정하세요.";
+"terms.navigation.title" = "약관";
+
+/* Privacy */
+"privacy.title" = "개인정보 처리방침";
+"privacy.content" = "당사는 귀하의 개인정보를 존중하며 개인정보 보호에 최선을 다합니다.";
+"privacy.default.note" = "기본 개인정보 화면입니다. StoreKit 사용자 정의 API로 정책을 설정하세요.";
+"privacy.navigation.title" = "개인정보";
+
+/* Purchase Types */
+"purchase.subscription.description" = "구독 • 자동 갱신";
+"purchase.lifetime.description" = "1회 구매 • 평생 액세스";
+"purchase.consumable.description" = "소모성 구매";
+"purchase.unknown.description" = "앱 내 구매";
+"purchase.subscription.type" = "구독";
+"purchase.lifetime.type" = "평생";
+"purchase.consumable.type" = "회당";
+"purchase.unknown.type" = "구매";
+
+/* Introductory Offers */
+"purchase.intro.free_trial" = "%@ 무료 체험";
+"purchase.intro.pay_as_you_go_single" = "첫 %2$@ 동안 %1$@";
+"purchase.intro.pay_as_you_go_multiple" = "%2$@%3$@ 동안 %1$@";
+"purchase.intro.pay_upfront_single" = "첫 %2$@ 동안 %1$@";
+"purchase.intro.pay_upfront_multiple" = "첫 %2$@%3$@ 동안 %1$@";
+
+/* Period – Billing style */
+"purchase.period.billing.daily" = "매일";
+"purchase.period.billing.weekly" = "매주";
+"purchase.period.billing.monthly" = "매월";
+"purchase.period.billing.annual" = "매년";
+"purchase.period.billing.day_multiple" = "%@일";
+"purchase.period.billing.week_multiple" = "%@주";
+"purchase.period.billing.month_multiple" = "%@개월";
+"purchase.period.billing.year_multiple" = "%@년";
+"purchase.period.billing.periodic" = "주기적";
+
+/* Period – Descriptive style */
+"purchase.period.descriptive.daily" = "매일";
+"purchase.period.descriptive.weekly" = "매주";
+"purchase.period.descriptive.monthly" = "매월";
+"purchase.period.descriptive.yearly" = "매년";
+"purchase.period.descriptive.day_multiple" = "%@일마다";
+"purchase.period.descriptive.week_multiple" = "%@주마다";
+"purchase.period.descriptive.month_multiple" = "%@개월마다";
+"purchase.period.descriptive.year_multiple" = "%@년마다";
+"purchase.period.descriptive.periodic" = "주기적";
+
+/* Duration */
+"purchase.duration.day_single" = "1일";
+"purchase.duration.day_multiple" = "%@일";
+"purchase.duration.week_single" = "1주";
+"purchase.duration.week_multiple" = "%@주";
+"purchase.duration.month_single" = "1개월";
+"purchase.duration.month_multiple" = "%@개월";
+"purchase.duration.year_single" = "1년";
+"purchase.duration.year_multiple" = "%@년";
+"purchase.duration.unknown" = "%@개 기간";
+
+/* Relative Discounts */
+"discount.percentage" = "%@%% 할인";
+"discount.amount" = "%@ 할인";
+"discount.free_time" = "%@개월 무료";
+
+/* Common */
+"common.close" = "닫기";

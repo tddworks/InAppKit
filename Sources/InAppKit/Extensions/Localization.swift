@@ -9,45 +9,37 @@ import Foundation
 
 // MARK: - Localization Support
 
+private func lookup(_ key: String) -> String? {
+    let appHit = NSLocalizedString(key, bundle: .main, value: "\u{0}", comment: "")
+    if appHit != "\u{0}" { return appHit }
+
+    let libHit = NSLocalizedString(key, bundle: .module, value: "\u{0}", comment: "")
+    if libHit != "\u{0}" { return libHit }
+
+    return nil
+}
+
 func L(_ key: String, comment: String = "") -> String {
-    return NSLocalizedString(key, bundle: Bundle.main, comment: comment)
+    lookup(key) ?? key
 }
 
 func L(_ key: String, _ arguments: CVarArg...) -> String {
-    let format = NSLocalizedString(key, bundle: Bundle.main, comment: "")
-    return String(format: format, arguments: arguments)
+    String(format: lookup(key) ?? key, arguments: arguments)
 }
 
 // MARK: - String Localization Extension
 
 public extension String {
-    /// Localize string with optional fallback value
-    /// - Parameter fallback: Default value to use if localization key is not found
-    /// - Returns: Localized string or fallback if localization failed
+    /// Localize string with optional fallback value.
+    /// Looks up in the host app bundle first (for overrides), then in InAppKit's
+    /// bundled resources, finally falling back to the provided default.
     func localized(fallback: String? = nil) -> String {
-        let localized = NSLocalizedString(self, bundle: Bundle.main, comment: "")
-
-        // If localization failed (returns the key itself), use fallback
-        if localized == self, let fallback = fallback {
-            return fallback
-        }
-
-        return localized
+        lookup(self) ?? fallback ?? self
     }
 
-    /// Localize string with arguments and optional fallback
-    /// - Parameters:
-    ///   - arguments: Arguments for string formatting
-    ///   - fallback: Default value to use if localization key is not found
-    /// - Returns: Formatted localized string or fallback
+    /// Localize string with arguments and optional fallback.
     func localized(_ arguments: CVarArg..., fallback: String? = nil) -> String {
-        let format = NSLocalizedString(self, bundle: Bundle.main, comment: "")
-
-        // If localization failed and fallback provided, use fallback
-        if format == self, let fallback = fallback {
-            return String(format: fallback, arguments: arguments)
-        }
-
+        let format = lookup(self) ?? fallback ?? self
         return String(format: format, arguments: arguments)
     }
 }

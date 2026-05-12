@@ -1,0 +1,106 @@
+/* InAppKit – Tiếng Việt */
+
+/* Paywall – Header */
+"paywall.header.title" = "Nâng cấp lên Pro";
+"paywall.header.subtitle" = "Mở khóa các tính năng nâng cao và hỗ trợ ưu tiên";
+
+/* Paywall – Features */
+"paywall.features.title" = "Bao gồm";
+"paywall.feature.premium.title" = "Tính năng cao cấp";
+"paywall.feature.premium.subtitle" = "Truy cập mọi tính năng nâng cao";
+"paywall.feature.support.title" = "Hỗ trợ ưu tiên";
+"paywall.feature.support.subtitle" = "Nhận hỗ trợ khi bạn cần nhất";
+"paywall.feature.updates.title" = "Cập nhật thường xuyên";
+"paywall.feature.updates.subtitle" = "Tính năng mới và cải tiến";
+"paywall.feature.lifetime.title" = "Truy cập trọn đời";
+"paywall.feature.lifetime.subtitle" = "Mua một lần, dùng mãi mãi";
+
+/* Paywall – Actions */
+"paywall.loading" = "Đang tải sản phẩm...";
+"paywall.purchase.button" = "Mua %@";
+"paywall.purchase.processing" = "Đang xử lý...";
+"paywall.purchase.purchased" = "Đã mua";
+"paywall.purchase.subscribe" = "Đăng ký";
+"paywall.purchase.change_plan" = "Đổi gói";
+"paywall.purchase.buy" = "Mua";
+"paywall.purchase.purchase" = "Mua";
+"paywall.restore.button" = "Khôi phục giao dịch";
+"paywall.restore.restoring" = "Đang khôi phục...";
+"paywall.restore.title" = "Trạng thái khôi phục";
+"paywall.restore.ok" = "OK";
+"paywall.restore.success" = "Đã khôi phục giao dịch thành công!";
+"paywall.restore.none" = "Không tìm thấy giao dịch trước đó.";
+
+/* Terms & Privacy footer */
+"paywall.terms" = "Điều khoản";
+"paywall.privacy" = "Quyền riêng tư";
+
+/* Terms */
+"terms.title" = "Điều khoản dịch vụ";
+"terms.content" = "Bằng việc sử dụng ứng dụng này, bạn đồng ý với các điều khoản dịch vụ của chúng tôi.";
+"terms.default.note" = "Đây là giao diện điều khoản mặc định. Hãy cấu hình điều khoản của riêng bạn thông qua API tùy chỉnh StoreKit.";
+"terms.navigation.title" = "Điều khoản";
+
+/* Privacy */
+"privacy.title" = "Chính sách quyền riêng tư";
+"privacy.content" = "Chúng tôi tôn trọng quyền riêng tư của bạn và cam kết bảo vệ thông tin cá nhân của bạn.";
+"privacy.default.note" = "Đây là giao diện quyền riêng tư mặc định. Hãy cấu hình chính sách của riêng bạn thông qua API tùy chỉnh StoreKit.";
+"privacy.navigation.title" = "Quyền riêng tư";
+
+/* Purchase Types */
+"purchase.subscription.description" = "Đăng ký • Tự động gia hạn";
+"purchase.lifetime.description" = "Mua một lần • Truy cập trọn đời";
+"purchase.consumable.description" = "Giao dịch tiêu hao";
+"purchase.unknown.description" = "Giao dịch trong ứng dụng";
+"purchase.subscription.type" = "Đăng ký";
+"purchase.lifetime.type" = "Trọn đời";
+"purchase.consumable.type" = "Theo lần";
+"purchase.unknown.type" = "Giao dịch";
+
+/* Introductory Offers */
+"purchase.intro.free_trial" = "Dùng thử miễn phí %@";
+"purchase.intro.pay_as_you_go_single" = "%1$@ cho %2$@ đầu tiên";
+"purchase.intro.pay_as_you_go_multiple" = "%1$@ trong %2$@ %3$@";
+"purchase.intro.pay_upfront_single" = "%1$@ cho %2$@ đầu tiên";
+"purchase.intro.pay_upfront_multiple" = "%1$@ cho %2$@ %3$@ đầu tiên";
+
+/* Period – Billing style */
+"purchase.period.billing.daily" = "Hàng ngày";
+"purchase.period.billing.weekly" = "Hàng tuần";
+"purchase.period.billing.monthly" = "Hàng tháng";
+"purchase.period.billing.annual" = "Hàng năm";
+"purchase.period.billing.day_multiple" = "%@ ngày";
+"purchase.period.billing.week_multiple" = "%@ tuần";
+"purchase.period.billing.month_multiple" = "%@ tháng";
+"purchase.period.billing.year_multiple" = "%@ năm";
+"purchase.period.billing.periodic" = "Định kỳ";
+
+/* Period – Descriptive style */
+"purchase.period.descriptive.daily" = "Hàng ngày";
+"purchase.period.descriptive.weekly" = "Hàng tuần";
+"purchase.period.descriptive.monthly" = "Hàng tháng";
+"purchase.period.descriptive.yearly" = "Hàng năm";
+"purchase.period.descriptive.day_multiple" = "Mỗi %@ ngày";
+"purchase.period.descriptive.week_multiple" = "Mỗi %@ tuần";
+"purchase.period.descriptive.month_multiple" = "Mỗi %@ tháng";
+"purchase.period.descriptive.year_multiple" = "Mỗi %@ năm";
+"purchase.period.descriptive.periodic" = "Định kỳ";
+
+/* Duration */
+"purchase.duration.day_single" = "1 ngày";
+"purchase.duration.day_multiple" = "%@ ngày";
+"purchase.duration.week_single" = "1 tuần";
+"purchase.duration.week_multiple" = "%@ tuần";
+"purchase.duration.month_single" = "1 tháng";
+"purchase.duration.month_multiple" = "%@ tháng";
+"purchase.duration.year_single" = "1 năm";
+"purchase.duration.year_multiple" = "%@ năm";
+"purchase.duration.unknown" = "%@ kỳ";
+
+/* Relative Discounts */
+"discount.percentage" = "Tiết kiệm %@%%";
+"discount.amount" = "Tiết kiệm %@";
+"discount.free_time" = "Miễn phí %@ tháng";
+
+/* Common */
+"common.close" = "Đóng";

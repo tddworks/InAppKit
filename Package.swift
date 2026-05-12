@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "InAppKit",
+    defaultLocalization: "en",
     platforms: [
         .macOS(.v15),
         .iOS(.v17),
@@ -24,6 +25,9 @@ let package = Package(
             name: "InAppKit",
             dependencies: [
                 .product(name: "Mockable", package: "Mockable"),
+            ],
+            resources: [
+                .process("Resources"),
             ],
             swiftSettings: [
                 .define("MOCKING", .when(configuration: .debug)),

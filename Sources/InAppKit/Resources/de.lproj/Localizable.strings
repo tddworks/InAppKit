@@ -1,0 +1,106 @@
+/* InAppKit – Deutsch */
+
+/* Paywall – Header */
+"paywall.header.title" = "Auf Pro upgraden";
+"paywall.header.subtitle" = "Erweiterte Funktionen und Premium-Support freischalten";
+
+/* Paywall – Features */
+"paywall.features.title" = "Enthaltene Leistungen";
+"paywall.feature.premium.title" = "Premium-Funktionen";
+"paywall.feature.premium.subtitle" = "Zugriff auf alle erweiterten Funktionen";
+"paywall.feature.support.title" = "Vorrangiger Support";
+"paywall.feature.support.subtitle" = "Hilfe, wenn Sie sie am dringendsten brauchen";
+"paywall.feature.updates.title" = "Regelmäßige Updates";
+"paywall.feature.updates.subtitle" = "Neue Funktionen und Verbesserungen";
+"paywall.feature.lifetime.title" = "Lebenslanger Zugriff";
+"paywall.feature.lifetime.subtitle" = "Einmaliger Kauf, für immer Ihrer";
+
+/* Paywall – Actions */
+"paywall.loading" = "Produkte werden geladen...";
+"paywall.purchase.button" = "Kaufen für %@";
+"paywall.purchase.processing" = "Wird verarbeitet...";
+"paywall.purchase.purchased" = "Gekauft";
+"paywall.purchase.subscribe" = "Abonnieren";
+"paywall.purchase.change_plan" = "Tarif ändern";
+"paywall.purchase.buy" = "Kaufen";
+"paywall.purchase.purchase" = "Kauf";
+"paywall.restore.button" = "Käufe wiederherstellen";
+"paywall.restore.restoring" = "Wird wiederhergestellt...";
+"paywall.restore.title" = "Wiederherstellungsstatus";
+"paywall.restore.ok" = "OK";
+"paywall.restore.success" = "Käufe erfolgreich wiederhergestellt!";
+"paywall.restore.none" = "Keine vorherigen Käufe gefunden.";
+
+/* Terms & Privacy footer */
+"paywall.terms" = "AGB";
+"paywall.privacy" = "Datenschutz";
+
+/* Terms */
+"terms.title" = "Nutzungsbedingungen";
+"terms.content" = "Durch die Nutzung dieser App stimmen Sie unseren Nutzungsbedingungen zu.";
+"terms.default.note" = "Dies ist eine Standardansicht für Nutzungsbedingungen. Passen Sie sie über die StoreKit-Konfigurations-API an.";
+"terms.navigation.title" = "AGB";
+
+/* Privacy */
+"privacy.title" = "Datenschutzerklärung";
+"privacy.content" = "Wir respektieren Ihre Privatsphäre und schützen Ihre persönlichen Daten.";
+"privacy.default.note" = "Dies ist eine Standard-Datenschutzansicht. Passen Sie sie über die StoreKit-Konfigurations-API an.";
+"privacy.navigation.title" = "Datenschutz";
+
+/* Purchase Types */
+"purchase.subscription.description" = "Abonnement • Automatische Verlängerung";
+"purchase.lifetime.description" = "Einmaliger Kauf • Lebenslanger Zugriff";
+"purchase.consumable.description" = "Verbrauchbarer Kauf";
+"purchase.unknown.description" = "In-App-Kauf";
+"purchase.subscription.type" = "Abonnement";
+"purchase.lifetime.type" = "Lebenslang";
+"purchase.consumable.type" = "Pro Nutzung";
+"purchase.unknown.type" = "Kauf";
+
+/* Introductory Offers */
+"purchase.intro.free_trial" = "%@ kostenlos testen";
+"purchase.intro.pay_as_you_go_single" = "%@ für das erste %@";
+"purchase.intro.pay_as_you_go_multiple" = "%@ für %@ %@";
+"purchase.intro.pay_upfront_single" = "%@ für das erste %@";
+"purchase.intro.pay_upfront_multiple" = "%@ für die ersten %@ %@";
+
+/* Period – Billing style */
+"purchase.period.billing.daily" = "Täglich";
+"purchase.period.billing.weekly" = "Wöchentlich";
+"purchase.period.billing.monthly" = "Monatlich";
+"purchase.period.billing.annual" = "Jährlich";
+"purchase.period.billing.day_multiple" = "%@-Tage";
+"purchase.period.billing.week_multiple" = "%@-Wochen";
+"purchase.period.billing.month_multiple" = "%@-Monate";
+"purchase.period.billing.year_multiple" = "%@-Jahre";
+"purchase.period.billing.periodic" = "Periodisch";
+
+/* Period – Descriptive style */
+"purchase.period.descriptive.daily" = "Täglich";
+"purchase.period.descriptive.weekly" = "Wöchentlich";
+"purchase.period.descriptive.monthly" = "Monatlich";
+"purchase.period.descriptive.yearly" = "Jährlich";
+"purchase.period.descriptive.day_multiple" = "Alle %@ Tage";
+"purchase.period.descriptive.week_multiple" = "Alle %@ Wochen";
+"purchase.period.descriptive.month_multiple" = "Alle %@ Monate";
+"purchase.period.descriptive.year_multiple" = "Alle %@ Jahre";
+"purchase.period.descriptive.periodic" = "Periodisch";
+
+/* Duration */
+"purchase.duration.day_single" = "1 Tag";
+"purchase.duration.day_multiple" = "%@ Tage";
+"purchase.duration.week_single" = "1 Woche";
+"purchase.duration.week_multiple" = "%@ Wochen";
+"purchase.duration.month_single" = "1 Monat";
+"purchase.duration.month_multiple" = "%@ Monate";
+"purchase.duration.year_single" = "1 Jahr";
+"purchase.duration.year_multiple" = "%@ Jahre";
+"purchase.duration.unknown" = "%@ Zeiträume";
+
+/* Relative Discounts */
+"discount.percentage" = "Sparen Sie %@%%";
+"discount.amount" = "Sparen Sie %@";
+"discount.free_time" = "%@ Monate kostenlos";
+
+/* Common */
+"common.close" = "Schließen";

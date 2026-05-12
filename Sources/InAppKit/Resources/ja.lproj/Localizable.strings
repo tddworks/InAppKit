@@ -1,0 +1,106 @@
+/* InAppKit – 日本語 */
+
+/* Paywall – Header */
+"paywall.header.title" = "Proにアップグレード";
+"paywall.header.subtitle" = "高度な機能とプレミアムサポートのロックを解除";
+
+/* Paywall – Features */
+"paywall.features.title" = "含まれるもの";
+"paywall.feature.premium.title" = "プレミアム機能";
+"paywall.feature.premium.subtitle" = "すべての高度な機能にアクセス";
+"paywall.feature.support.title" = "優先サポート";
+"paywall.feature.support.subtitle" = "必要なときにサポートを受けられます";
+"paywall.feature.updates.title" = "定期的なアップデート";
+"paywall.feature.updates.subtitle" = "新機能と改善";
+"paywall.feature.lifetime.title" = "永続アクセス";
+"paywall.feature.lifetime.subtitle" = "一度の購入で永久に利用可能";
+
+/* Paywall – Actions */
+"paywall.loading" = "製品を読み込んでいます...";
+"paywall.purchase.button" = "%@を購入";
+"paywall.purchase.processing" = "処理中...";
+"paywall.purchase.purchased" = "購入済み";
+"paywall.purchase.subscribe" = "登録する";
+"paywall.purchase.change_plan" = "プランを変更";
+"paywall.purchase.buy" = "購入";
+"paywall.purchase.purchase" = "購入";
+"paywall.restore.button" = "購入を復元";
+"paywall.restore.restoring" = "復元中...";
+"paywall.restore.title" = "復元ステータス";
+"paywall.restore.ok" = "OK";
+"paywall.restore.success" = "購入が正常に復元されました!";
+"paywall.restore.none" = "以前の購入は見つかりませんでした。";
+
+/* Terms & Privacy footer */
+"paywall.terms" = "利用規約";
+"paywall.privacy" = "プライバシー";
+
+/* Terms */
+"terms.title" = "利用規約";
+"terms.content" = "このアプリを使用することで、利用規約に同意したものとみなされます。";
+"terms.default.note" = "これはデフォルトの利用規約ビューです。StoreKitカスタマイズAPIを使用して独自の規約を設定してください。";
+"terms.navigation.title" = "規約";
+
+/* Privacy */
+"privacy.title" = "プライバシーポリシー";
+"privacy.content" = "私たちはあなたのプライバシーを尊重し、個人情報を保護することをお約束します。";
+"privacy.default.note" = "これはデフォルトのプライバシービューです。StoreKitカスタマイズAPIを使用して独自のポリシーを設定してください。";
+"privacy.navigation.title" = "プライバシー";
+
+/* Purchase Types */
+"purchase.subscription.description" = "サブスクリプション • 自動更新";
+"purchase.lifetime.description" = "一度の購入 • 永続アクセス";
+"purchase.consumable.description" = "消費型購入";
+"purchase.unknown.description" = "アプリ内課金";
+"purchase.subscription.type" = "サブスクリプション";
+"purchase.lifetime.type" = "永続";
+"purchase.consumable.type" = "使い切り";
+"purchase.unknown.type" = "購入";
+
+/* Introductory Offers */
+"purchase.intro.free_trial" = "%@の無料トライアル";
+"purchase.intro.pay_as_you_go_single" = "最初の%2$@は%1$@";
+"purchase.intro.pay_as_you_go_multiple" = "%2$@%3$@間%1$@";
+"purchase.intro.pay_upfront_single" = "最初の%2$@は%1$@";
+"purchase.intro.pay_upfront_multiple" = "最初の%2$@%3$@は%1$@";
+
+/* Period – Billing style */
+"purchase.period.billing.daily" = "毎日";
+"purchase.period.billing.weekly" = "毎週";
+"purchase.period.billing.monthly" = "毎月";
+"purchase.period.billing.annual" = "年額";
+"purchase.period.billing.day_multiple" = "%@日";
+"purchase.period.billing.week_multiple" = "%@週間";
+"purchase.period.billing.month_multiple" = "%@か月";
+"purchase.period.billing.year_multiple" = "%@年";
+"purchase.period.billing.periodic" = "定期";
+
+/* Period – Descriptive style */
+"purchase.period.descriptive.daily" = "毎日";
+"purchase.period.descriptive.weekly" = "毎週";
+"purchase.period.descriptive.monthly" = "毎月";
+"purchase.period.descriptive.yearly" = "毎年";
+"purchase.period.descriptive.day_multiple" = "%@日ごと";
+"purchase.period.descriptive.week_multiple" = "%@週間ごと";
+"purchase.period.descriptive.month_multiple" = "%@か月ごと";
+"purchase.period.descriptive.year_multiple" = "%@年ごと";
+"purchase.period.descriptive.periodic" = "定期";
+
+/* Duration */
+"purchase.duration.day_single" = "1日";
+"purchase.duration.day_multiple" = "%@日間";
+"purchase.duration.week_single" = "1週間";
+"purchase.duration.week_multiple" = "%@週間";
+"purchase.duration.month_single" = "1か月";
+"purchase.duration.month_multiple" = "%@か月";
+"purchase.duration.year_single" = "1年";
+"purchase.duration.year_multiple" = "%@年";
+"purchase.duration.unknown" = "%@期間";
+
+/* Relative Discounts */
+"discount.percentage" = "%@%%お得";
+"discount.amount" = "%@お得";
+"discount.free_time" = "%@か月無料";
+
+/* Common */
+"common.close" = "閉じる";

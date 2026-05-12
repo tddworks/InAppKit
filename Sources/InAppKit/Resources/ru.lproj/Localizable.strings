@@ -1,0 +1,106 @@
+/* InAppKit – Русский */
+
+/* Paywall – Header */
+"paywall.header.title" = "Перейти на Pro";
+"paywall.header.subtitle" = "Откройте расширенные функции и приоритетную поддержку";
+
+/* Paywall – Features */
+"paywall.features.title" = "Что включено";
+"paywall.feature.premium.title" = "Премиум-функции";
+"paywall.feature.premium.subtitle" = "Доступ ко всем расширенным возможностям";
+"paywall.feature.support.title" = "Приоритетная поддержка";
+"paywall.feature.support.subtitle" = "Получайте помощь, когда она нужнее всего";
+"paywall.feature.updates.title" = "Регулярные обновления";
+"paywall.feature.updates.subtitle" = "Новые функции и улучшения";
+"paywall.feature.lifetime.title" = "Пожизненный доступ";
+"paywall.feature.lifetime.subtitle" = "Разовая покупка — навсегда ваша";
+
+/* Paywall – Actions */
+"paywall.loading" = "Загрузка продуктов...";
+"paywall.purchase.button" = "Купить %@";
+"paywall.purchase.processing" = "Обработка...";
+"paywall.purchase.purchased" = "Куплено";
+"paywall.purchase.subscribe" = "Подписаться";
+"paywall.purchase.change_plan" = "Сменить план";
+"paywall.purchase.buy" = "Купить";
+"paywall.purchase.purchase" = "Покупка";
+"paywall.restore.button" = "Восстановить покупки";
+"paywall.restore.restoring" = "Восстановление...";
+"paywall.restore.title" = "Статус восстановления";
+"paywall.restore.ok" = "OK";
+"paywall.restore.success" = "Покупки успешно восстановлены!";
+"paywall.restore.none" = "Предыдущие покупки не найдены.";
+
+/* Terms & Privacy footer */
+"paywall.terms" = "Условия";
+"paywall.privacy" = "Конфиденциальность";
+
+/* Terms */
+"terms.title" = "Условия использования";
+"terms.content" = "Используя это приложение, вы соглашаетесь с нашими условиями использования.";
+"terms.default.note" = "Это стандартный экран условий. Настройте собственные условия через API настройки StoreKit.";
+"terms.navigation.title" = "Условия";
+
+/* Privacy */
+"privacy.title" = "Политика конфиденциальности";
+"privacy.content" = "Мы уважаем вашу конфиденциальность и защищаем ваши персональные данные.";
+"privacy.default.note" = "Это стандартный экран конфиденциальности. Настройте собственную политику через API настройки StoreKit.";
+"privacy.navigation.title" = "Конфиденциальность";
+
+/* Purchase Types */
+"purchase.subscription.description" = "Подписка • Автоматическое продление";
+"purchase.lifetime.description" = "Разовая покупка • Пожизненный доступ";
+"purchase.consumable.description" = "Расходуемая покупка";
+"purchase.unknown.description" = "Покупка в приложении";
+"purchase.subscription.type" = "Подписка";
+"purchase.lifetime.type" = "Пожизненно";
+"purchase.consumable.type" = "За использование";
+"purchase.unknown.type" = "Покупка";
+
+/* Introductory Offers */
+"purchase.intro.free_trial" = "Бесплатный пробный период %@";
+"purchase.intro.pay_as_you_go_single" = "%1$@ за первый %2$@";
+"purchase.intro.pay_as_you_go_multiple" = "%1$@ за %2$@ %3$@";
+"purchase.intro.pay_upfront_single" = "%1$@ за первый %2$@";
+"purchase.intro.pay_upfront_multiple" = "%1$@ за первые %2$@ %3$@";
+
+/* Period – Billing style */
+"purchase.period.billing.daily" = "Ежедневно";
+"purchase.period.billing.weekly" = "Еженедельно";
+"purchase.period.billing.monthly" = "Ежемесячно";
+"purchase.period.billing.annual" = "Ежегодно";
+"purchase.period.billing.day_multiple" = "%@ дн.";
+"purchase.period.billing.week_multiple" = "%@ нед.";
+"purchase.period.billing.month_multiple" = "%@ мес.";
+"purchase.period.billing.year_multiple" = "%@ г.";
+"purchase.period.billing.periodic" = "Периодически";
+
+/* Period – Descriptive style */
+"purchase.period.descriptive.daily" = "Ежедневно";
+"purchase.period.descriptive.weekly" = "Еженедельно";
+"purchase.period.descriptive.monthly" = "Ежемесячно";
+"purchase.period.descriptive.yearly" = "Ежегодно";
+"purchase.period.descriptive.day_multiple" = "Каждые %@ дн.";
+"purchase.period.descriptive.week_multiple" = "Каждые %@ нед.";
+"purchase.period.descriptive.month_multiple" = "Каждые %@ мес.";
+"purchase.period.descriptive.year_multiple" = "Каждые %@ г.";
+"purchase.period.descriptive.periodic" = "Периодически";
+
+/* Duration */
+"purchase.duration.day_single" = "1 день";
+"purchase.duration.day_multiple" = "%@ дн.";
+"purchase.duration.week_single" = "1 неделя";
+"purchase.duration.week_multiple" = "%@ нед.";
+"purchase.duration.month_single" = "1 месяц";
+"purchase.duration.month_multiple" = "%@ мес.";
+"purchase.duration.year_single" = "1 год";
+"purchase.duration.year_multiple" = "%@ г.";
+"purchase.duration.unknown" = "%@ периодов";
+
+/* Relative Discounts */
+"discount.percentage" = "Скидка %@%%";
+"discount.amount" = "Скидка %@";
+"discount.free_time" = "%@ мес. бесплатно";
+
+/* Common */
+"common.close" = "Закрыть";

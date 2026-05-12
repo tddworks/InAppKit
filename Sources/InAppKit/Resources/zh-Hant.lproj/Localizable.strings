@@ -1,0 +1,106 @@
+/* InAppKit – 繁體中文 */
+
+/* Paywall – Header */
+"paywall.header.title" = "升級至 Pro";
+"paywall.header.subtitle" = "解鎖進階功能與優先支援";
+
+/* Paywall – Features */
+"paywall.features.title" = "內含項目";
+"paywall.feature.premium.title" = "進階功能";
+"paywall.feature.premium.subtitle" = "享用所有進階功能";
+"paywall.feature.support.title" = "優先支援";
+"paywall.feature.support.subtitle" = "在你最需要時取得協助";
+"paywall.feature.updates.title" = "定期更新";
+"paywall.feature.updates.subtitle" = "全新功能與持續改進";
+"paywall.feature.lifetime.title" = "終身使用";
+"paywall.feature.lifetime.subtitle" = "一次購買,永久使用";
+
+/* Paywall – Actions */
+"paywall.loading" = "正在載入產品...";
+"paywall.purchase.button" = "購買 %@";
+"paywall.purchase.processing" = "處理中...";
+"paywall.purchase.purchased" = "已購買";
+"paywall.purchase.subscribe" = "訂閱";
+"paywall.purchase.change_plan" = "變更方案";
+"paywall.purchase.buy" = "購買";
+"paywall.purchase.purchase" = "購買";
+"paywall.restore.button" = "回復購買";
+"paywall.restore.restoring" = "正在回復...";
+"paywall.restore.title" = "回復狀態";
+"paywall.restore.ok" = "好";
+"paywall.restore.success" = "購買已成功回復!";
+"paywall.restore.none" = "找不到之前的購買記錄。";
+
+/* Terms & Privacy footer */
+"paywall.terms" = "條款";
+"paywall.privacy" = "隱私權";
+
+/* Terms */
+"terms.title" = "服務條款";
+"terms.content" = "使用本 App 即代表你同意我們的服務條款。";
+"terms.default.note" = "這是預設的條款檢視。請透過 StoreKit 自訂 API 設定你自己的條款。";
+"terms.navigation.title" = "條款";
+
+/* Privacy */
+"privacy.title" = "隱私權政策";
+"privacy.content" = "我們尊重你的隱私權,並致力於保護你的個人資訊。";
+"privacy.default.note" = "這是預設的隱私權檢視。請透過 StoreKit 自訂 API 設定你自己的政策。";
+"privacy.navigation.title" = "隱私權";
+
+/* Purchase Types */
+"purchase.subscription.description" = "訂閱 • 自動續訂";
+"purchase.lifetime.description" = "一次性購買 • 終身使用";
+"purchase.consumable.description" = "消耗型購買";
+"purchase.unknown.description" = "App 內購買";
+"purchase.subscription.type" = "訂閱";
+"purchase.lifetime.type" = "終身";
+"purchase.consumable.type" = "按次";
+"purchase.unknown.type" = "購買";
+
+/* Introductory Offers */
+"purchase.intro.free_trial" = "%@免費試用";
+"purchase.intro.pay_as_you_go_single" = "首個 %2$@ 僅需 %1$@";
+"purchase.intro.pay_as_you_go_multiple" = "%2$@ 個 %3$@ 僅需 %1$@";
+"purchase.intro.pay_upfront_single" = "首個 %2$@ 僅需 %1$@";
+"purchase.intro.pay_upfront_multiple" = "前 %2$@ 個 %3$@ 僅需 %1$@";
+
+/* Period – Billing style */
+"purchase.period.billing.daily" = "每日";
+"purchase.period.billing.weekly" = "每週";
+"purchase.period.billing.monthly" = "每月";
+"purchase.period.billing.annual" = "每年";
+"purchase.period.billing.day_multiple" = "%@ 天";
+"purchase.period.billing.week_multiple" = "%@ 週";
+"purchase.period.billing.month_multiple" = "%@ 個月";
+"purchase.period.billing.year_multiple" = "%@ 年";
+"purchase.period.billing.periodic" = "週期性";
+
+/* Period – Descriptive style */
+"purchase.period.descriptive.daily" = "每日";
+"purchase.period.descriptive.weekly" = "每週";
+"purchase.period.descriptive.monthly" = "每月";
+"purchase.period.descriptive.yearly" = "每年";
+"purchase.period.descriptive.day_multiple" = "每 %@ 天";
+"purchase.period.descriptive.week_multiple" = "每 %@ 週";
+"purchase.period.descriptive.month_multiple" = "每 %@ 個月";
+"purchase.period.descriptive.year_multiple" = "每 %@ 年";
+"purchase.period.descriptive.periodic" = "週期性";
+
+/* Duration */
+"purchase.duration.day_single" = "1 天";
+"purchase.duration.day_multiple" = "%@ 天";
+"purchase.duration.week_single" = "1 週";
+"purchase.duration.week_multiple" = "%@ 週";
+"purchase.duration.month_single" = "1 個月";
+"purchase.duration.month_multiple" = "%@ 個月";
+"purchase.duration.year_single" = "1 年";
+"purchase.duration.year_multiple" = "%@ 年";
+"purchase.duration.unknown" = "%@ 個週期";
+
+/* Relative Discounts */
+"discount.percentage" = "省 %@%%";
+"discount.amount" = "省 %@";
+"discount.free_time" = "免費 %@ 個月";
+
+/* Common */
+"common.close" = "關閉";

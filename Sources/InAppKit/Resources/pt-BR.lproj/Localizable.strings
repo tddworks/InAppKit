@@ -1,0 +1,106 @@
+/* InAppKit – Português (Brasil) */
+
+/* Paywall – Header */
+"paywall.header.title" = "Atualize para o Pro";
+"paywall.header.subtitle" = "Desbloqueie recursos avançados e suporte premium";
+
+/* Paywall – Features */
+"paywall.features.title" = "O que está incluído";
+"paywall.feature.premium.title" = "Recursos premium";
+"paywall.feature.premium.subtitle" = "Acesso a todos os recursos avançados";
+"paywall.feature.support.title" = "Suporte prioritário";
+"paywall.feature.support.subtitle" = "Receba ajuda quando mais precisar";
+"paywall.feature.updates.title" = "Atualizações frequentes";
+"paywall.feature.updates.subtitle" = "Novos recursos e melhorias";
+"paywall.feature.lifetime.title" = "Acesso vitalício";
+"paywall.feature.lifetime.subtitle" = "Compra única, seu para sempre";
+
+/* Paywall – Actions */
+"paywall.loading" = "Carregando produtos...";
+"paywall.purchase.button" = "Comprar %@";
+"paywall.purchase.processing" = "Processando...";
+"paywall.purchase.purchased" = "Comprado";
+"paywall.purchase.subscribe" = "Assinar";
+"paywall.purchase.change_plan" = "Mudar plano";
+"paywall.purchase.buy" = "Comprar";
+"paywall.purchase.purchase" = "Compra";
+"paywall.restore.button" = "Restaurar compras";
+"paywall.restore.restoring" = "Restaurando...";
+"paywall.restore.title" = "Status da restauração";
+"paywall.restore.ok" = "OK";
+"paywall.restore.success" = "Compras restauradas com sucesso!";
+"paywall.restore.none" = "Nenhuma compra anterior encontrada.";
+
+/* Terms & Privacy footer */
+"paywall.terms" = "Termos";
+"paywall.privacy" = "Privacidade";
+
+/* Terms */
+"terms.title" = "Termos de serviço";
+"terms.content" = "Ao usar este aplicativo, você concorda com os nossos termos de serviço.";
+"terms.default.note" = "Esta é uma visualização padrão dos termos. Configure os seus próprios termos pela API de personalização do StoreKit.";
+"terms.navigation.title" = "Termos";
+
+/* Privacy */
+"privacy.title" = "Política de privacidade";
+"privacy.content" = "Respeitamos a sua privacidade e nos comprometemos a proteger as suas informações pessoais.";
+"privacy.default.note" = "Esta é uma visualização padrão de privacidade. Configure a sua própria política pela API de personalização do StoreKit.";
+"privacy.navigation.title" = "Privacidade";
+
+/* Purchase Types */
+"purchase.subscription.description" = "Assinatura • Renovação automática";
+"purchase.lifetime.description" = "Compra única • Acesso vitalício";
+"purchase.consumable.description" = "Compra consumível";
+"purchase.unknown.description" = "Compra no aplicativo";
+"purchase.subscription.type" = "Assinatura";
+"purchase.lifetime.type" = "Vitalício";
+"purchase.consumable.type" = "Por uso";
+"purchase.unknown.type" = "Compra";
+
+/* Introductory Offers */
+"purchase.intro.free_trial" = "%@ de teste gratuito";
+"purchase.intro.pay_as_you_go_single" = "%@ no primeiro %@";
+"purchase.intro.pay_as_you_go_multiple" = "%@ por %@ %@";
+"purchase.intro.pay_upfront_single" = "%@ no primeiro %@";
+"purchase.intro.pay_upfront_multiple" = "%@ nos primeiros %@ %@";
+
+/* Period – Billing style */
+"purchase.period.billing.daily" = "Diário";
+"purchase.period.billing.weekly" = "Semanal";
+"purchase.period.billing.monthly" = "Mensal";
+"purchase.period.billing.annual" = "Anual";
+"purchase.period.billing.day_multiple" = "%@ dias";
+"purchase.period.billing.week_multiple" = "%@ semanas";
+"purchase.period.billing.month_multiple" = "%@ meses";
+"purchase.period.billing.year_multiple" = "%@ anos";
+"purchase.period.billing.periodic" = "Periódico";
+
+/* Period – Descriptive style */
+"purchase.period.descriptive.daily" = "Diário";
+"purchase.period.descriptive.weekly" = "Semanal";
+"purchase.period.descriptive.monthly" = "Mensal";
+"purchase.period.descriptive.yearly" = "Anual";
+"purchase.period.descriptive.day_multiple" = "A cada %@ dias";
+"purchase.period.descriptive.week_multiple" = "A cada %@ semanas";
+"purchase.period.descriptive.month_multiple" = "A cada %@ meses";
+"purchase.period.descriptive.year_multiple" = "A cada %@ anos";
+"purchase.period.descriptive.periodic" = "Periódico";
+
+/* Duration */
+"purchase.duration.day_single" = "1 dia";
+"purchase.duration.day_multiple" = "%@ dias";
+"purchase.duration.week_single" = "1 semana";
+"purchase.duration.week_multiple" = "%@ semanas";
+"purchase.duration.month_single" = "1 mês";
+"purchase.duration.month_multiple" = "%@ meses";
+"purchase.duration.year_single" = "1 ano";
+"purchase.duration.year_multiple" = "%@ anos";
+"purchase.duration.unknown" = "%@ períodos";
+
+/* Relative Discounts */
+"discount.percentage" = "Economize %@%%";
+"discount.amount" = "Economize %@";
+"discount.free_time" = "%@ meses grátis";
+
+/* Common */
+"common.close" = "Fechar";

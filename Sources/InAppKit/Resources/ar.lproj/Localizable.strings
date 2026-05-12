@@ -1,0 +1,106 @@
+/* InAppKit – العربية */
+
+/* Paywall – Header */
+"paywall.header.title" = "الترقية إلى Pro";
+"paywall.header.subtitle" = "افتح الميزات المتقدمة والدعم المميز";
+
+/* Paywall – Features */
+"paywall.features.title" = "ما يشمله الاشتراك";
+"paywall.feature.premium.title" = "الميزات المميزة";
+"paywall.feature.premium.subtitle" = "الوصول إلى جميع الميزات المتقدمة";
+"paywall.feature.support.title" = "دعم ذو أولوية";
+"paywall.feature.support.subtitle" = "احصل على المساعدة عندما تحتاج إليها";
+"paywall.feature.updates.title" = "تحديثات منتظمة";
+"paywall.feature.updates.subtitle" = "ميزات جديدة وتحسينات مستمرة";
+"paywall.feature.lifetime.title" = "وصول مدى الحياة";
+"paywall.feature.lifetime.subtitle" = "شراء لمرة واحدة، يدوم إلى الأبد";
+
+/* Paywall – Actions */
+"paywall.loading" = "جارٍ تحميل المنتجات...";
+"paywall.purchase.button" = "شراء %@";
+"paywall.purchase.processing" = "جارٍ المعالجة...";
+"paywall.purchase.purchased" = "تم الشراء";
+"paywall.purchase.subscribe" = "اشترك";
+"paywall.purchase.change_plan" = "تغيير الخطة";
+"paywall.purchase.buy" = "شراء";
+"paywall.purchase.purchase" = "شراء";
+"paywall.restore.button" = "استعادة المشتريات";
+"paywall.restore.restoring" = "جارٍ الاستعادة...";
+"paywall.restore.title" = "حالة الاستعادة";
+"paywall.restore.ok" = "موافق";
+"paywall.restore.success" = "تمت استعادة المشتريات بنجاح!";
+"paywall.restore.none" = "لم يتم العثور على مشتريات سابقة.";
+
+/* Terms & Privacy footer */
+"paywall.terms" = "الشروط";
+"paywall.privacy" = "الخصوصية";
+
+/* Terms */
+"terms.title" = "شروط الخدمة";
+"terms.content" = "باستخدام هذا التطبيق، فإنك توافق على شروط الخدمة الخاصة بنا.";
+"terms.default.note" = "هذه واجهة شروط افتراضية. قم بإعداد شروطك الخاصة عبر واجهة برمجة تطبيقات تخصيص StoreKit.";
+"terms.navigation.title" = "الشروط";
+
+/* Privacy */
+"privacy.title" = "سياسة الخصوصية";
+"privacy.content" = "نحن نحترم خصوصيتك ونلتزم بحماية معلوماتك الشخصية.";
+"privacy.default.note" = "هذه واجهة خصوصية افتراضية. قم بإعداد سياستك الخاصة عبر واجهة برمجة تطبيقات تخصيص StoreKit.";
+"privacy.navigation.title" = "الخصوصية";
+
+/* Purchase Types */
+"purchase.subscription.description" = "اشتراك • تجديد تلقائي";
+"purchase.lifetime.description" = "شراء لمرة واحدة • وصول مدى الحياة";
+"purchase.consumable.description" = "شراء قابل للاستهلاك";
+"purchase.unknown.description" = "شراء داخل التطبيق";
+"purchase.subscription.type" = "اشتراك";
+"purchase.lifetime.type" = "مدى الحياة";
+"purchase.consumable.type" = "لكل استخدام";
+"purchase.unknown.type" = "شراء";
+
+/* Introductory Offers */
+"purchase.intro.free_trial" = "تجربة مجانية لمدة %@";
+"purchase.intro.pay_as_you_go_single" = "%1$@ لأول %2$@";
+"purchase.intro.pay_as_you_go_multiple" = "%1$@ لمدة %2$@ %3$@";
+"purchase.intro.pay_upfront_single" = "%1$@ لأول %2$@";
+"purchase.intro.pay_upfront_multiple" = "%1$@ لأول %2$@ %3$@";
+
+/* Period – Billing style */
+"purchase.period.billing.daily" = "يومي";
+"purchase.period.billing.weekly" = "أسبوعي";
+"purchase.period.billing.monthly" = "شهري";
+"purchase.period.billing.annual" = "سنوي";
+"purchase.period.billing.day_multiple" = "%@ أيام";
+"purchase.period.billing.week_multiple" = "%@ أسابيع";
+"purchase.period.billing.month_multiple" = "%@ أشهر";
+"purchase.period.billing.year_multiple" = "%@ سنوات";
+"purchase.period.billing.periodic" = "دوري";
+
+/* Period – Descriptive style */
+"purchase.period.descriptive.daily" = "يومي";
+"purchase.period.descriptive.weekly" = "أسبوعي";
+"purchase.period.descriptive.monthly" = "شهري";
+"purchase.period.descriptive.yearly" = "سنوي";
+"purchase.period.descriptive.day_multiple" = "كل %@ أيام";
+"purchase.period.descriptive.week_multiple" = "كل %@ أسابيع";
+"purchase.period.descriptive.month_multiple" = "كل %@ أشهر";
+"purchase.period.descriptive.year_multiple" = "كل %@ سنوات";
+"purchase.period.descriptive.periodic" = "دوري";
+
+/* Duration */
+"purchase.duration.day_single" = "يوم واحد";
+"purchase.duration.day_multiple" = "%@ أيام";
+"purchase.duration.week_single" = "أسبوع واحد";
+"purchase.duration.week_multiple" = "%@ أسابيع";
+"purchase.duration.month_single" = "شهر واحد";
+"purchase.duration.month_multiple" = "%@ أشهر";
+"purchase.duration.year_single" = "سنة واحدة";
+"purchase.duration.year_multiple" = "%@ سنوات";
+"purchase.duration.unknown" = "%@ فترات";
+
+/* Relative Discounts */
+"discount.percentage" = "وفّر %@%%";
+"discount.amount" = "وفّر %@";
+"discount.free_time" = "%@ أشهر مجانًا";
+
+/* Common */
+"common.close" = "إغلاق";

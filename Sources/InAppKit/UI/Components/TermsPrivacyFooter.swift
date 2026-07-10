@@ -14,6 +14,7 @@ public struct TermsPrivacyFooter: View {
     @Environment(\.privacyBuilder) private var privacyBuilder
     @Environment(\.termsURL) private var termsURL
     @Environment(\.privacyURL) private var privacyURL
+    @Environment(\.openURL) private var openURL
     @State private var showTerms = false
     @State private var showPrivacy = false
 
@@ -22,7 +23,7 @@ public struct TermsPrivacyFooter: View {
     public var body: some View {
         HStack(spacing: 4) {
             Button("paywall.terms".localized(fallback: "Terms")) {
-                showTerms = true
+                openLegal(url: termsURL, showSheet: $showTerms)
             }
             .font(.system(size: 11, weight: .regular))
             .foregroundColor(.secondary)
@@ -33,7 +34,7 @@ public struct TermsPrivacyFooter: View {
                 .foregroundColor(.secondary.opacity(0.6))
 
             Button("paywall.privacy".localized(fallback: "Privacy")) {
-                showPrivacy = true
+                openLegal(url: privacyURL, showSheet: $showPrivacy)
             }
             .font(.system(size: 11, weight: .regular))
             .foregroundColor(.secondary)
@@ -58,6 +59,19 @@ public struct TermsPrivacyFooter: View {
                 DefaultPrivacyView()
             }
         }
+    }
+
+    /// On macOS, open a provided URL directly in the default browser to avoid an
+    /// awkward intermediate confirmation sheet. On other platforms (and when no
+    /// URL is configured), present the in-app sheet instead.
+    private func openLegal(url: URL?, showSheet: Binding<Bool>) {
+        #if os(macOS)
+        if let url {
+            openURL(url)
+            return
+        }
+        #endif
+        showSheet.wrappedValue = true
     }
 }
 
@@ -107,6 +121,7 @@ public struct TermsButton: View {
     let title: String
     @Environment(\.termsBuilder) private var termsBuilder
     @Environment(\.termsURL) private var termsURL
+    @Environment(\.openURL) private var openURL
     @State private var showTerms = false
 
     public init(_ title: String = "Terms") {
@@ -115,6 +130,12 @@ public struct TermsButton: View {
 
     public var body: some View {
         Button(title) {
+            #if os(macOS)
+            if let termsURL {
+                openURL(termsURL)
+                return
+            }
+            #endif
             showTerms = true
         }
         .sheet(isPresented: $showTerms) {
@@ -133,6 +154,7 @@ public struct PrivacyButton: View {
     let title: String
     @Environment(\.privacyBuilder) private var privacyBuilder
     @Environment(\.privacyURL) private var privacyURL
+    @Environment(\.openURL) private var openURL
     @State private var showPrivacy = false
 
     public init(_ title: String = "Privacy") {
@@ -141,6 +163,12 @@ public struct PrivacyButton: View {
 
     public var body: some View {
         Button(title) {
+            #if os(macOS)
+            if let privacyURL {
+                openURL(privacyURL)
+                return
+            }
+            #endif
             showPrivacy = true
         }
         .sheet(isPresented: $showPrivacy) {

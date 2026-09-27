@@ -104,3 +104,8 @@
 
 /* Common */
 "common.close" = "Đóng";
+
+/* Paywall – Purchased state */
+"paywall.purchased.title" = "Đã sẵn sàng";
+"paywall.purchased.subtitle" = "Tất cả tính năng cao cấp đã được mở khóa.";
+"paywall.purchased.manage" = "Quản lý gói đăng ký";

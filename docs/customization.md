@@ -610,6 +610,20 @@ ContentView()
     }
 ```
 
+### Purchased State
+
+By default the paywall keeps showing product cards and the purchase button to users who already own a product. Configure what owners see instead — the header and features stay, the plans, prices and purchase button are replaced:
+
+```swift
+ContentView()
+    .withPurchases(products: [...])
+    .withPaywallFeatures { MyFeaturesView() }
+    // Built-in "You're all set" card with owned plan and Manage Subscription (iOS)
+    .withPaywallPurchased()
+    // …or your own view
+    .withPaywallPurchased { MyProActiveView() }
+```
+
 ## Advanced Configuration
 
 ### Feature-Specific Paywalls

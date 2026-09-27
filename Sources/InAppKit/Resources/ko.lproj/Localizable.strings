@@ -104,3 +104,8 @@
 
 /* Common */
 "common.close" = "닫기";
+
+/* Paywall – Purchased state */
+"paywall.purchased.title" = "모든 준비 완료";
+"paywall.purchased.subtitle" = "모든 프리미엄 기능이 잠금 해제되었습니다.";
+"paywall.purchased.manage" = "구독 관리";

@@ -104,3 +104,8 @@
 
 /* Common */
 "common.close" = "关闭";
+
+/* Paywall – Purchased state */
+"paywall.purchased.title" = "一切就绪";
+"paywall.purchased.subtitle" = "所有高级功能均已解锁。";
+"paywall.purchased.manage" = "管理订阅";

@@ -14,6 +14,7 @@ public struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.paywallHeaderBuilder) private var paywallHeaderBuilder
     @Environment(\.paywallFeaturesBuilder) private var paywallFeaturesBuilder
+    @Environment(\.paywallPurchasedBuilder) private var paywallPurchasedBuilder
     @State private var selectedProduct: Product?
     @State private var isRestoring = false
     @State private var showRestoreAlert = false
@@ -22,6 +23,11 @@ public struct PaywallView: View {
     @State private var animationOpacity: Double = 0
     
     public init() {}
+
+    /// Owners see the configured purchased content instead of prices and the purchase button.
+    private var purchasedContent: (() -> AnyView)? {
+        inAppKit.hasAnyPurchase ? paywallPurchasedBuilder : nil
+    }
     
     public var body: some View {
         VStack(spacing: 0) {
@@ -50,7 +56,11 @@ public struct PaywallView: View {
                             .opacity(animationOpacity)
                     }
 
-                    if inAppKit.availableProducts.isEmpty {
+                    if let purchasedContent {
+                        purchasedContent()
+                            .offset(y: animationOffset)
+                            .opacity(animationOpacity)
+                    } else if inAppKit.availableProducts.isEmpty {
                         loadingSection
                     } else {
                         productCardsSection
@@ -76,7 +86,7 @@ public struct PaywallView: View {
             )
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 // Fixed bottom section: purchase button and restore button
-                if !inAppKit.availableProducts.isEmpty {
+                if purchasedContent == nil && !inAppKit.availableProducts.isEmpty {
                     fixedBottomSection
                         .offset(y: animationOffset)
                         .opacity(animationOpacity)

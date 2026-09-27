@@ -154,6 +154,8 @@ public class PurchaseSetup {
     public func withPaywall<Content: View>(@ViewBuilder _ builder: @escaping (PaywallContext) -> Content) -> PurchaseSetup
     public func withPaywallHeader<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseSetup
     public func withPaywallFeatures<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseSetup
+    public func withPaywallPurchased<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseSetup
+    public func withPaywallPurchased() -> PurchaseSetup
     public func withTerms<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseSetup
     public func withTerms(url: URL) -> PurchaseSetup
     public func withPrivacy<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseSetup
@@ -224,6 +226,8 @@ extension PurchaseEnabledView {
     func withPaywall<Content: View>(@ViewBuilder _ builder: @escaping (PaywallContext) -> Content) -> PurchaseEnabledView<Content>
     func withPaywallHeader<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseEnabledView<Content>
     func withPaywallFeatures<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseEnabledView<Content>
+    func withPaywallPurchased<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseEnabledView<Content>
+    func withPaywallPurchased() -> PurchaseEnabledView<Content>
     func withTerms<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseEnabledView<Content>
     func withTerms(url: URL) -> PurchaseEnabledView<Content>
     func withPrivacy<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseEnabledView<Content>

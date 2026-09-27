@@ -104,3 +104,8 @@
 
 /* Common */
 "common.close" = "Fechar";
+
+/* Paywall – Purchased state */
+"paywall.purchased.title" = "Tudo pronto";
+"paywall.purchased.subtitle" = "Todos os recursos premium estão desbloqueados.";
+"paywall.purchased.manage" = "Gerenciar assinatura";

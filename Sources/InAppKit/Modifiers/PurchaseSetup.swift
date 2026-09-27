@@ -20,6 +20,7 @@ public class PurchaseSetup {
     internal var paywallBuilder: ((PaywallContext) -> AnyView)?
     internal var paywallHeaderBuilder: (() -> AnyView)?
     internal var paywallFeaturesBuilder: (() -> AnyView)?
+    internal var paywallPurchasedBuilder: (() -> AnyView)?
     internal var termsBuilder: (() -> AnyView)?
     internal var privacyBuilder: (() -> AnyView)?
     internal var termsURL: URL?
@@ -59,6 +60,17 @@ public class PurchaseSetup {
     public func withPaywallFeatures<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseSetup {
         paywallFeaturesBuilder = { AnyView(builder()) }
         return self
+    }
+
+    /// Content shown in place of product cards and the purchase button once the user owns any product.
+    public func withPaywallPurchased<Content: View>(@ViewBuilder _ builder: @escaping () -> Content) -> PurchaseSetup {
+        paywallPurchasedBuilder = { AnyView(builder()) }
+        return self
+    }
+
+    /// Use the built-in `PaywallPurchasedView` once the user owns any product.
+    public func withPaywallPurchased() -> PurchaseSetup {
+        withPaywallPurchased { PaywallPurchasedView() }
     }
 
     // MARK: - Legal Configuration
@@ -112,6 +124,10 @@ private struct PaywallFeaturesBuilderKey: EnvironmentKey {
     nonisolated(unsafe) static let defaultValue: (() -> AnyView)? = nil
 }
 
+private struct PaywallPurchasedBuilderKey: EnvironmentKey {
+    nonisolated(unsafe) static let defaultValue: (() -> AnyView)? = nil
+}
+
 private struct TermsURLKey: EnvironmentKey {
     static let defaultValue: URL? = nil
 }
@@ -144,6 +160,11 @@ public extension EnvironmentValues {
     var paywallFeaturesBuilder: (() -> AnyView)? {
         get { self[PaywallFeaturesBuilderKey.self] }
         set { self[PaywallFeaturesBuilderKey.self] = newValue }
+    }
+
+    var paywallPurchasedBuilder: (() -> AnyView)? {
+        get { self[PaywallPurchasedBuilderKey.self] }
+        set { self[PaywallPurchasedBuilderKey.self] = newValue }
     }
 
     var termsURL: URL? {
@@ -202,6 +223,14 @@ public struct PurchaseEnabledView<Content: View>: View {
     public func withPaywallFeatures<FeaturesContent: View>(@ViewBuilder _ builder: @escaping () -> FeaturesContent) -> PurchaseEnabledView<Content> {
         PurchaseEnabledView(content: content, config: config.withPaywallFeatures(builder))
     }
+
+    public func withPaywallPurchased<PurchasedContent: View>(@ViewBuilder _ builder: @escaping () -> PurchasedContent) -> PurchaseEnabledView<Content> {
+        PurchaseEnabledView(content: content, config: config.withPaywallPurchased(builder))
+    }
+
+    public func withPaywallPurchased() -> PurchaseEnabledView<Content> {
+        PurchaseEnabledView(content: content, config: config.withPaywallPurchased())
+    }
 }
 
 // MARK: - Purchase Setup Modifier
@@ -214,6 +243,7 @@ private struct PurchaseSetupModifier: ViewModifier {
             .environment(\.paywallBuilder, config.paywallBuilder)
             .environment(\.paywallHeaderBuilder, config.paywallHeaderBuilder)
             .environment(\.paywallFeaturesBuilder, config.paywallFeaturesBuilder)
+            .environment(\.paywallPurchasedBuilder, config.paywallPurchasedBuilder)
             .environment(\.termsBuilder, config.termsBuilder)
             .environment(\.privacyBuilder, config.privacyBuilder)
             .environment(\.termsURL, config.termsURL)

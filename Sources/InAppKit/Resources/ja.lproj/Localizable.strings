@@ -104,3 +104,8 @@
 
 /* Common */
 "common.close" = "閉じる";
+
+/* Paywall – Purchased state */
+"paywall.purchased.title" = "準備完了";
+"paywall.purchased.subtitle" = "すべてのプレミアム機能がロック解除されています。";
+"paywall.purchased.manage" = "サブスクリプションを管理";

@@ -104,3 +104,8 @@
 
 /* Common */
 "common.close" = "إغلاق";
+
+/* Paywall – Purchased state */
+"paywall.purchased.title" = "كل شيء جاهز";
+"paywall.purchased.subtitle" = "تم فتح جميع الميزات المميزة.";
+"paywall.purchased.manage" = "إدارة الاشتراك";
